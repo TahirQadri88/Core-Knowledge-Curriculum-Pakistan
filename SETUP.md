@@ -22,9 +22,14 @@ What you need: a GitHub account connected to Claude Code, a paid Claude plan tha
 ## 2. Publish the app with GitHub Pages
 
 1. In the repository: **Settings → Pages**.
-2. Source: **Deploy from a branch**. Branch: **main**. Folder: **/docs**. Tap **Save**.
+2. Source: **GitHub Actions**. The workflow in `.github/workflows/pages.yml` does the rest.
 3. After a few minutes the app is live at `https://<your-username>.github.io/ck-ledger/`.
 4. On a phone, open that link and choose **Add to Home Screen**. It works offline after the first visit.
+
+### Branch previews
+Every branch other than `main` is published too, at `https://<your-username>.github.io/ck-ledger/preview/<branch>/`, a few minutes after each push. Slashes and capitals in the branch name become dashes and lower case, so `claude/new-report` is at `preview/claude-new-report/`. The list of all previews is at `.../ck-ledger/preview/`.
+
+A preview has a yellow banner and keeps its own saved data, so testing there never changes the progress in the main app. Test on the preview; when you are happy, merge the branch into `main`. Deleting a branch removes its preview at the next deploy.
 
 ## 3. First Claude Code session
 
@@ -110,7 +115,7 @@ Progress recorded in the earlier claude.ai version of the app lives only in that
 
 | Problem | What to do |
 | --- | --- |
-| GitHub Pages shows 404 | Check Settings → Pages uses branch `main` and folder `/docs`, and that `docs/index.html` exists in the repository. Wait a few minutes after the first publish. |
+| GitHub Pages shows 404 | Check Settings → Pages uses source **GitHub Actions**, and that the latest **Deploy to GitHub Pages** run on the Actions tab is green. Wait a few minutes after the first publish. |
 | Google sign-in fails with "unauthorized domain" | Add `<your-username>.github.io` under Authentication → Settings → Authorized domains. |
 | Sign-in popup does nothing on iPhone home-screen app | Ask Claude Code: `Fall back to signInWithRedirect when the popup is blocked.` |
 | Sync stops with a quota message | A daily free limit was reached; it resets the next day. Ask Claude Code to check for code that writes in a loop. |
@@ -126,7 +131,8 @@ Progress recorded in the earlier claude.ai version of the app lives only in that
 | `src/app.html` | The app: HTML, CSS and JavaScript |
 | `src/data.js` | Core Knowledge units, Oxford series list, character list |
 | `build.py` | Builds `docs/` (the live app) and `build/` (single-file version and zip) |
-| `docs/` | Generated app served by GitHub Pages; do not edit by hand |
+| `docs/` | Generated app (the Pages workflow rebuilds it); do not edit by hand |
+| `.github/workflows/` | Publishes `main` and branch previews to GitHub Pages |
 | `scripts/test_app.py` | Browser smoke test |
 | `scripts/check_links.py` | Checks every unit link on coreknowledge.org |
 | `firebase/firestore.rules` | Draft security rules (test before publishing) |
