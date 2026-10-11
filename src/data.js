@@ -125,7 +125,7 @@ const BOOK_SERIES = [
   { n: "Keyboard", subj: "Computing" },
   { n: "Karwan-e-Urdu", subj: "Urdu" }
 ];
-const BOOK_SUBJECTS = ["English","Urdu","Mathematics","Science","Social Studies","History","Geography","Islamiyat","Qur'an","Computing","Sindhi","Art","Other"];
+const BOOK_SUBJECTS = ["English","Urdu","Mathematics","Science","Social Studies","History","Geography","Islamiyat","Qur'an","Computing","Sindhi","Art","General Knowledge","Other"];
 const SUBJ_TO_CK = { English: ["la"], Science: ["sci"], "Social Studies": ["hg","sci"], History: ["hg"], Geography: ["hg","sci"] };
 
 /* From the article "Things Every Child (4–12) Should Learn — Beyond Just Good Grades" by Abul Laith Muhammad Tahir Qadri */
@@ -166,9 +166,21 @@ const HARVARD = [
   { t: "What Is Executive Function? And How Does It Relate to Child Development?", u: "https://developingchild.harvard.edu/resources/infographics/what-is-executive-function-and-how-does-it-relate-to-child-development/", d: "A one-page infographic to share with the other parent or a teacher." }
 ];
 
-/* A Karachi school's book list for 2026–27, supplied by the owner (printed 15 July 2026): Cambridge Levels I–VI and Matric Grades VII–VIII.
+/* A Karachi school's book list for 2026–27, supplied by the owner (printed 15 July 2026): Nursery (used for KG), Cambridge Levels I–VI and Matric Grades VII–VIII.
    Each row: [title as printed, subject, publisher, ISBN]. The optional dictionary is left out. The list gives no chapters. */
 const SCHOOL_LIST = { name: "School book list 2026–27", classes: {
+  /* KG uses the school's Nursery list (the owner confirmed this on 11 October 2026) */
+  0: [
+    ["New Phonic Language Series 2", "English", "Paragon Publications", ""],
+    ["Phonic Student's Copy 2", "English", "Paragon Publications", ""],
+    ["New Number Concept Series 2", "Mathematics", "Paragon Publications", ""],
+    ["Maths Student's Copy 2", "Mathematics", "Paragon Publications", ""],
+    ["میری اردو کی کتاب (اوّل)", "Urdu", "Paragon Publications", ""],
+    ["اردو کی مشقی کتاب اوّل", "Urdu", "Paragon Publications", ""],
+    ["Kids Culture, Junior", "General Knowledge", "Paragon Publications", ""],
+    ["Rehmani Quaida [Jadeed] (For Class)", "Islamiyat", "Maktaba Barkat-ul-Madina (Bahadurabad)", ""],
+    ["Rehmani Quaida [Jadeed] (For Home)", "Islamiyat", "Maktaba Barkat-ul-Madina (Bahadurabad)", ""]
+  ],
   1: [
     ["Oxford Discover Student Book 1 (2nd Edition)", "English", "Oxford", "9780194053877"],
     ["Oxford Discover Workbook 1 (2nd Edition)", "English", "Oxford", "9780194053891"],

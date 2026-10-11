@@ -43,6 +43,8 @@ After any change: build, run the test, and run the link check if `src/data.js` c
 - Sizes in `rem`, never a fixed `px` font size, so text follows the phone's text-size setting. No horizontal scroll at 200% zoom.
 - Use logical CSS (`padding-inline-start`, `inset-inline-end`, `text-align:start`) instead of left/right, so the planned Urdu (right-to-left) layout mirrors correctly.
 - Messages go through `toast()`, which also announces them to screen readers; pass an undo function for anything destructive.
+- First visit: a two-question setup (child's name and class) adds that class's `SCHOOL_LIST` books; `ui.welcome` controls it. **Add child** reuses the same form. Child details stay folded behind **Edit details**. Say "child", not "student", in anything parents read.
+- **Install app** button: uses Chrome's install prompt when offered, otherwise shows Safari or Chrome steps. Hidden when already installed or in the artifact build.
 - Tabs: School books (first and default), Core Knowledge, Character & deen, Compare, More (Backup and Sources). Keep at most five.
 
 ## Design skills

@@ -95,6 +95,22 @@ async def main():
         check(width200 <= 200, f"No horizontal scroll at 200% zoom ({width200}px)")
         await pg.set_viewport_size({"width": 400, "height": 900}); await pg.wait_for_timeout(100)
 
+        await pg.locator("#installBtn").click(); await pg.wait_for_timeout(100)
+        check(await pg.locator("#installSteps li").count() == 3, "Install app shows home-screen steps when the browser has no prompt")
+        await pg.locator("#installClose").click()
+        check(await pg.locator("#installHelp").is_hidden(), "Install help closes")
+        check(await pg.locator("#childFields").is_hidden(), "Child details stay folded away until Edit details")
+
+        check(await pg.locator("#setupForm").is_visible(), "First visit shows the two-question setup")
+        await pg.fill("#sName", "Aisha"); await pg.select_option("#sGrade", "0")
+        check("9 books" in await pg.inner_text("#sBooksLbl"), "KG offers the 9 Nursery-list books")
+        await pg.select_option("#sGrade", "5"); await pg.locator("#setupForm .btn.primary").click(); await pg.wait_for_timeout(200)
+        check(await pg.locator("#view .ledger").count() == 12 and "Aisha" in await pg.inner_text("#childSum"), "Setup creates the child with all 12 Class 5 books")
+        check(await pg.locator("#setup").is_hidden() and await pg.locator("#studentSel option").count() == 1, "Setup replaces the sample child and closes")
+        await pg.locator("#addStudent").click(); await pg.fill("#sName", "Hamza"); await pg.select_option("#sGrade", "0")
+        await pg.locator("#setupForm .btn.primary").click(); await pg.wait_for_timeout(200)
+        check(await pg.locator("#studentSel option").count() == 2 and await pg.locator("#view .ledger").count() == 9, "Add child adds a second child with the KG books")
+
         width = await pg.evaluate("document.documentElement.scrollWidth")
         check(width <= 400, f"No horizontal scroll at phone width ({width}px)")
         check(not errors, "No JavaScript errors" + (": " + "; ".join(errors) if errors else ""))

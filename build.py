@@ -21,10 +21,14 @@ doc = f"""<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0d6b61">
-<meta name="description" content="Track Core Knowledge K-8 objectives by grade, with sources, for students and parents.">
+<meta name="description" content="Track your child's school books, Core Knowledge units and character goals, chapter by chapter. Works offline.">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="CK Ledger">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon-192.png">
-<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
 {head}
 </head>
 <body>
@@ -35,9 +39,13 @@ doc = f"""<!doctype html>
 open(os.path.join(pwa, "index.html"), "w", encoding="utf-8").write(doc)
 
 manifest = {
+    "id": "./",
     "name": "Core Knowledge Ledger",
     "short_name": "CK Ledger",
-    "description": "Track Core Knowledge K-8 objectives by grade, with sources.",
+    "description": "Track your child's school books, Core Knowledge units and character goals, chapter by chapter. Works offline.",
+    "lang": "en",
+    "categories": ["education", "kids"],
+    "orientation": "portrait",
     "start_url": "./",
     "scope": "./",
     "display": "standalone",
@@ -52,8 +60,8 @@ manifest = {
 json.dump(manifest, open(os.path.join(pwa, "manifest.json"), "w"), indent=2)
 
 sw = """/* Core Knowledge Ledger service worker: cache the app shell for offline use. */
-const CACHE = "ckledger-v5";
-const SHELL = ["./", "./index.html", "./manifest.json", "./icons/icon-192.png", "./icons/icon-512.png"];
+const CACHE = "ckledger-v6";
+const SHELL = ["./", "./index.html", "./manifest.json", "./icons/icon-180.png", "./icons/icon-192.png", "./icons/icon-512.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener("fetch", e => {
@@ -93,6 +101,7 @@ def icon(size, maskable=False):
     return img
 
 icon(192).save(os.path.join(pwa, "icons", "icon-192.png"))
+icon(180, True).save(os.path.join(pwa, "icons", "icon-180.png"))  # iPhone home screen: full-bleed, iOS rounds the corners
 icon(512).save(os.path.join(pwa, "icons", "icon-512.png"))
 icon(512, True).save(os.path.join(pwa, "icons", "icon-maskable-512.png"))
 

@@ -24,7 +24,8 @@ What you need: a GitHub account connected to Claude Code, a paid Claude plan tha
 1. In the repository: **Settings → Pages**.
 2. Source: **GitHub Actions**. The workflow in `.github/workflows/pages.yml` does the rest.
 3. After a few minutes the app is live at `https://<your-username>.github.io/ck-ledger/`.
-4. On a phone, open that link and choose **Add to Home Screen**. It works offline after the first visit.
+4. On a phone, open that link and tap **Install app** at the top. On Android this opens Chrome's install prompt; on iPhone it shows the three Safari steps (Share, then **Add to Home Screen**). It works offline after the first visit.
+5. On the first visit the app asks two questions: the child's name and class. Tap **Start** and that class's school books are added. Use **Add child** for brothers and sisters.
 
 ### Testing a branch before it goes to main
 A push to `main` or to any `claude/...` branch publishes that branch at the same address within a few minutes. The last push is what is live. Test the new feature there, then merge the branch into `main` so `main` matches what is live.

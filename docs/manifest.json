@@ -1,7 +1,14 @@
 {
+  "id": "./",
   "name": "Core Knowledge Ledger",
   "short_name": "CK Ledger",
-  "description": "Track Core Knowledge K-8 objectives by grade, with sources.",
+  "description": "Track your child's school books, Core Knowledge units and character goals, chapter by chapter. Works offline.",
+  "lang": "en",
+  "categories": [
+    "education",
+    "kids"
+  ],
+  "orientation": "portrait",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

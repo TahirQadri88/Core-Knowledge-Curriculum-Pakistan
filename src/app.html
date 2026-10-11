@@ -36,6 +36,7 @@
   :root[data-theme="dark"]{ --muted:#c4d3d0; --line:#668380; --rule:#33494c; --control-line:#9ab3af; --margin:#f07a82 }
 }
 *{box-sizing:border-box}
+[hidden]{display:none !important}
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 @supports (font: -apple-system-body){ html{font:-apple-system-body} }
 body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:1rem;line-height:1.5;margin:0}
@@ -75,6 +76,9 @@ button{cursor:pointer}
 .field.name input{width:12rem;max-width:100%}
 .field.num input{width:5.5rem}
 .hint{font-size:.9rem;color:var(--muted)}
+.child-sum{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between}
+.child-sum p{font-size:1.05rem}
+.setup h2{font-size:1.25rem}
 .example-flag{background:var(--warn-soft);color:var(--warn);border-radius:6px;padding:2px 8px;font-size:.82rem;font-weight:700}
 
 .tabs{display:flex;flex-wrap:wrap;gap:2px;border-bottom:1px solid var(--line)}
@@ -187,16 +191,28 @@ footer{font-size:.85rem;color:var(--muted);max-width:70ch}
   <header class="top">
     <div class="brand">
       <h1>Core Knowledge Ledger</h1>
-      <small>Core Knowledge units, school books and character, tracked by class</small>
+      <small>School books, Core Knowledge and character, for each of your children</small>
     </div>
     <div class="actions">
-      <label class="label" for="studentSel">Student</label>
+      <label class="label" for="studentSel">Child</label>
       <select id="studentSel" class="btn"></select>
-      <button class="btn" id="addStudent">Add student</button>
+      <button class="btn" id="addStudent">Add child</button>
+      <button class="btn primary" id="installBtn" hidden>Install app</button>
     </div>
   </header>
 
-  <section class="student" aria-label="Student details">
+  <section class="panel" id="installHelp" hidden aria-labelledby="installTitle">
+    <h2 id="installTitle">Put the app on your home screen</h2>
+    <ol class="srclist" id="installSteps"></ol>
+    <p class="hint">After that, open it from the home screen icon. It works without internet.</p>
+    <div class="actions"><button class="btn" id="installClose">Close</button></div>
+  </section>
+
+  <section class="panel setup" id="setup" hidden aria-labelledby="setupTitle"></section>
+
+  <section class="student" aria-label="Child details">
+    <div class="child-sum"><p id="childSum"></p><button class="btn small" id="editChild" aria-expanded="false" aria-controls="childFields">Edit details</button></div>
+    <div id="childFields" class="stack-s" hidden>
     <div class="student-row">
       <div class="field name"><label class="label" for="fName">Name</label><input id="fName" maxlength="40"></div>
       <div class="field num"><label class="label" for="fAge">Age</label><input id="fAge" type="number" min="3" max="16"></div>
@@ -206,6 +222,7 @@ footer{font-size:.85rem;color:var(--muted);max-width:70ch}
         <select id="fTrack"><option>Sindh Board</option><option>O Level school</option><option>Homeschool</option><option>Other</option></select></div>
     </div>
     <div class="hint" id="ageHint"></div>
+    </div>
   </section>
 
   <nav class="tabs" role="tablist" aria-label="Sections">
@@ -256,7 +273,8 @@ function sampleState() {
   s.books.push(b); s.status[b.ch[0].id] = { st: "done", d: "2026-06-20" };
   const lv = { "ch-deen-1": 2, "ch-deen-2": 1, "ch-deen-3": 2, "ch-deen-5": 3, "ch-emo-1": 1, "ch-emo-3": 1, "ch-others-2": 2, "ch-others-6": 3, "ch-habits-1": 1 };
   for (const [k, v] of Object.entries(lv)) s.cv[k] = { lv: v, d: "2026-09-01", h: [["2026-08-01", Math.max(0, v - 1)], ["2026-09-01", v]] };
-  return { students: [s], active: s.id, ui: { tab: "books", subj: "all", hideUS: false, q: "", more: "backup" } };
+  s.sample = true;
+  return { students: [s], active: s.id, ui: { tab: "books", subj: "all", hideUS: false, q: "", more: "backup", welcome: true } };
 }
 function valid(d) {
   return d && Array.isArray(d.students) && d.students.length > 0 && d.students.every(s => s && typeof s.id === "string" && typeof s.name === "string"
@@ -348,8 +366,58 @@ function fillStudent() {
   $("#fGrade").innerHTML = GRADE_NAMES.map((n, g) => `<option value="${g}" ${g === st.grade ? "selected" : ""}>${n} (${US_GRADE[g]})</option>`).join("");
   $("#fStart").innerHTML = MONTHS.map((m, i) => `<option value="${i + 1}" ${i + 1 === st.start ? "selected" : ""}>${m}</option>`).join("");
   $("#fTrack").value = st.track || "Sindh Board";
-  ageHint();
+  $("#childSum").innerHTML = `<strong>${esc(st.name)}</strong> · ${GRADE_NAMES[st.grade]}${st.age ? `, age ${st.age}` : ""}${st.example ? ' <span class="example-flag">Sample</span>' : ""}`;
+  ageHint(); renderSetup();
 }
+
+/* ---------- setup: two questions, then the child's school books are ready ---------- */
+function setupMode() { return state.ui.setup ? "add" : state.ui.welcome ? "welcome" : ""; }
+function renderSetup() {
+  const mode = setupMode(), box = $("#setup"); box.hidden = !mode; if (!mode) { box.innerHTML = ""; return; }
+  box.innerHTML = `<h2 id="setupTitle">${mode === "welcome" ? "Assalamu alaikum. Let’s set up your child" : "Add a child"}</h2>
+    ${mode === "welcome" ? `<p class="hint">Two questions. You can change them later, and add more children.</p>` : ""}
+    <form id="setupForm" class="stack-s">
+      <div class="form-grid">
+        <div class="field"><label class="label" for="sName">Child’s name</label><input id="sName" maxlength="40" autocomplete="off" required></div>
+        <div class="field"><label class="label" for="sGrade">Class this year</label><select id="sGrade">${GRADE_NAMES.map((n, g) => `<option value="${g}">${n}</option>`).join("")}</select></div>
+      </div>
+      <label class="check"><input type="checkbox" id="sBooks" checked> <span id="sBooksLbl"></span></label>
+      <div class="actions"><button class="btn primary">Start</button>
+        <button type="button" class="btn" id="setupSkip">${mode === "welcome" ? "Look around first" : "Cancel"}</button></div>
+    </form>`;
+  const g = $("#sGrade"), lbl = () => { const n = (SCHOOL_LIST.classes[+g.value] || []).length;
+    $("#sBooksLbl").textContent = n ? `Add the ${n} books on our school’s ${GRADE_NAMES[+g.value]} list` : "No school list for this class";
+    $("#sBooks").disabled = !n; $("#sBooks").checked = !!n; };
+  g.value = "5"; lbl(); g.addEventListener("change", lbl);
+  $("#setupSkip").addEventListener("click", () => { state.ui.welcome = state.ui.setup = false; save(); renderSetup(); });
+  $("#setupForm").addEventListener("submit", e => { e.preventDefault();
+    const name = $("#sName").value.trim(); if (!name) { $("#sName").focus(); return; }
+    const grade = +g.value, s = newStudent(name, null, grade, false);
+    const list = $("#sBooks").checked ? SCHOOL_LIST.classes[grade] || [] : [];
+    s.books = list.map(([title, subj, pub, isbn]) => ({ id: "b-" + uid(), title, series: "", subj, pub, isbn, cls: grade, ch: [] }));
+    state.students = state.students.filter(x => !x.sample && !x.example).concat(s); state.active = s.id;
+    state.ui.setup = state.ui.welcome = false; state.ui.tab = "books"; viewGrade = bookClass = null; openRows.clear(); save(); fillStudent(); render();
+    toast(list.length ? `${name} is ready, with ${list.length} school books` : `${name} is ready`); $("#view").focus(); });
+  if (mode === "add") $("#sName").focus();
+}
+$("#editChild").addEventListener("click", e => { const f = $("#childFields"); f.hidden = !f.hidden; e.currentTarget.setAttribute("aria-expanded", String(!f.hidden));
+  e.currentTarget.textContent = f.hidden ? "Edit details" : "Done"; if (!f.hidden) $("#fName").focus(); });
+
+/* ---------- install ---------- */
+let installEvt = null;
+const isStandalone = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+const canInstall = () => !!document.querySelector('link[rel="manifest"]') && /^https?:$/.test(location.protocol) && !isStandalone();
+$("#installBtn").hidden = !canInstall();
+addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvt = e; $("#installBtn").hidden = !canInstall(); });
+addEventListener("appinstalled", () => { installEvt = null; $("#installBtn").hidden = true; $("#installHelp").hidden = true; toast("Installed. Open it from your home screen."); });
+$("#installBtn").addEventListener("click", async () => {
+  if (installEvt) { installEvt.prompt(); const r = await installEvt.userChoice.catch(() => null); if (r?.outcome === "accepted") installEvt = null; return; }
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const steps = ios ? ["Open this page in Safari.", "Tap the Share button (a square with an arrow pointing up).", "Scroll down and tap <b>Add to Home Screen</b>, then tap <b>Add</b>."]
+    : ["Open this page in Chrome.", "Tap the menu button (three dots) at the top right.", "Tap <b>Install app</b> or <b>Add to Home screen</b>, then confirm."];
+  $("#installSteps").innerHTML = steps.map(t => `<li>${t}</li>`).join(""); $("#installHelp").hidden = false; $("#installClose").focus();
+});
+$("#installClose").addEventListener("click", () => { $("#installHelp").hidden = true; $("#installBtn").focus(); });
 function ageHint() {
   const st = cur(); const a = parseInt(st.age, 10);
   let h = "";
@@ -359,15 +427,12 @@ function ageHint() {
     if (g !== st.grade) h += ` ${esc(st.name)} is set to ${GRADE_NAMES[st.grade]}; earlier grades still count, so check the ladder on Compare.`;
   } else if (a === 4 || a === 3) h = "Core Knowledge starts at Kindergarten (age 5). The Character & deen tab covers ages 4 to 12.";
   else if (a) h = "Core Knowledge covers ages 5 to 14 (Kindergarten to Grade 8).";
-  if (st.example) h += ` <span class="example-flag">Example data: rename this student, or delete it under More, then Backup.</span>`;
+  if (st.example) h += ` <span class="example-flag">This is a sample child to show how the app works.</span>`;
   $("#ageHint").innerHTML = h;
 }
 $("#studentSel").addEventListener("change", e => { state.active = e.target.value; viewGrade = bookClass = null; openRows.clear(); save(); fillStudent(); render(); });
-$("#addStudent").addEventListener("click", () => {
-  const s = newStudent("Student " + (state.students.length + 1), 7, 2, false);
-  state.students.push(s); state.active = s.id; viewGrade = bookClass = null; save(); fillStudent(); render(); $("#fName").focus(); $("#fName").select();
-});
-$("#fName").addEventListener("input", e => { const st = cur(); st.name = e.target.value || "Student"; st.example = false; save();
+$("#addStudent").addEventListener("click", () => { state.ui.setup = true; save(); renderSetup(); $("#setup").scrollIntoView({ block: "start" }); });
+$("#fName").addEventListener("input", e => { const st = cur(); st.name = e.target.value || "Child"; st.example = false; save();
   const o = $("#studentSel").selectedOptions[0]; if (o) o.textContent = st.name; ageHint(); if (state.ui.tab === "compare") render(); });
 $("#fAge").addEventListener("change", e => { const st = cur(); st.age = parseInt(e.target.value, 10) || null;
   if (st.age >= 5 && st.age <= 13 && Object.keys(st.status).length === 0) { st.grade = Math.min(8, st.age - 5); viewGrade = bookClass = null; fillStudent(); }
@@ -525,7 +590,7 @@ function renderBooks() {
   const exp = expected(st);
   const cards = books.map(b => {
     const s = countList(st, b.ch.map(c => c.id));
-    const ps = cls === st.grade ? paceStatus(s.pct, exp, s.total) : { cls: "plain", txt: GRADE_NAMES[cls] };
+    const ps = !b.ch.length ? { cls: "plain", txt: "No chapters yet" } : cls === st.grade ? paceStatus(s.pct, exp, s.total) : { cls: "plain", txt: GRADE_NAMES[cls] };
     const rows = b.ch.map((c, n) => {
       const x = st.status[c.id]; const done = x?.st === "done"; const sg = suggest(c.t, b.subj, b.cls); const open = openRows.has(c.id);
       return `<li class="row ${done ? "done" : ""}"><div class="row-main">
@@ -549,7 +614,7 @@ function renderBooks() {
   const listed = SCHOOL_LIST.classes[cls] || [];
   const missing = listed.filter(([t]) => !books.some(b => b.title === t));
   const listPanel = missing.length ? `<section class="panel"><h2>${esc(SCHOOL_LIST.name)}: ${GRADE_NAMES[cls]}</h2>
-      <p class="hint">${listed.length} books for ${GRADE_NAMES[cls]} (${cls <= 6 ? "Cambridge Level" : "Matric Grade"} ${["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII"][cls]}): ${[...new Set(listed.map(b => b[2]))].join(", ")}.${missing.length < listed.length ? ` ${listed.length - missing.length} already added.` : ""}</p>
+      <p class="hint">${listed.length} books for ${GRADE_NAMES[cls]} (${cls === 0 ? "the school’s Nursery list" : `${cls <= 6 ? "Cambridge Level" : "Matric Grade"} ${["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII"][cls]}`}): ${[...new Set(listed.map(b => b[2]))].join(", ")}.${missing.length < listed.length ? ` ${listed.length - missing.length} already added.` : ""}</p>
       <ul class="srclist">${missing.map(([t]) => `<li>${esc(t)}</li>`).join("")}</ul>
       <div class="actions"><button class="btn primary" id="addList">Add ${missing.length === listed.length ? "all " : ""}${missing.length} book${missing.length === 1 ? "" : "s"}</button></div></section>` : "";
   $("#view").innerHTML = `<div class="stack">
@@ -663,9 +728,9 @@ function renderCompare() {
   const ladder = GRADE_NAMES.map((n, g) => { const x = stats(st, g, "all");
     return `<div class="ladder-row ${g === st.grade ? "cur" : ""}"><span>${n}${g === st.grade ? " · now" : ""}</span><div class="bar"><i style="width:${P(x.pct)}"></i></div><span class="pct">${P(x.pct)}</span></div>`; }).join("");
   $("#view").innerHTML = `<div class="stack">
-    <section class="panel"><h2>Students this year</h2>
-      <p class="hint">Each student is measured on their own current class. “Expected” assumes a 10-month school year from the start month on the student card (Sindh Board sessions start in April; many O Level schools start in August).</p>
-      <div class="tablewrap"><table><thead><tr><th>Student</th><th>Lang. Arts</th><th>Hist. & Geo</th><th>Science</th><th>CK done / expected</th><th>Pace</th><th>School books</th><th>Habits formed</th><th>Earlier-grade gaps</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <section class="panel"><h2>Children this year</h2>
+      <p class="hint">Each child is measured on their own current class. “Expected” assumes a 10-month school year from the start month in the child’s details (Sindh Board sessions start in April; many O Level schools start in August).</p>
+      <div class="tablewrap"><table><thead><tr><th>Child</th><th>Lang. Arts</th><th>Hist. & Geo</th><th>Science</th><th>CK done / expected</th><th>Pace</th><th>School books</th><th>Habits formed</th><th>Earlier-grade gaps</th></tr></thead><tbody>${rows}</tbody></table></div>
     </section>
     <section class="panel"><h2>${esc(st.name)}: every grade</h2>
       <p class="hint">Core Knowledge is cumulative, so gaps in earlier grades matter. A child who joins in Class 4 can use this ladder to pick the earlier units worth reading first. Skipped units do not count against the percentage.</p>
@@ -698,12 +763,12 @@ function renderBackup() {
       <div class="actions"><button class="btn primary" id="copyBk">Copy backup</button>${canDownload ? '<button class="btn" id="dlBk">Download file</button>' : ""}</div>
     </section>
     <section class="panel"><h2>Restore</h2>
-      <p class="hint">Paste a backup or choose a backup file. Restoring replaces every student on this device.</p>
+      <p class="hint">Paste a backup or choose a backup file. Restoring replaces every child on this device.</p>
       <label class="label" for="imp">Paste backup</label><textarea id="imp" placeholder='{"app":"ckledger", ...}'></textarea>
       <div class="actions"><button class="btn primary" id="doImp">Restore from text</button><label class="btn" for="impFile">Choose file</label><input type="file" id="impFile" accept=".json,application/json" hidden></div>
       <p id="impMsg" class="hint"></p>
     </section>
-    <section class="panel"><h2>Remove a student</h2>
+    <section class="panel"><h2>Remove a child</h2>
       <div class="actions">${state.students.map(s => `<button class="btn small danger" data-del="${s.id}">${esc(s.name)}</button>`).join("")}</div>
       <p id="delMsg" class="hint">Tap a name, then tap it again to confirm.</p>
     </section></div>`;
@@ -721,10 +786,10 @@ function renderBackup() {
   let armed = null;
   document.querySelectorAll("[data-del]").forEach(b => b.addEventListener("click", () => {
     const id = b.dataset.del;
-    if (armed !== id) { armed = id; $("#delMsg").textContent = `Tap “${b.textContent}” again to delete this student and all their progress.`; return; }
+    if (armed !== id) { armed = id; $("#delMsg").textContent = `Tap “${b.textContent}” again to delete this child and all their progress.`; return; }
     state.students = state.students.filter(s => s.id !== id);
-    if (!state.students.length) state.students.push(newStudent("Student 1", 7, 2, false));
-    state.active = state.students[0].id; viewGrade = bookClass = null; save(); fillStudent(); renderBackup(); toast("Student removed");
+    if (!state.students.length) state.students.push(newStudent("Child 1", 7, 2, false));
+    state.active = state.students[0].id; viewGrade = bookClass = null; save(); fillStudent(); renderBackup(); toast("Child removed");
   }));
 }
 
