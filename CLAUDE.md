@@ -39,6 +39,11 @@ After any change: build, run the test, and run the link check if `src/data.js` c
 - Mobile first: must work at 400px wide with no horizontal scroll. Light and dark themes via the CSS tokens at the top of `src/app.html`; no literal colours in components.
 - Keyboard focus visible, every control labelled, `prefers-reduced-motion` respected.
 
+## Design skills
+- `.claude/skills/hig-*`: Apple Human Interface Guidelines skills from HIG Doctor (Raintree Technology, MIT; Apple's reference text in each `references/` folder is © Apple Inc.). Snapshot copied on 11 October 2026 from commit 5e20558.
+- `.claude/apple-design-context.md` tells those skills this is a web PWA for iPhone and Android. Follow it: apply HIG principles through web equivalents, and keep the existing tokens and fonts unless the owner asks for a restyle.
+- For any UI change, check it against the relevant hig-* skill (layout, controls, dialogs, accessibility, dark mode) before reporting it done.
+
 ## Backend (Firebase Spark, free)
 - Plan: `notes/backend-plan.md`. Draft security rules: `firebase/firestore.rules`.
 - Offline-first: localStorage stays the main copy; Firestore sync is added on top and only when signed in. Signed-out use must keep working.

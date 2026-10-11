@@ -103,6 +103,38 @@ Examples:
 
 Pushed changes reach GitHub Pages in a few minutes. Installed phones pick up the new version the next time the app is opened online, because the build bumps the offline cache version.
 
+## 6a. Apple design skills (already installed in this project)
+
+The project includes the 14 Apple Human Interface Guidelines skills from HIG Doctor (Raintree Technology, MIT licence; Apple's guideline text in each `references/` folder is © Apple Inc.). They sit in `.claude/skills/hig-*`, and `.claude/apple-design-context.md` tells them this is a web app for iPhone and Android, so they translate native advice into web code instead of suggesting SwiftUI.
+
+Because they are committed in the repository, they load in every Claude Code session on this repo, including phone and browser (cloud) sessions. Plugins installed with `/plugin` do **not** load in cloud sessions, which is why the skills are copied into the repo.
+
+Use them with prompts like:
+```
+Review the Core Knowledge tab against the hig-foundations, hig-components-layout and
+hig-components-controls skills. List the problems first; change nothing until I approve.
+```
+```
+Check touch targets, dark mode contrast and Dynamic Type-style text scaling against the HIG skills,
+then fix what fails. Keep the existing colour tokens and fonts.
+```
+
+**To add the same skills to another repository from your phone**, open a Claude Code session on that repo and send:
+```
+Clone https://github.com/raintree-technology/hig-doctor, copy every folder in its skills/ directory
+into this repo's .claude/skills/, add its LICENSE as .claude/skills/HIG-DOCTOR-LICENSE.txt,
+then run the hig-project-context skill to create .claude/apple-design-context.md for this project.
+Commit and push.
+```
+
+**On a computer with Claude Code in the terminal** (local sessions only), you can install them as a plugin instead:
+```
+/plugin marketplace add raintree-technology/hig-doctor
+/plugin install apple-hig-skills@apple-hig-skills
+```
+
+**To update** the copies in this repo later: `Replace .claude/skills/hig-* with the latest from raintree-technology/hig-doctor, keep apple-design-context.md, then commit.`
+
 ## 7. Moving existing progress
 
 Progress recorded in the earlier claude.ai version of the app lives only in that browser. To move it:
@@ -137,5 +169,7 @@ Progress recorded in the earlier claude.ai version of the app lives only in that
 | `notes/backend-plan.md` | Firebase design: data model, sync, roles, joining |
 | `notes/decisions.md` | What was verified, where, and when |
 | `notes/background.md` | How the project started and key facts used |
+| `.claude/skills/hig-*` | Apple HIG design skills (HIG Doctor, MIT) |
+| `.claude/apple-design-context.md` | Tells the HIG skills this is a web PWA and what to keep |
 
 Sources: Firebase pricing https://firebase.google.com/pricing · Supabase pricing https://supabase.com/pricing · Claude Code setup https://code.claude.com/docs/en/setup
