@@ -285,7 +285,8 @@ function valid(d) {
 function load() {
   try { const raw = localStorage.getItem(KEY); if (raw) { const d = JSON.parse(raw); if (valid(d)) { d.students.forEach(fix);
     d.ui = Object.assign({ tab:"books", subj:"all", hideUS:false, q:"", more:"backup" }, d.ui || {});
-    if (d.ui.tab === "sources" || d.ui.tab === "backup") { d.ui.more = d.ui.tab; d.ui.tab = "more"; } return d; } } } catch (e) {}
+    if (d.ui.tab === "sources" || d.ui.tab === "backup") { d.ui.more = d.ui.tab; d.ui.tab = "more"; }
+    if (d.ui.welcome === undefined && d.students.length === 1 && d.students[0].example) { d.ui.welcome = true; d.students[0].sample = true; } return d; } } } catch (e) {}
   return sampleState();
 }
 let state = load();
@@ -334,15 +335,15 @@ function paceStatus(pct, exp, total) {
 }
 
 /* chapter -> Core Knowledge suggestions by shared words */
-const STOP = new Set("the and our with about from into your their this that what when where which while there these those unit chapter lesson part book class grade example other some more most over under between around through very have has how why who are was were will can all any each many much such them they then than also only just like make made used using early first life people world great time times story stories".split(" "));
+const STOP = new Set("the and our with about from into your their this that what when where which while there these those unit chapter lesson part book class grade example other some more most over under between around through very have has how why who are was were will can all any each many much such them they then than also only just like make made used using early first life people world great time times story stories different important building system human structure function movement geography culture".split(" "));
 const SYN = { indus: "india", harappa: "india", mohenjo: "india", subcontinent: "india", globe: "maps", atlas: "maps", mapping: "maps" };
 const toks = t => [...new Set(String(t).toLowerCase().replace(/isation/g, "ization").replace(/[^a-z\s]/g, " ").split(/\s+/).map(w => SYN[w] || w).filter(w => w.length >= 4 && !STOP.has(w))
-  .map(w => w.endsWith("ies") ? w.slice(0, -3) + "y" : (w.endsWith("s") && !w.endsWith("ss") && w.length > 4 ? w.slice(0, -1) : w)))];
+  .map(w => w.endsWith("ies") ? w.slice(0, -3) + "y" : (w.endsWith("s") && !w.endsWith("ss") && w.length > 4 ? w.slice(0, -1) : w)).filter(w => !STOP.has(w)))];
 const ITEM_TOKS = new Map(ITEMS.map(i => [i.id, toks(i.title)]));
 const DF = new Map(); ITEM_TOKS.forEach(ts => ts.forEach(w => DF.set(w, (DF.get(w) || 0) + 1)));
 function suggest(title, subj, cls) {
-  const want = SUBJ_TO_CK[subj]; const t = toks(title); if (!t.length) return [];
-  return ITEMS.filter(i => (!want || want.includes(i.s)) && i.strand !== "skills")
+  const want = SUBJ_TO_CK[subj]; const t = toks(title); if (!want || !t.length) return [];
+  return ITEMS.filter(i => want.includes(i.s) && i.strand !== "skills")
     .map(i => { const hit = ITEM_TOKS.get(i.id).filter(w => t.includes(w));
       return { i, n: hit.length, s: hit.reduce((a, w) => a + 1 / Math.sqrt(DF.get(w) || 1), 0) - Math.abs(i.g - cls) * 0.02 }; })
     .filter(x => x.n >= 1 && x.s > 0.15).sort((a, b) => b.s - a.s).slice(0, 2).map(x => x.i);
