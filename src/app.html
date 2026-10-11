@@ -597,10 +597,11 @@ function renderBooks() {
     const ps = !b.ch.length ? { cls: "plain", txt: "No chapters yet" } : cls === st.grade ? paceStatus(s.pct, exp, s.total) : { cls: "plain", txt: GRADE_NAMES[cls] };
     const rows = b.ch.map((c, n) => {
       const head = c.g && c.g !== b.ch[n - 1]?.g ? `<li class="strand label">${esc(c.g)}</li>` : "";
-      const x = st.status[c.id]; const done = x?.st === "done"; const sg = suggest(/^Big Question/.test(c.g || "") ? c.g.replace(/^Big Question \d+ · /, "") : c.t, b.subj, b.cls); // Oxford Discover story titles say little; its Big Question names the topic const open = openRows.has(c.id);
+      const x = st.status[c.id]; const done = x?.st === "done"; // Oxford Discover story titles say little about the topic; its Big Question names it
+      const sg = suggest(/^Big Question/.test(c.g || "") ? c.g.replace(/^Big Question \d+ · /, "") : c.t, b.subj, b.cls); const open = openRows.has(c.id);
       return `${head}<li class="row ${done ? "done" : ""}"><div class="row-main">
         <label class="tick"><input type="checkbox" id="c-${c.id}" data-tick="${c.id}" ${done ? "checked" : ""}></label>
-        <label class="row-title" for="c-${c.id}"><span class="t">${esc(c.t)}</span>
+        <label class="row-title" for="c-${c.id}"><span class="t" dir="auto">${esc(c.t)}</span>
           <span class="meta"><span class="mono muted">${esc(c.n || "Ch. " + (n + 1))}${c.pg ? ` · p. ${c.pg}` : ""}</span>${done && x.d ? `<span class="muted" style="font-size:.8rem">done ${esc(x.d)}</span>` : ""}</span></label>
         <button class="linkbtn" data-open="${c.id}" aria-expanded="${open}" aria-controls="d-${c.id}">${open ? "Hide" : "Edit"}</button></div>
         ${sg.length ? `<div class="sugg"><span class="muted">Background in Core Knowledge:</span>${sg.map(i => `<a href="${esc(i.page || i.guide)}" target="_blank" rel="noopener">${SUBJECTS[i.s].code} ${US_GRADE[i.g]} · ${esc(i.title)}</a>`).join("")}</div>` : ""}
@@ -611,7 +612,7 @@ function renderBooks() {
         : `<li class="empty">No chapters yet. Open the book at its Contents page and type or paste the chapter titles below.</li>`);
     const bc = BOOK_CHAPTERS[b.isbn];
     const srcNote = bc && b.ch.length ? `<p class="hint chsrc">${bc.u ? `Chapters from <a href="${esc(bc.u)}" target="_blank" rel="noopener">Oxford’s free Teaching Guide</a>${bc.ch[0]?.[2] ? ", checked against the printed book" : ""}.` : "Chapters from the printed book’s Contents page."}${bc.check ? ` <span class="pill warn">Please check them against your book’s Contents page</span>` : ""}</p>` : "";
-    return `<section class="ledger"><div class="group-head"><div><h3>${esc(b.title)}</h3><div class="muted" style="font-size:.9rem">${esc(b.subj)}${b.pub ? " · " + esc(b.pub) : b.series ? " · " + esc(b.series) : ""}${b.isbn ? ` · <span class="mono">ISBN ${esc(b.isbn)}</span>` : ""} · ${s.done} of ${s.total} chapters</div></div>
+    return `<section class="ledger"><div class="group-head"><div><h3 dir="auto">${esc(b.title)}</h3><div class="muted" style="font-size:.9rem">${esc(b.subj)}${b.pub ? " · " + esc(b.pub) : b.series ? " · " + esc(b.series) : ""}${b.isbn ? ` · <span class="mono">ISBN ${esc(b.isbn)}</span>` : ""} · ${s.done} of ${s.total} chapters</div></div>
       <div class="actions"><span class="pct">${P(s.pct)}</span><span class="pill ${ps.cls}">${ps.txt}</span></div></div>
       ${srcNote}<ul class="rows">${rows}</ul>
       <form class="add-own" data-addch="${b.id}"><label class="label" for="ac-${b.id}">Add chapters</label>
