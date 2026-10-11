@@ -125,6 +125,11 @@ async def main():
         await pg.locator("#addStudent").click(); await pg.fill("#sName", "Hamza"); await pg.select_option("#sGrade", "0")
         await pg.locator("#setupForm .btn.primary").click(); await pg.wait_for_timeout(200)
         check(await pg.locator("#studentSel option").count() == 2 and await pg.locator("#view .ledger").count() == 9, "Add child adds a second child with the KG books")
+        await pg.locator("#addStudent").click(); await pg.fill("#sName", "Ali"); await pg.select_option("#sGrade", "7")
+        await pg.locator("#setupForm .btn.primary").click(); await pg.wait_for_timeout(200)
+        v7 = await pg.inner_text("#view")
+        check("Striving for peace" in v7 and "Structure of an Atom" in v7 and "Section 2 · History" in v7 and "Entrepreneurial Design Thinking" in v7,
+              "A Class 7 child gets Oxford chapters from the Teaching Guides (English, Science, Social Studies, Keyboard)")
 
         width = await pg.evaluate("document.documentElement.scrollWidth")
         check(width <= 400, f"No horizontal scroll at phone width ({width}px)")
