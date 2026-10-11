@@ -1,12 +1,14 @@
 /* Core Knowledge Ledger service worker: cache the app shell for offline use. */
-const CACHE = "ckledger-v2";
+const PREFIX = "ckledger-";
+const CACHE = PREFIX + "v3";
 const SHELL = ["./", "./index.html", "./manifest.json", "./icons/icon-192.png", "./icons/icon-512.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
-self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
+self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith(PREFIX) && k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener("fetch", e => {
   const req = e.request; if (req.method !== "GET") return;
   const url = new URL(req.url);
-  if (url.origin === location.origin) {
+  // branch previews under ./preview/ have their own service worker
+  if (url.origin === location.origin && !url.pathname.startsWith(new URL("./preview/", self.registration.scope).pathname)) {
     // app files: cache first, refresh in background
     e.respondWith(caches.match(req, { ignoreSearch: true }).then(hit => {
       const net = fetch(req).then(res => { if (res.ok) caches.open(CACHE).then(c => c.put(req, res.clone())); return res; }).catch(() => hit);
