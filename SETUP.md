@@ -26,10 +26,8 @@ What you need: a GitHub account connected to Claude Code, a paid Claude plan tha
 3. After a few minutes the app is live at `https://<your-username>.github.io/ck-ledger/`.
 4. On a phone, open that link and choose **Add to Home Screen**. It works offline after the first visit.
 
-### Branch previews
-Every branch other than `main` is published too, at `https://<your-username>.github.io/ck-ledger/preview/<branch>/`, a few minutes after each push. Slashes and capitals in the branch name become dashes and lower case, so `claude/new-report` is at `preview/claude-new-report/`. The list of all previews is at `.../ck-ledger/preview/`.
-
-A preview has a yellow banner and keeps its own saved data, so testing there never changes the progress in the main app. Test on the preview; when you are happy, merge the branch into `main`. Deleting a branch removes its preview at the next deploy.
+### Testing a branch before it goes to main
+A push to `main` or to any `claude/...` branch publishes that branch at the same address within a few minutes. The last push is what is live. Test the new feature there, then merge the branch into `main` so `main` matches what is live.
 
 ## 3. First Claude Code session
 
@@ -132,7 +130,7 @@ Progress recorded in the earlier claude.ai version of the app lives only in that
 | `src/data.js` | Core Knowledge units, Oxford series list, character list |
 | `build.py` | Builds `docs/` (the live app) and `build/` (single-file version and zip) |
 | `docs/` | Generated app (the Pages workflow rebuilds it); do not edit by hand |
-| `.github/workflows/` | Publishes `main` and branch previews to GitHub Pages |
+| `.github/workflows/pages.yml` | Publishes `main` and `claude/...` branches to GitHub Pages |
 | `scripts/test_app.py` | Browser smoke test |
 | `scripts/check_links.py` | Checks every unit link on coreknowledge.org |
 | `firebase/firestore.rules` | Draft security rules (test before publishing) |

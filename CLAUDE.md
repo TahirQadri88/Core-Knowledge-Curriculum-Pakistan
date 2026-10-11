@@ -13,7 +13,7 @@ Owner: Tahir (Karachi). Users: Pakistani Muslim parents on phones, Sindh Board, 
 - `build.py`: builds `docs/` (installable PWA: index.html, manifest.json, sw.js, icons) and `build/` (single-file artifact.html and a zip).
 - `scripts/test_app.py`: browser smoke test of `docs/`. `scripts/check_links.py`: checks every unit link against coreknowledge.org.
 - `docs/` is generated. Never edit it by hand; edit `src/` and rebuild.
-- GitHub Pages (source: GitHub Actions, `.github/workflows/pages.yml`) runs `build.py` on `main` for the site root and on every other branch with `CK_PREVIEW=<branch-slug>` for `/preview/<branch-slug>/`. Preview builds use their own localStorage key (`ckledger.v1.preview`) and service worker cache, and show a banner. Keep the `const KEY = "ckledger.v1";` line in `src/app.html` exactly as written; `build.py` replaces it for previews.
+- GitHub Pages (source: GitHub Actions, `.github/workflows/pages.yml`) runs `build.py` and publishes `docs/` on every push to `main` or a `claude/**` branch. The last push is live; the owner tests it there and then merges into `main`.
 - `notes/`: background and decisions. Read `notes/decisions.md` before changing data or features.
 - `SETUP.md`: step-by-step setup for GitHub, GitHub Pages, Firebase and Claude Code prompts.
 

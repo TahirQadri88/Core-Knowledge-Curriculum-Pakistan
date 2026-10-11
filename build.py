@@ -2,9 +2,6 @@ import json, os, re, shutil, zipfile
 from PIL import Image, ImageDraw, ImageFont
 
 root = os.path.dirname(os.path.abspath(__file__))
-# CK_PREVIEW=<branch-slug> builds a branch preview: its own saved data, offline cache and a banner,
-# so testing on /preview/<slug>/ never touches the main app on the same site.
-preview = re.sub(r"[^a-z0-9-]+", "-", os.environ.get("CK_PREVIEW", "").lower()).strip("-")
 app = open(os.path.join(root, "src", "app.html"), encoding="utf-8").read()
 data = open(os.path.join(root, "src", "data.js"), encoding="utf-8").read()
 inlined = app.replace("/*__DATA__*/", data)
@@ -18,14 +15,6 @@ os.makedirs(os.path.join(pwa, "icons"))
 # split title/links/style from body for a proper document head
 m = re.search(r"^(.*?</style>)(.*)$", inlined, re.S)
 head, body = m.group(1), m.group(2)
-if preview:
-    key = 'const KEY = "ckledger.v1";'
-    assert key in body, "storage key not found in src/app.html"
-    body = body.replace(key, 'const KEY = "ckledger.v1.preview";')
-    head = head.replace("<title>Core Knowledge Ledger</title>", f"<title>Preview {preview}: Core Knowledge Ledger</title>")
-    body = (f'<div role="note" style="background:var(--warn-soft);color:var(--warn);font-weight:600;'
-            f'padding:8px 16px;text-align:center;overflow-wrap:anywhere">Preview of branch {preview}. '
-            f'Data saved here is separate from the main app.</div>') + body
 doc = f"""<!doctype html>
 <html lang="en">
 <head>
@@ -46,8 +35,8 @@ doc = f"""<!doctype html>
 open(os.path.join(pwa, "index.html"), "w", encoding="utf-8").write(doc)
 
 manifest = {
-    "name": "Core Knowledge Ledger" + (" (Preview)" if preview else ""),
-    "short_name": "CK Preview" if preview else "CK Ledger",
+    "name": "Core Knowledge Ledger",
+    "short_name": "CK Ledger",
     "description": "Track Core Knowledge K-8 objectives by grade, with sources.",
     "start_url": "./",
     "scope": "./",
@@ -63,16 +52,14 @@ manifest = {
 json.dump(manifest, open(os.path.join(pwa, "manifest.json"), "w"), indent=2)
 
 sw = """/* Core Knowledge Ledger service worker: cache the app shell for offline use. */
-const PREFIX = "__PREFIX__";
-const CACHE = PREFIX + "v3";
+const CACHE = "ckledger-v3";
 const SHELL = ["./", "./index.html", "./manifest.json", "./icons/icon-192.png", "./icons/icon-512.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
-self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith(PREFIX) && k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
+self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener("fetch", e => {
   const req = e.request; if (req.method !== "GET") return;
   const url = new URL(req.url);
-  // branch previews under ./preview/ have their own service worker
-  if (url.origin === location.origin && !url.pathname.startsWith(new URL("./preview/", self.registration.scope).pathname)) {
+  if (url.origin === location.origin) {
     // app files: cache first, refresh in background
     e.respondWith(caches.match(req, { ignoreSearch: true }).then(hit => {
       const net = fetch(req).then(res => { if (res.ok) caches.open(CACHE).then(c => c.put(req, res.clone())); return res; }).catch(() => hit);
@@ -84,7 +71,6 @@ self.addEventListener("fetch", e => {
   }
 });
 """
-sw = sw.replace("__PREFIX__", f"ckpreview-{preview}-" if preview else "ckledger-")
 open(os.path.join(pwa, "sw.js"), "w").write(sw)
 
 def icon(size, maskable=False):

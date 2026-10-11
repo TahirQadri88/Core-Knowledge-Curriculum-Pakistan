@@ -1,14 +1,12 @@
-# Publishes main at the site root and every other branch at /preview/<branch>/.
-# Settings > Pages > Source must be "GitHub Actions".
+# Publishes the site from main and from claude/** branches, like the owner's other projects.
+# The last push wins: test a branch on the live address, then merge it into main.
+# Settings > Pages > Source must be "GitHub Actions", and Settings > Environments > github-pages
+# must allow the claude/* branches.
 name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
-  delete:
-  workflow_run:
-    workflows: [Branch pushed]
-    types: [completed]
+    branches: [main, 'claude/**']
   workflow_dispatch:
 
 permissions:
@@ -21,59 +19,21 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - run: pip install pillow
-      - name: Build main and branch previews
-        run: |
-          set -euo pipefail
-          site="$RUNNER_TEMP/site"
-          mkdir -p "$site/preview"
-          git worktree add -q "$RUNNER_TEMP/w-main" origin/main
-          (cd "$RUNNER_TEMP/w-main" && python build.py)
-          cp -r "$RUNNER_TEMP/w-main/docs/." "$site/"
-          list=""
-          for ref in $(git for-each-ref --format='%(refname:short)' refs/remotes/origin); do
-            branch="${ref#origin/}"
-            case "$branch" in main|HEAD|origin) continue ;; esac
-            slug=$(echo "$branch" | tr 'A-Z' 'a-z' | sed -E 's/[^a-z0-9-]+/-/g; s/^-+|-+$//g')
-            dir="$RUNNER_TEMP/w-$slug"
-            git worktree add -q "$dir" "$ref"
-            if [ ! -f "$dir/build.py" ]; then echo "skip $branch: no build.py"; continue; fi
-            if (cd "$dir" && CK_PREVIEW="$slug" python build.py); then
-              mkdir -p "$site/preview/$slug"
-              cp -r "$dir/docs/." "$site/preview/$slug/"
-              list="$list<li><a href=\"$slug/\">$branch</a></li>"
-            else
-              echo "::warning::Build failed for branch $branch; its preview was not updated."
-            fi
-          done
-          cat > "$site/preview/index.html" <<HTML
-          <!doctype html><html lang="en"><head><meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1">
-          <title>Branch previews</title></head>
-          <body style="font-family:system-ui,sans-serif;padding:16px;max-width:640px;margin:auto">
-          <h1>Branch previews</h1><ul>${list:-<li>No branch previews yet.</li>}</ul>
-          <p><a href="../">Main app</a></p></body></html>
-          HTML
-          touch "$site/.nojekyll"
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: ${{ runner.temp }}/site
-
   deploy:
-    needs: build
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pillow
+      - run: python build.py
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+      - uses: actions/deploy-pages@v4
+        id: deployment
