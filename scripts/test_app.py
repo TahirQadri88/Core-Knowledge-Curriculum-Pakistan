@@ -113,7 +113,7 @@ async def main():
         check("Planet SinRota" in view and "Unit 18 · p. 180" in view and "Why do we use money?" in view, "Oxford Discover 5 has its 18 units under the Big Questions")
         check("Part 4 · The Earth and Space" in view and "Unit 9 · p. 99" in view, "Primary Science 5 shows its Parts and page numbers")
         check("Coding Animal Adaptations" in view and "Unit 3 · Data Handling" in view, "Keyboard 5 has its 6 chapters under 4 units")
-        wb = await pg.inner_text(pg.locator(".ledger", has_text="Oxford Discover Workbook 5"))
+        wb = await pg.locator(".ledger", has_text="Oxford Discover Workbook 5").inner_text()
         check("Unit 18 · p. 170" in wb and "Dreaming of Dodos" in wb, "Oxford Discover Workbook 5 has its own page numbers")
         check(await pg.locator(".chsrc").count() == 6 and await pg.locator(".chsrc .pill").count() == 1, "Each loaded chapter list names its source; Mathematics asks for a check")
         check(await pg.locator("#setup").is_hidden() and await pg.locator("#studentSel option").count() == 1, "Setup replaces the sample child and closes")
