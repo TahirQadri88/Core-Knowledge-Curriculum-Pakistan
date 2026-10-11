@@ -1,0 +1,79 @@
+rules_version = '2';
+
+// DRAFT. Test in the Firestore emulator before deploying (see notes/backend-plan.md).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function familyData(f) {
+      return get(/databases/$(database)/documents/families/$(f)).data;
+    }
+
+    function roleIn(f) {
+      return familyData(f).members[request.auth.uid];
+    }
+
+    function isMember(f) {
+      return signedIn() && request.auth.uid in familyData(f).members;
+    }
+
+    function isParent(f) {
+      return isMember(f) && roleIn(f) == 'parent';
+    }
+
+    match /families/{f} {
+
+      // A valid join: the caller adds only themselves, with the role that matches the code they hold.
+      function isJoin() {
+        let before = resource.data;
+        let after = request.resource.data;
+        let uid = request.auth.uid;
+        return !(uid in before.members)
+          && after.diff(before).affectedKeys().hasOnly(['members', 'lastJoin'])
+          && after.members.diff(before.members).affectedKeys().hasOnly([uid])
+          && (
+            (after.lastJoin == before.parentCode && after.members[uid] == 'parent')
+            || (after.lastJoin == before.studentCode && after.members[uid] == 'student')
+          );
+      }
+
+      allow read: if signedIn() && request.auth.uid in resource.data.members;
+
+      allow create: if signedIn()
+        && request.resource.data.owner == request.auth.uid
+        && request.resource.data.members.keys().hasOnly([request.auth.uid])
+        && request.resource.data.members[request.auth.uid] == 'parent'
+        && request.resource.data.parentCode is string && request.resource.data.parentCode.size() >= 10
+        && request.resource.data.studentCode is string && request.resource.data.studentCode.size() >= 10;
+
+      allow update: if signedIn() && (
+        (
+          request.auth.uid in resource.data.members
+          && resource.data.members[request.auth.uid] == 'parent'
+          && request.resource.data.owner == resource.data.owner
+          && resource.data.owner in request.resource.data.members
+          && request.resource.data.members[resource.data.owner] == 'parent'
+          && request.resource.data.parentCode.size() >= 10
+          && request.resource.data.studentCode.size() >= 10
+        )
+        || isJoin()
+      );
+
+      allow delete: if signedIn() && resource.data.owner == request.auth.uid;
+
+      match /students/{s} {
+        allow read: if isMember(f);
+        allow create, delete: if isParent(f);
+        allow update: if isParent(f)
+          || (isMember(f)
+              && roleIn(f) == 'student'
+              && request.resource.data.diff(resource.data).affectedKeys()
+                   .hasOnly(['status', 'notes', 'updatedAt', 'updatedBy'])
+              && request.resource.data.updatedBy == request.auth.uid);
+      }
+    }
+  }
+}

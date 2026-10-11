@@ -1,0 +1,836 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d6b61">
+<meta name="description" content="Track Core Knowledge K-8 objectives by grade, with sources, for students and parents.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>Core Knowledge Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: a ruled exercise-copy ledger. Student card, tabs, then ruled rows with a red margin line. */
+:root{
+  --paper:#f3f6f5; --surface:#ffffff; --ink:#16262a; --muted:#56686c; --line:#d6dfdc; --rule:#e6edeb;
+  --accent:#0d6b61; --accent-ink:#ffffff; --accent-soft:#d6ebe6; --margin:#d9534f;
+  --good:#2c7a3a; --good-soft:#dcefdf; --warn:#9a6411; --warn-soft:#f6e8cf; --bad:#b0262f; --bad-soft:#f7dadc;
+  --info:#3c5a9a; --info-soft:#e0e7f6;
+  --l0:#e6edeb; --l1:#f3dfb4; --l2:#b9dccf; --l3:#0d6b61; --l3-ink:#ffffff;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Source Sans 3", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --paper:#0e1517; --surface:#152023; --ink:#e3ecea; --muted:#9bb0ac; --line:#2a3b3e; --rule:#1d2b2e;
+  --accent:#4cbfae; --accent-ink:#06211d; --accent-soft:#183a35; --margin:#e57873;
+  --good:#6cc47b; --good-soft:#1c3622; --warn:#e2ad55; --warn-soft:#3a2d14; --bad:#f07a82; --bad-soft:#3d1c20;
+  --info:#93adeb; --info-soft:#1f2a44;
+  --l0:#1d2b2e; --l1:#4a3a18; --l2:#245047; --l3:#4cbfae; --l3-ink:#06211d; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --paper:#0e1517; --surface:#152023; --ink:#e3ecea; --muted:#9bb0ac; --line:#2a3b3e; --rule:#1d2b2e;
+  --accent:#4cbfae; --accent-ink:#06211d; --accent-soft:#183a35; --margin:#e57873;
+  --good:#6cc47b; --good-soft:#1c3622; --warn:#e2ad55; --warn-soft:#3a2d14; --bad:#f07a82; --bad-soft:#3d1c20;
+  --info:#93adeb; --info-soft:#1f2a44;
+  --l0:#1d2b2e; --l1:#4a3a18; --l2:#245047; --l3:#4cbfae; --l3-ink:#06211d; color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;margin:0}
+.wrap{max-width:980px;margin:0 auto;padding:16px 16px 48px;display:grid;gap:16px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:1.5rem;font-weight:800;letter-spacing:-.01em}
+h2{font-size:1.15rem;font-weight:800}
+h3{font-size:1rem;font-weight:800}
+p{margin:0}
+a{color:var(--accent)}
+button,select,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.mono{font-family:var(--f-mono);font-size:.78rem;letter-spacing:.02em}
+.muted{color:var(--muted)}
+.label{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.stack{display:grid;gap:14px}
+.stack-s{display:grid;gap:6px}
+
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:12px;justify-content:space-between}
+.brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.brand small{color:var(--muted)}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 12px;font-weight:600}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.small{padding:4px 9px;font-size:.88rem}
+.btn.danger{color:var(--bad)}
+.linkbtn{border:0;background:none;color:var(--accent);font-weight:700;padding:2px 4px;font-size:.88rem;white-space:nowrap}
+
+.student{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:grid;gap:12px}
+.student-row{display:flex;flex-wrap:wrap;gap:12px;align-items:end}
+.field{display:grid;gap:4px;min-width:0}
+.field input,.field select,.field textarea{border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:7px 10px;min-width:0}
+.field.name input{width:12rem;max-width:100%}
+.field.num input{width:5.5rem}
+.hint{font-size:.9rem;color:var(--muted)}
+.example-flag{background:var(--warn-soft);color:var(--warn);border-radius:6px;padding:2px 8px;font-size:.82rem;font-weight:700}
+
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tab{border:0;background:none;padding:8px 11px;font-weight:700;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+
+.grades{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:6px}
+@media (max-width:620px){.grades{grid-template-columns:repeat(5,minmax(0,1fr))}}
+.grade{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 4px 7px;display:grid;gap:3px;justify-items:center;position:relative}
+.grade b{font-family:var(--f-display);font-size:1.05rem}
+.grade span{font-size:.72rem;color:var(--muted)}
+.grade .meter{width:80%;height:4px;background:var(--rule);border-radius:2px;overflow:hidden}
+.grade .meter i{display:block;height:100%;background:var(--accent)}
+.grade[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:var(--accent-soft)}
+.grade .cur{position:absolute;top:-7px;right:-4px;background:var(--accent);color:var(--accent-ink);font-size:.6rem;font-weight:700;border-radius:5px;padding:0 4px;letter-spacing:.04em}
+
+.pace{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.pbox{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;display:grid;gap:6px}
+.pbox-head{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.pbox-head strong{font-family:var(--f-display);font-size:1rem}
+.pct{font-variant-numeric:tabular-nums;font-weight:700}
+.bar{position:relative;height:10px;background:var(--rule);border-radius:5px}
+.bar > i{position:absolute;inset:0 auto 0 0;background:var(--accent);border-radius:5px}
+.bar > em{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);opacity:.55}
+.pill{display:inline-block;font-size:.76rem;font-weight:700;border-radius:999px;padding:1px 9px;white-space:nowrap}
+.pill.good{background:var(--good-soft);color:var(--good)} .pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)} .pill.info{background:var(--info-soft);color:var(--info)}
+.pill.plain{background:var(--rule);color:var(--muted)}
+
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface);flex-wrap:wrap}
+.seg button{border:0;background:none;padding:6px 11px;font-weight:600;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.check{display:inline-flex;gap:6px;align-items:center;font-size:.92rem}
+.search{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 10px;width:12rem;max-width:100%}
+
+.ledger{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.group-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 14px 8px 46px;border-bottom:1px solid var(--line);background:var(--paper);flex-wrap:wrap}
+.rows{list-style:none;margin:0;padding:0;position:relative}
+.rows::before{content:"";position:absolute;top:0;bottom:0;left:36px;width:1px;background:var(--margin);opacity:.45}
+.row{border-bottom:1px solid var(--rule)}
+.row:last-child{border-bottom:0}
+.strand{padding:8px 14px 4px 46px;background:var(--paper);border-bottom:1px solid var(--rule)}
+.row-main{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:10px 14px;align-items:start;padding:9px 12px 9px 6px}
+.row input[type=checkbox]{width:20px;height:20px;margin:2px 0 0 4px;accent-color:var(--accent)}
+.row-title{min-width:0}
+.row-title .t{font-weight:600}
+.row.done .t{text-decoration:line-through;text-decoration-color:var(--muted);color:var(--muted)}
+.row.skip .t{color:var(--muted);font-style:italic}
+.meta{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-top:2px}
+.tag{font-size:.72rem;font-weight:700;border-radius:5px;padding:0 6px;border:1px solid var(--line);color:var(--muted)}
+.tag.islam{border-color:var(--info);color:var(--info)} .tag.us{border-color:var(--warn);color:var(--warn)}
+.tag.book{border-color:var(--bad);color:var(--bad)} .tag.sa{border-color:var(--good);color:var(--good)}
+.details{padding:2px 14px 14px 46px;display:grid;gap:10px;font-size:.95rem}
+.details p{max-width:65ch}
+.src{display:grid;gap:2px}
+.details textarea,.paste{width:100%;min-height:3.2rem;border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:7px 10px;resize:vertical}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.notice{border-left:3px solid var(--info);padding:4px 10px;background:var(--info-soft);border-radius:0 6px 6px 0}
+.notice.us{border-color:var(--warn);background:var(--warn-soft)} .notice.book{border-color:var(--bad);background:var(--bad-soft)}
+.add-own{display:flex;gap:8px;padding:10px 14px 12px 46px;flex-wrap:wrap;align-items:center}
+.add-own input{flex:1 1 14rem;min-width:0;border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:7px 10px}
+.empty{padding:14px 14px 14px 46px;color:var(--muted)}
+.sugg{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:.85rem;margin-top:3px}
+.sugg a{text-decoration:none;border-bottom:1px dotted var(--accent)}
+
+.levels{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;flex-wrap:nowrap}
+.levels button{border:0;background:var(--surface);padding:4px 8px;font-size:.8rem;font-weight:700;color:var(--muted);white-space:nowrap}
+.levels button+button{border-left:1px solid var(--line)}
+.levels button[aria-pressed="true"][data-lv="0"]{background:var(--l0);color:var(--ink)}
+.levels button[aria-pressed="true"][data-lv="1"]{background:var(--l1);color:var(--ink)}
+.levels button[aria-pressed="true"][data-lv="2"]{background:var(--l2);color:var(--ink)}
+.levels button[aria-pressed="true"][data-lv="3"]{background:var(--l3);color:var(--l3-ink)}
+.crow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 14px;align-items:center;padding:10px 12px 10px 46px}
+@media (max-width:560px){.crow{grid-template-columns:minmax(0,1fr)}}
+.trend{font-size:.8rem;font-weight:700}
+.trend.up{color:var(--good)} .trend.down{color:var(--bad)}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:grid;gap:12px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;min-width:640px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--rule);vertical-align:middle}
+th{font-size:.74rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
+.mini{display:inline-block;width:56px;height:6px;background:var(--rule);border-radius:3px;vertical-align:middle;margin-right:6px;overflow:hidden}
+.mini i{display:block;height:100%;background:var(--accent)}
+.ladder{display:grid;gap:6px}
+.ladder-row{display:grid;grid-template-columns:5.5rem minmax(0,1fr) 3.2rem;gap:10px;align-items:center;font-size:.92rem}
+.ladder-row .bar{height:8px}
+.ladder-row.cur{font-weight:700}
+.srclist{display:grid;gap:8px;margin:0;padding-left:1.2rem}
+.backup textarea{width:100%;min-height:9rem;font-family:var(--f-mono);font-size:.78rem;border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:8px}
+.toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:8px 14px;border-radius:8px;font-weight:600;z-index:9}
+.credit{font-size:.9rem;color:var(--muted);max-width:70ch}
+footer{font-size:.85rem;color:var(--muted);max-width:70ch}
+@media (prefers-reduced-motion:no-preference){.bar>i,.grade .meter i,.mini i{transition:width .3s ease}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Core Knowledge Ledger</h1>
+      <small>Core Knowledge units, school books and character, tracked by class</small>
+    </div>
+    <div class="actions">
+      <label class="label" for="studentSel">Student</label>
+      <select id="studentSel" class="btn"></select>
+      <button class="btn" id="addStudent">Add student</button>
+    </div>
+  </header>
+
+  <section class="student" aria-label="Student details">
+    <div class="student-row">
+      <div class="field name"><label class="label" for="fName">Name</label><input id="fName" maxlength="40"></div>
+      <div class="field num"><label class="label" for="fAge">Age</label><input id="fAge" type="number" min="3" max="16"></div>
+      <div class="field"><label class="label" for="fGrade">Current class</label><select id="fGrade"></select></div>
+      <div class="field"><label class="label" for="fStart">School year starts</label><select id="fStart"></select></div>
+      <div class="field"><label class="label" for="fTrack">Track</label>
+        <select id="fTrack"><option>Sindh Board</option><option>O Level school</option><option>Homeschool</option><option>Other</option></select></div>
+    </div>
+    <div class="hint" id="ageHint"></div>
+  </section>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab" role="tab" data-tab="track" id="tab-track">Core Knowledge</button>
+    <button class="tab" role="tab" data-tab="books" id="tab-books">School books</button>
+    <button class="tab" role="tab" data-tab="char" id="tab-char">Character &amp; deen</button>
+    <button class="tab" role="tab" data-tab="compare" id="tab-compare">Compare</button>
+    <button class="tab" role="tab" data-tab="sources" id="tab-sources">Sources</button>
+    <button class="tab" role="tab" data-tab="backup" id="tab-backup">Backup</button>
+  </nav>
+
+  <main id="view"></main>
+
+  <footer>Core Knowledge unit lists and download pages: Core Knowledge Foundation, checked on coreknowledge.org on 11 October 2026. This tracker is independent and not affiliated with the Foundation or with Oxford University Press. Progress is saved on this device only; use Backup to move it.</footer>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+/* Core Knowledge unit data, K–8, plus the Oxford book list and the character list.
+   Unit titles and download pages checked against coreknowledge.org on 11 Oct 2026. */
+const CKU = "https://www.coreknowledge.org/wp-content/uploads/";
+const FR = "https://www.coreknowledge.org/free-resource/";
+const SOURCES = {
+  hg:   { t: "Core Knowledge: History & Geography (unit list and Online Resources)", u: "https://www.coreknowledge.org/history-geography/" },
+  sci:  { t: "Core Knowledge: Science (unit list and Online Resources)", u: "https://www.coreknowledge.org/science/" },
+  la:   { t: "Core Knowledge: Language Arts (Grades 6–8 unit list)", u: "https://www.coreknowledge.org/language-arts/" },
+  llk2: { t: "CKLA Grades K–2: Sequence of Domains in the Listening & Learning Strand (PDF)", u: CKU + "2017/03/AnnotatedLesson_LL_CKLA.pdf" },
+  g3:   { t: "CKLA Grade 3 domain list (RACHEL offline mirror of Core Knowledge materials)", u: "https://rachel.core2learn.org/modules/en-coreknowledge/CoreKnowledgeG3.html" },
+  pages:{ t: "Core Knowledge site index of free unit pages (library sitemap)", u: "https://www.coreknowledge.org/library-sitemap2.xml" },
+  dl:   { t: "Core Knowledge: Download Free Curriculum", u: "https://www.coreknowledge.org/download-free-curriculum/" },
+  home: { t: "Core Knowledge: Homeschoolers (what is free, what is sold)", u: "https://www.coreknowledge.org/homeschoolers/" }
+};
+
+const NOTES = {
+  us: "U.S.-focused unit. Optional for Pakistani families: mark it Skipped, or use the time for Pakistan Studies.",
+  islam: "Written by a secular U.S. publisher for general schools. Read it before teaching; it names the Prophet ﷺ without salutation and describes Islam from outside the faith. Add the proper titles aloud and correct anything that conflicts with your ʿaqīdah.",
+  sa: "Connects directly to South Asian history. A good place to add Sindh and the Indus Valley to the family timeline.",
+  review: "Parents may wish to read this unit first and decide how and when to teach it.",
+  book: "The unit guide is free, but it is built around a published novel or memoir that you buy separately.",
+  nopage: "The Foundation's site has no separate download page for this unit. The Online Resources guide below lists the unit's materials, and the Core Classics series has the novel."
+};
+
+/* Rows: [title, unit-page slug or null, Online Resources path or null, flags] */
+const RAW = {
+  la: {
+    0: ["Nursery Rhymes and Fables|ckla-domain-01-nursery-rhymes-fables","The Five Senses|ckla-domain-02-human-body-five-senses","Stories|ckla-domain-03-stories","Plants|ckla-domain-04-plants-kinder","Farms|ckla-domain-05-farms","Native Americans|ckla-domain-06-native-americans|us","Kings and Queens|ckla-domain-07-kings-queens","Seasons and Weather|ckla-domain-08-seasons-weather","Columbus and the Pilgrims|ckla-domain-09-columbus-pilgrims|us","Colonial Towns and Townspeople|ckla-domain-10-colonial-towns-townspeople|us","Taking Care of the Earth|ckla-domain-11-taking-care-earth","Presidents and American Symbols|ckla-domain-12-presidents-american-symbols|us"],
+    1: ["Fables and Stories|ckla-domain-01-fables-stories","The Human Body|ckla-domain-02-human-body","Different Lands, Similar Stories|ckla-domain-03-different-lands-similar-stories","Early World Civilizations|ckla-domain-04-early-world-civilizations","Early American Civilizations|ckla-domain-05-early-american-civilizations","Astronomy|ckla-domain-06-astronomy","The History of the Earth|ckla-domain-07-history-earth","Animals and Habitats|ckla-domain-08-animals-habitats","Fairy Tales|ckla-domain-09-fairy-tales","A New Nation|ckla-domain-10-new-nation-american-independence|us","Frontier Explorers|ckla-domain-11-frontier-explorers|us"],
+    2: ["Fairy Tales and Tall Tales|ckla-domain-01-fairy-tales-tall-tales","Early Asian Civilizations|ckla-domain-02-early-asian-civilizations","The Ancient Greek Civilization|ckla-domain-03-ancient-greek-civilization","Greek Myths|ckla-domain-04-greek-myths","The War of 1812|ckla-domain-05-war-1812|us","Cycles in Nature|ckla-domain-06-cycles-nature","Westward Expansion|ckla-domain-07-westward-expansion|us","Insects|ckla-domain-08-insects","The U.S. Civil War|ckla-domain-09-us-civil-war|us","The Human Body: Building Blocks and Nutrition|ckla-domain-10-human-body-building-blocks-nutrition","Immigration|ckla-domain-11-immigration|us","Fighting for a Cause|ckla-domain-12-fighting-cause|us"],
+    3: ["Classic Tales: The Wind in the Willows|ckla-domain-01-classic-tales-the-wind-in-the-willows","Classification of Animals|ckla-domain-02-classification-animals","The Human Body: Systems and Senses|ckla-domain-03-human-body-systems-senses","The Ancient Roman Civilization|ckla-domain-04-ancient-roman-civilization","Light and Sound|ckla-domain-05-light-sound","The Viking Age|ckla-domain-06-viking-age","Astronomy: Our Solar System and Beyond|ckla-domain-07-astronomy-solar-system-beyond","Native Americans: Regions and Cultures|ckla-domain-08-native-americans-regions-cultures|us","European Exploration of North America|ckla-domain-09-european-exploration-north-america|us","Colonial America|ckla-domain-10-colonial-america|us","Ecology|ckla-domain-11-ecology"],
+    4: ["Brown Girl Dreaming|ckla-unit-1-brown-girl-dreaming|book","The Middle Ages|ckla-unit-2-middle-ages","King Arthur and the Round Table|ckla-unit-3-king-arthur-and-the-round-table","Listen, My Children (Poetry)|ckla-unit-4-listen-my-children-poetry","Geology|ckla-unit-5-geology","The American Revolution|ckla-unit-6-american-revolution|us","The United States Constitution|ckla-unit-7-united-states-constitution|us","Treasure Island|ckla-unit-8-treasure-island"],
+    5: ["They Call Me Güero|ckla-unit-1-they-call-me-guero-g5|book us","Early American Civilizations|ckla-unit-2-early-american-civilizations","Adventures of Don Quixote|ckla-unit-3-adventures-of-dondon-quixote","The Renaissance|ckla-unit-4-the-renaissance","A Midsummer Night’s Dream|ckla-unit-5-a-midsummer-nights-dream","The Reformation|ckla-unit-6-the-reformation","Poetry|ckla-unit-7-poetry","Native Americans|ckla-unit-8-native-americans|us","The Science of Breakable Things|ckla-unit-9-the-science-of-breakable-things|book"],
+    6: ["Flying Lessons & Other Stories|ckla-unit-1-flying-lessons-other-stories|2023/08/CKLA_G6U1_FlyingLessonsAndOtherStories_ORG.pdf","Calling All Minds: How to Think and Create Like an Inventor|ckla-unit-2-calling-all-minds|2023/08/CKLA_G6U2_CallingAllMinds_ORG.pdf","The Heritage of Ancient Greece and Rome|ckla-unit-3-the-heritage-of-ancient-greece-and-rome|2023/08/CKLA_G6U3_TheHeritageOfAncientGreeceAndRome_ORG.pdf","The Iliad, the Odyssey, and Other Greek Stories|ckla-unit-4-the-iliad-and-the-odyssey-and-other-greek-stories|2023/08/CKLA_G6U4_TheIliadTheOdysseyAndOtherGreekStories_ORG.pdf","The Tragedy of Julius Caesar|ckla-unit-5-the-tragedy-of-julius-caesar|2023/08/CKLA_G6U5_TheTragedyOfJuliusCaesar_ORG.pdf","90 Miles to Havana|ckla-unit-6-ninety-miles-to-havana|2023/08/CKLA_G6U6_90MilesToHavana_ORG.pdf","The Blessings of Liberty|ckla-unit-7-the-blessings-of-liberty|2023/08/CKLA_G6U7_TheBlessingsOfLiberty_ORG.pdf|us","Realms of Gold, Volume 1|ckla-unit-8-realms-of-gold-volume-1|2023/08/CKLA_G6U8_RealmsOfGoldV1_ORG.pdf"],
+    7: ["Hello, Universe|ckla-unit-1-hello-universe|2021/11/CKLA_G7U1_HelloUniverse_ORG.pdf","The Tempest|ckla-unit-2-the-tempest|2021/11/CKLA_G7U2_TheTempest_ORG.pdf","Strange Case of Dr. Jekyll and Mr. Hyde|ckla-unit-3-strange-case-of-dr-jekyll-and-mr-hyde|2021/11/CKLA_G7U3_StrangeCaseOfDrJekyllAndMrHyde_ORG.pdf","The Time Machine|ckla-unit-4-the-time-machine|2022/08/CKLA_G7U4_TheTimeMachine_ORG.pdf","Realms of Gold, Volume 2|ckla-unit-5-realms-of-gold-volume-2|2022/09/CKLA_G7U5_RealmsOfGoldVol2_ORG.pdf","The Genius of the Harlem Renaissance, Volume 1|ckla-unit-6-the-genius-of-the-harlem-renaissance-volume-1|2021/11/CKLA_G7U6_TheGeniusOfTheHarlemRenaissanceV1_ORG.pdf|us","Anne Frank’s Tales from the Secret Annex|ckla-unit-7-anne-franks-tales-from-the-secret-annex|2021/11/CKLA_G7U7_AnneFranksTalesFromTheSecretAnnex_ORG.pdf","Code Talker|ckla-unit-8-code-talker|2022/09/CKLA_G7U8_CodeTalker_ORG.pdf|us"],
+    8: ["Us, in Progress: Short Stories About Young Latinos|ckla-unit-1-us-in-progress-short-stories-about-young-latinos|2023/08/CKLA_G8U1_UsInProgress_ORG.pdf|us","Frankenstein||2023/08/CKLA_G8U2_Frankenstein_ORG.pdf|nopage","Narrative of the Life of Frederick Douglass||2023/08/CKLA_G8U3_NarrativeOfTheLifeOfFrederickDouglass_ORG.pdf|nopage","The Genius of the Harlem Renaissance, Volume 2|ckla-unit-4-the-genius-of-the-harlem-renaissance-volume-2|2023/08/CKLA_G8U4_TheGeniusOfTheHarlemRenaissanceV2_ORG.pdf|us","A More Perfect Union: Voices for Civil Rights in America|ckla-unit-5-a-more-perfect-union-voices-for-civil-rights-in-america|2023/08/CKLA_G8U5_AMorePerfectUnion_ORG.pdf|us","The Squatter and the Don|ckla-unit-6-the-squatter-and-the-don|2023/08/CKLA_G8U6_TheSquatterAndTheDon_ORG.pdf|us","The Importance of Being Earnest|ckla-unit-7-the-importance-of-being-earnest|2023/08/CKLA_G8U7_TheImportanceOfBeingEarnest_ORG.pdf","Realms of Gold, Volume 3|ckla-unit-8-realms-of-gold-volume-3|2023/08/CKLA_G8U8_RealmsOfGoldV3_ORG.pdf"]
+  },
+  skills: {
+    0: Array.from({length:10},(_,i)=>`Kindergarten Skills, Unit ${i+1}|ckla-unit-${String(i+1).padStart(2,"0")}-kindergarten-skills`),
+    1: ["Grade 1 Skills, Unit 1|ckla-unit-1-grade-1-skills","Gran|ckla-unit-2-grade-1-skills-gran","Fables|ckla-unit-3-grade-1-skills-fables","The Green Fern Zoo|ckla-unit-4-grade-1-skills-green-fern-zoo","Kate’s Book|ckla-unit-5-grade-1-skills-kates-book","Grace|ckla-unit-6-grade-1-skills-grace","Kay and Martez|ckla-unit-7-grade-1-skills-kay-martez"],
+    2: ["The Cat Bandit|ckla-unit-1-second-grade-skills-cat-bandit","Bedtime Tales|ckla-unit-2-second-grade-skills-bedtime-tales","Kids Excel|ckla-unit-3-second-grade-skills-kids-excel","Job Hunt|ckla-unit-4-second-grade-skills-job-hunt","Sir Gus|ckla-unit-5-second-grade-skills-sir-gus","The War of 1812|ckla-unit-6-second-grade-skills-war-1812"],
+    3: ["Classic Tales|ckla-unit-01-third-grade-skills-classic-tales","Rattenborough’s Guide to Animals|ckla-unit-02-third-grade-skills-rattenboroughs-guide-animals","How Does Your Body Work?|ckla-unit-03-third-grade-skills-body-work","Stories of Ancient Rome|ckla-unit-04-third-grade-skills-stories-ancient-rome","Adventures in Light and Sound|ckla-unit-05-third-grade-skills-adventures-light-sound","Gods, Giants, and Dwarves|ckla-unit-06-third-grade-skills-gods-giants-dwarves","What’s in the Universe?|ckla-unit-07-third-grade-skills-whats-universe","Native American Stories|ckla-unit-08-third-grade-skills-native-american-stories","The Age of Exploration|ckla-unit-09-third-grade-skills-age-exploration","Living in Colonial America|ckla-unit-10-third-grade-skills-living-colonial-america","Introduction to Ecology|ckla-unit-11-third-grade-skills-introduction-ecology"]
+  },
+  hg: {
+    0: ["Let’s Explore Our World!|ckhg-unit-1-lets-explore-our-world|2019/08/CKHG_GK_U1_Lets-Explore-Our-World_Online-Resources_W1.pdf","Native Americans|ckhg-unit-2-native-americans|2019/07/CKHG_GK_U2_Native-Americans_Online-Resources_W1.pdf|us","Exploring and Moving to America|ckhg-unit-3-exploring-and-moving-to-america|2019/09/CKHG_GK-U3_Exploring-and-Moving-to-America_Online-Resources_W1.pdf|us","The Mount Rushmore Presidents|ckhg-unit-4-the-mount-rushmore-presidents|2019/11/CKHG_GK-U4_Mount-Rushmore-Presidents_Online-Resources_W1.pdf|us"],
+    1: ["Continents, Countries, and Maps|ckhg-unit-1-continents-countries-and-maps|2019/07/CKHG_G1-U1_ContinentsCountriesMaps_Online-Resources_W1.pdf","Mesopotamia|ckhg-unit-2-mesopotamia|2018/12/CKHG_G1-U2_Mesopotamia_Online-Resources_W1.pdf","Ancient Egypt|ckhg-unit-3-ancient-egypt|2018/12/CKHG_G1-U3_Ancient-Egypt_Online-Resources_W1.pdf","Three World Religions|ckhg-unit-4-three-world-religions|2019/08/CKHG_G1-U4_Three-World-Religions_Online-Resources_W1.pdf|islam","Early Civilizations of the Americas|ckhg-unit-5-early-civilizations-of-the-americas|2019/06/CKHG_G1_U5_Early_Civilizations_Americas_Online-Resources_W1.pdf","The Culture of Mexico|ckhg-unit-6-culture-of-mexico|2019/06/CKHG_G1_U6_The-Culture-of-Mexico_Online-Resources_W1.pdf","Early Explorers and Settlers|ckhg-unit-7-early-explorers-and-settlers|2019/10/CKHG_G1-U7_Early-Explorers-and-Settlers_Online_Resources_W1.pdf|us","From Colonies to Independence|ckhg-unit-8-from-colonies-to-independence|2019/11/CKHG_G1-U8_From-Colonies-to-Independence_Online-Resources_W1.pdf|us","Exploring the West|ckhg-unit-9-exploring-the-west|2020/03/CKHG_G1_U9_Exploring-the-West_Online-Resources_W1.pdf|us","Lessons in Civics|ckhg-unit-10-lessons-in-civics|2023/12/CKHG_G1U10_ORG_Web_W1.pdf"],
+    2: ["Ancient India|ckhg-unit-01-ancient-india|2022/08/CKHG_G2_U1_AncientIndia_OnlineResources_W2.pdf|sa","Ancient China|ckhg-unit-02-ancient-china|2019/08/CKHG_G2_U2_AncientChina_OnlineResources_W1.pdf","The Culture of Japan|ckhg-unit-03-the-culture-of-japan|2019/06/CKHG_G2_U3_The-Culture-of-Japan_Online-Resources_W1.pdf","Ancient Greece|ckhg-unit-04-ancient-greece|2019/08/CKHG_G2_U4_Ancient-Greece_Online-Resources_W1.pdf","Geography of the Americas|ckhg-unit-05-geography-of-americas|2019/06/CKHG_G2_U5_Geography-of-the-Americas_Online-Resources_W1.pdf","Making the Constitution|ckhg-unit-06-making-the_constitution|2019/10/CKHG_G2_U6_Making-the-Constitution_Online-Resources_W1.pdf|us","The War of 1812|ckhg-unit-07-the-war-of-1812|2020/03/CKHG_G2-U7_The_War_of_1812_Online_Resources_W1.pdf|us","Americans Move West|ckhg-unit-08-americans-move-west|2019/11/CKHG_G2-U8_Americans-Move-West_Online-Resources_W1.pdf|us","The Civil War|ckhg-unit-09-the-civil-war|2019/12/The-Civil-War_Online-Resources_W1.pdf|us","Immigration and Citizenship|ckhg-unit-10-immigration-and-citizenship|2019/12/CKHG_G2_U10_Immigration-and-Citizenship_ORG_W1.pdf|us","Civil Rights Leaders|ckhg-unit-11-civil-rights-leaders|2019/12/CKHG_G2-U11_Civil-Rights-Leaders_Online-Resources_W1.pdf|us","Lessons in Economics|ckhg-unit-12-lessons-in-economics|2023/12/CKHG_G2U12_ORG_Web_W1.pdf"],
+    3: ["World Rivers|ckhg-unit-1-world-rivers|2017/02/CKHG_G3_U1_WorldRiversOnlineResources_W1.pdf","Ancient Rome|ckhg-unit-2-ancient-rome|2017/02/CKHG_G3_U2_AncientRomeOnlineResources_W1.pdf","The Vikings|ckhg-unit-3-vikings|2017/03/CKHG_G3_U3_OnlineResources_Vikings_W1.pdf","The Earliest Americans|ckhg-unit-4-earliest-americans|2023/01/CKHG_G3_U4_Earliest_Americansonlineresources_W1.pdf","Canada|ckhg-unit-5-canada|2017/03/CKHG_G3U5_OnlineResources_Canada_W1.pdf","Exploration of North America|ckhg-unit-6-exploration-north-america|2017/08/CKHG-Online-Resources-Exploration-Of-North-America_W1.pdf|us","The Thirteen Colonies|ckhg-unit-7-thirteen-colonies|2017/07/CKHG_G3U7_Online-Resources-Thirteen-Colonies_W1.pdf|us"],
+    4: ["Using Maps|ckhg-unit-01-using-maps|2017/02/CKHG_OnlineResources-Using-Maps.pdf","World Mountains|ckhg-unit-02-world-mountains|2017/02/CKHG_OnlineResources_World-Mountains.pdf","Medieval Europe|ckhg-unit-03-medieval-europe|2022/06/CKHG-G4U3_OnlineResources_Medieval-Europe_W1.pdf","Medieval Islamic Empires|ckhg-unit-04-medieval-islamic-empires|2017/03/CKHG-Online-Resources-Islamic-Empires_W1.pdf|islam","Early and Medieval African Kingdoms|ckhg-unit-05-early-medieval-african-kingdoms|2017/03/CKHG_G4_U4-Online-Resources-Early-Islamic-Civilization-and-African-Kingdoms_W1.pdf","Dynasties of China|ckhg-unit-06-dynasties-china|2017/03/CKHG_G4_U6-Online-Resources-Dynasties-of-China_W1.pdf","The American Revolution|ckhg-unit-07-american-revolution|2017/02/CKHG_G4_U7-OnlineResources_American-Revolution_W1.pdf|us","The United States Constitution|ckhg-unit-08-united-states-constitution|2017/08/CKHG_G4_U8-Online-Resources-The-United-States-Constitution_W1.pdf|us","Early Presidents|ckhg-unit-09-early-presidents|2017/09/CKHG_G4_U9-EarlyPresidents_W1.pdf|us","American Reformers|ckhg-unit-10-american-reformers|2017/09/CKHG_G4_U9-EarlyPresidents_W1.pdf|us","Understanding Civics|ckhg-unit-11-understanding-civics|2024/01/CKHG_G4U11_ORG_Web_W1.pdf|us"],
+    5: ["World Lakes|ckhg-unit-01-world-lakes|2017/02/CKHG_OnlineResources_World-Lakes.pdf","Maya, Aztec, and Inca Civilizations|ckhg-unit-02-maya-aztec-inca-civilizations|2017/02/CKHG_G5-U2_Maya-Inca_Aztec_W1.pdf","The Age of Exploration|ckhg-unit-03-age-exploration|2023/01/CKHG_OnlineResources_Age-of-Exploration.pdf","The Renaissance|ckhg-unit-04-renaissance|2017/08/CKHG_G5_U4-5-6-Online-Resources-Renaissance-Englands-Golden-Age_W1.pdf","The Reformation|ckhg-unit-05-reformation|2017/08/CKHG_G5_U4-5-6-Online-Resources-Renaissance-Englands-Golden-Age_W1.pdf","England and the Golden Age|ckhg-unit-06-england-golden-age|2017/08/CKHG_G5_U4-5-6-Online-Resources-Renaissance-Englands-Golden-Age_W1.pdf","Early Russia|ckhg-unit-07-early-russia|2023/02/CKHG-G5_U7-8_Online-Resources-Czars-and-Shoguns_W1.pdf","Feudal Japan|ckhg-unit-08-feudal-japan|2023/02/CKHG-G5_U7-8_Online-Resources-Czars-and-Shoguns_W1.pdf","The Geography of the United States|ckhg-unit-09-geography-united-states|2017/07/CKHG_G5_U9-Online-Resources-US-Geography_W1.pdf|us","Westward Expansion Before the Civil War|ckhg-unit-10-westward-expansion-civil-war|2017/08/CKHG_G5_U10-Online-Resources-Westward-Expansion-Before-the-Civil-War_W1.pdf|us","The Civil War|ckhg-unit-11-civil-war|2017/08/CKHG_G5_U11-Online-Resources-The-Civil-War-U11_W1.pdf|us","Westward Expansion After the Civil War|ckhg-unit-12-westward-expansion-civil-war|2017/09/CKHG-Native-Americans-and-Westward-Expansion_Online-Resources.pdf|us","Native Americans: Cultures and Conflicts|ckhg-unit-13-native-americans-cultures-conflicts|2017/09/CKHG-Native-Americans-and-Westward-Expansion_Online-Resources.pdf|us","Understanding Economics|ckhg-unit-14-understanding-economics|2024/01/CKHG_G5U14_ORG_Web_W1.pdf"],
+    6: ["World Deserts|ckhg-unit-1-world-deserts|2018/01/CKHG_G6_U1_WorldDeserts_OnlineResources_W1.pdf","Ancient Greece and Rome|ckhg-unit-2-ancient-greece-rome|2018/03/CKHG_G6_U2-Online-Resources-Ancient-Greece-and-Rome_W2.pdf","The Enlightenment|ckhg-unit-3-enlightenment|2018/04/CKHG_G6_U3_Enlightenment_OnlineResources.pdf","The French Revolution and Romanticism|ckhg-unit-4-the-french-revolution-and-romanticism|2018/04/CKHG_G6_U4_FrenchRevRomanticism_OnlineResources_W1.pdf","The Industrial Revolution: Changes and Challenges|ckhg-unit-5-industrial-revolution|2018/04/CKHG_G6_U5_Industrial-Revolution_Online-Resources_W1.pdf","Independence of Latin America|ckhg-unit-6-independence-for-latin-america|2018/05/CKHG_G6_U6_Independence-for-Latin-America_OnlineResources.pdf","Immigration|ckhg-unit-7-immigration|2018/05/CKHG_G6_U7_Immigration_OnlineResources_W1.pdf|us","Industrialization and Urbanization in America|ckhg-unit-8-industrialization-and-urbanization-in-america|2018/05/CKHG_G6_U8_Industrialization-and-Urbanization-in-America_OnlineRecources_W1.pdf|us","Reform in Industrial America|ckhg-unit-9-reform-in-industrial-america|2018/05/CKHG_G6_U9_Reform-in-Industrial-America_OnlineResources.pdf|us"],
+    7: ["A History of the United States, Volume 1: Precolonial to the 1800s|ckhg-a-history-of-the-united-states|2021/07/CKHG_G7_The-US-History_Volume-1_Online-Resources_W1.pdf|us","A History of the United States, Volume 2: Late 1800s to the 2000s|ckhg-a-history-of-the-united-states|2023/01/CKHG_G7_The-US-History_Volume-2_Online-Resources_W1.pdf|us","Civics and Economics in U.S. History|ckhg-civics-and-economics-in-u-s-history|2023/09/CKHG_G7_CivicsEcon_ORG_Web_W1.pdf|us"],
+    8: ["World History, Volume 1: The Ancient World to the Medieval Era|world-history|2022/11/CKHG_World-History_Vol1_Online-Resources-1_W1.pdf","World History, Volume 2: Renaissance to Modern Day|world-history|2022/11/CKHG_World-History_Vol2_Online-Resources-1_W1.pdf","Civics and Economics in World History|ckhg-civics-and-economics-in-world-history|2023/09/CKHG_G8_CivicsEcon_ORG_Web_W1.pdf"]
+  },
+  sci: {
+    0: ["Pushes and Pulls|cksci-unit-1-pushes-and-pulls|2020/06/CKSci_GKU1_Pushes-and-Pulls_ORG_W1.pdf","Needs of Plants and Animals|cksci-unit-2-needs-of-plants-and-animals|2020/07/CKSci_GKU2_Needs-of-Plants-and-Animals_ORG_W1.pdf","Changing Environments|cksci-unit-3-changing-environments|2020/07/CKSci_GKU3_Changing-Environments_ORG_W1.pdf","Weather Patterns|cksci-unit-4-weather-patterns|2020/07/CKSci_GKU4_Weather-Patterns_ORG_W1.pdf","Our Five Senses|cksci-unit-5-health-and-the-human-body-our-five-senses|2020/12/CKSci_GKU5_Our-Five-Senses_ORG_W1.pdf","Computers All Around Us|cksci-unit-6-computers-all-around-us|2023/09/CKSciSC_GKU6_ComputersAllAroundUs_ORG_W2.pdf","Science All Around Us|cksci-unit-7-science-all-around-us|2024/08/CKSciSC_GKU7_ScienceAllAroundUs_ORG_W1.pdf"],
+    1: ["Sun, Moon, and Stars|cksci-unit-1-sun-moon-and-stars|2020/07/CKSci_G1U1_Sun-Moon-and-Stars_ORG_W1.pdf","Plant and Animal Survival|cksci-unit-2-plant-and-animal-survival|2020/06/CKSci_G1U2_Plant-and-Animal-Survival_ORG_W1.pdf","Exploring Light and Sound|cksci-unit-3-exploring-light-and-sound|2020/06/CKSci_G1U3_LightandSound_ORG_W1.pdf","Simple Machines|cksci-unit-4-simple-machines|2020/12/CKSci_G1U4_Simple-Machines_ORG_W1.pdf","Human Body Systems|cksci-unit-5-health-and-the-human-body-human-body-systems|2020/12/CKSci_G1U5_Human-Body-Systems_ORG_W1.pdf","Helpful Computers|cksci-unit-6-helpful-computers|2023/09/CKSci_G1U6_HelpfulComputers_ORG_W2.pdf","Science for Everyone|cksci-unit-7-science-for-everyone|2024/08/CKSci_G1U7_ScienceForEveryone_ORG_W1.pdf"],
+    2: ["Properties of Matter|cksci-unit-1-properties-of-matter|2020/06/CKSci_G2U1_Properties-of-Matter_Online-Resource_W1.pdf","Organisms and Their Habitats|cksci-unit-2-organisms-and-their-habitats|2020/07/CKSci_G2U2_Organisms-and-their-Habitats_ORG_W1.pdf","Exploring Land and Water|cksci-unit-3-exploring-land-and-water|2020/07/CKSci_G2U3_Exploring-Land-and-Water_ORG_W1.pdf","Electricity and Magnetism|cksci-unit-4-electricity-and-magnetism|2020/12/CKSci_G2U4_Electricity-and-Magnetism_ORG_W1.pdf","Human Cells and Digestion|cksci-unit-5-human-cells-and-digestion|2020/12/CKSci_G2U5_Human-Cells_ORG_W1.pdf","Using Computers|cksci-unit-6-using-computers|2023/09/CKSciSC_G2U6_UsingComputers_ORG_W2.pdf","Learning About Science|cksci-unit-7-learning-about-science|2024/08/CKSci_G2U7_LearningAboutScience_ORG_W1.pdf"],
+    3: ["Investigating Forces|cksci-unit-1-forces|2019/06/CKSci_G3U1_Investigating_Forces_Online_Resources_W1.pdf","Life Cycles, Traits, and Variations|cksci-unit-2-life-cycles-traits-and-variations|2019/08/CKSci_G3U2_Life_Cycles_OnlineResources_W1.pdf","Habitats and Change|cksci-unit-3-habitats-and-change|2019/08/CKSci_G3U3_Habitats_OnlineResources_W1.pdf","Weather and Climate|cksci-unit-4-weather-and-climate|2023/11/CKSci_G3U4_Weather_NGSS_OnlineResources_W2.pdf","Human Senses and Movement|cksci-unit-5-human-senses-and-movement|2021/02/CKSci_G3U5_Human-Senses-and-movement_ORG_W1.pdf","Codes and Computers|cksci-unit-6-codes-and-computers|2023/09/CKSciSC_G3U6_CodesAndComputers_ORG_W2.pdf","Reading About Science|cksci-unit-7-reading-about-science|2024/08/CKSci_G3U7_ReadingAboutScience_ORG_W1.pdf"],
+    4: ["Energy Transfer and Transformation|cksci-unit-1-energy-transfer-and-transformation|2019/01/CKSci_G4U1_Energy-Transfer-and-Transformation_Online_Resources_W1.pdf","Investigating Waves|cksci-unit-2-investigating-waves|2019/08/CKSci_G4U2_InvestigatingWaves_OnlineResources_W1.pdf","Structures and Functions of Living Things|cksci-unit-3-structures-and-functions|2019/08/CKSci_G4U3_StructureFunction_OnlineResources_W1.pdf","Processes That Shape Earth|cksci-unit-4-processes-that-shape-earth|2019/09/CKSci_G4U4_EarthProcesses_OnlineResources_W1.pdf","Using Natural Resources for Energy|cksci-unit-5-using-natural-resources-for-energy|2019/09/CKSci_G4U5_EnergyResources_OnlineResources_W1.pdf","Human Respiration and Circulation|cksci-unit-6-human-respiration-and-circulation|2021/06/CKSci_G4U6_ORG_W1.pdf","Problem-Solving and Computers|cksci-unit-7-problem-solving-and-computers|2023/09/CKSciSC_G4U7_ProblemSolvingAndComputers_ORG_W2.pdf","Making Sense of Science|cksci-unit-8-making-sense-of-science|2024/08/CKSci_G4U8_MakingSenseOfScience_ORG_W1.pdf"],
+    5: ["Investigating Matter|cksci-unit-1-investigating-matter|2019/07/CKSci_G5U1_Investigating-Matter_Online_Resources_W1.pdf","Energy and Matter in Ecosystems|cksci-unit-2-energy-and-matter-in-ecosystems|2020/01/CKSci_G5_U2_Ecosystems_OnlineResources_W1.pdf","Modeling Earth’s Systems|cksci-unit-3-modeling-earths-systems|2019/08/G5Sci-U3_EarthSystems_Online-Resources_W1.pdf","Protecting Earth’s Resources|cksci-unit-4-protecting-earths-resources|2019/09/G5Sci-U4_ProtectingResources_OnlineResources_W1.pdf","Astronomy: Space Systems|cksci-unit-5-astronomy-space-systems|2019/09/G5Sci-U5_Astronomy_OnlineResources_W1.pdf","Human Hormones and Reproduction|cksci-unit-6-human-hormones-and-reproduction|2021/06/CKSci_G5U6_ORG_W1.pdf|review","Designing Computer Programs|cksci-unit-7-designing-computer-programs|2023/09/CKSciSC_G5U7_DesigningComputerPrograms_ORG_W2.pdf","Using Science Knowledge|cksci-unit-8-using-science-knowledge|2024/08/CKSci_G5U8_UsingScienceKnowledge_ORG_W1.pdf"],
+    6: ["Light and Matter|cksci-unit-1-light-and-matter|2022/02/CKSci_OSE_G6U1_ORG.pdf","Thermal Energy|cksci-unit-2-thermal-energy|2022/03/CKSci_OSE_G6U2_ORG.pdf","Weather, Climate, and Water Cycling|cksci-unit-3-weather-climate-and-water-cycling|2022/05/CKSci_OSE_G6U3_ORG_W3.pdf","Plate Tectonics and Rock Cycling|cksci-unit-4-plate-tectonics-and-rock-cycling|2022/09/CKSci_G6U4_Plate-Tectonics-and-Rock-Cycling_ORG.pdf","Natural Hazards|cksci-unit-5-natural-hazards|2022/10/CKSci_OSE_G6U5_ORG.pdf","Cells and Systems|cksci-unit-6-cells-and-systems|2022/11/CKSci_OSE_G6U6_ORG_W1.pdf"],
+    7: ["Chemical Reactions and Matter|cksci-unit-1-chemical-reactions-and-matter|2022/02/CKSci_OSE_G7U1_ORG.pdf","Chemical Reactions and Energy|cksci-unit-2-chemical-reactions-and-energy|2022/05/CKSci_OSE_G7U2_ORG.pdf","Metabolic Reactions|cksci-unit-3-metabolic-reactions|2022/05/CKSci_OSE_G7U3_ORG.pdf","Matter Cycling and Photosynthesis|cksci-unit-4-matter-cycling-and-photosynthesis|2022/09/CKSci_OSE_G7U4_ORG.pdf","Ecosystem Dynamics|cksci-unit-5-ecosystem-dynamics|2022/11/CKSci_OSE_G7U5_ORG.pdf","Earth’s Resources and Human Impact|cksci-unit-6-earths-resources-and-human-impact|2022/10/CKSci_OSE_G7U6_ORG_W1.pdf"],
+    8: ["Contact Forces|cksci-unit-1-contact-forces|2022/03/CKSci_OSE_G8U1_ORG_W1.pdf","Sound Waves|cksci-unit-2-sound-waves|2022/02/CKSci_OSE_G8U2_ORG_W1.pdf","Forces at a Distance|cksci-unit-3-forces-at-a-distance|2022/05/CKSci_OSE_G8U3_ORG_W1.pdf","Earth in Space|cksci-unit-4-earth-in-space|2022/08/CKSci_G8U4_Earth-in-Space_ORG_W1.pdf","Genetics|cksci-unit-5-genetics|2022/10/CKSci_OSE_G8U5_ORG_W1.pdf|review","Natural Selection and Common Ancestry|cksci-unit-6-natural-selection-and-common-ancestry|2022/11/CKSci_OSE_G8U6_ORG.pdf|review"]
+  }
+};
+
+const SUBJECTS = {
+  la:  { name: "Language Arts", code: "CKLA" },
+  hg:  { name: "History & Geography", code: "CKHG" },
+  sci: { name: "Science", code: "CKSci" }
+};
+
+/* Flatten. Language Arts K–3 has two strands: read-aloud domains (Knowledge) and Skills units. */
+const ITEMS = (() => {
+  const out = [];
+  const push = (s, g, i, row, strand) => {
+    const parts = row.split("|");
+    let [title, slug, a, b] = parts;
+    let guide = null, flags = "";
+    if (a && a.endsWith(".pdf")) { guide = CKU + a; flags = b || ""; } else flags = a || "";
+    const f = flags.split(" ").filter(Boolean);
+    let src;
+    if (s === "la" && strand === "skills") src = "pages";
+    else if (s === "la" && g <= 2) src = "llk2";
+    else if (s === "la" && g === 3) src = "g3";
+    else if (s === "la" && g <= 5) src = "pages";
+    else src = s;
+    let unit;
+    if (strand === "skills") unit = "Skills " + (i + 1);
+    else if (s === "la" && g <= 3) unit = "Domain " + (i + 1);
+    else if (s === "hg" && g >= 7) unit = "Book " + (i + 1);
+    else unit = "Unit " + (i + 1);
+    const id = strand === "skills" ? `la-${g}-s${i + 1}` : `${s}-${g}-${i + 1}`;
+    out.push({ id, s, g, unit, title, page: slug ? FR + slug + "/" : null, guide, src, flags: f, strand: strand || null });
+  };
+  for (const s of ["la", "hg", "sci"]) for (let g = 0; g <= 8; g++) {
+    (RAW[s][g] || []).forEach((row, i) => push(s, g, i, row, s === "la" && g <= 3 ? "knowledge" : null));
+    if (s === "la") (RAW.skills[g] || []).forEach((row, i) => push("la", g, i, row, "skills"));
+  }
+  return out;
+})();
+
+/* Oxford University Press Pakistan series seen on oup.com.pk and on Karachi school book lists.
+   Chapter lists are not published online, so the parent types or pastes the contents page. */
+const BOOK_SERIES = [
+  { n: "New Oxford Social Studies for Pakistan", subj: "Social Studies" },
+  { n: "Oxford International Primary English", subj: "English" },
+  { n: "Oxford Reading Circle", subj: "English" },
+  { n: "Oxford Progressive English", subj: "English" },
+  { n: "Oxford International Primary Science", subj: "Science" },
+  { n: "Oxford International Primary Geography", subj: "Geography" },
+  { n: "Oxford International Primary History", subj: "History" },
+  { n: "Oxford International Primary Computing", subj: "Computing" },
+  { n: "Islamiyat for Primary Classes", subj: "Islamiyat" },
+  { n: "Urdu Say Dosti", subj: "Urdu" },
+  { n: "Nai Oxford Waqfiyat-e-Aama", subj: "Social Studies" }
+];
+const BOOK_SUBJECTS = ["English","Urdu","Mathematics","Science","Social Studies","History","Geography","Islamiyat","Computing","Other"];
+const SUBJ_TO_CK = { English: ["la"], Science: ["sci"], "Social Studies": ["hg","sci"], History: ["hg"], Geography: ["hg","sci"] };
+
+/* From the article "Things Every Child (4–12) Should Learn — Beyond Just Good Grades" by Abul Laith Muhammad Tahir Qadri */
+const CHAR = [
+  { k: "deen", name: "Deen", items: [
+    "Love for Allah, His Messenger ﷺ, the Ahl al-Bayt and the Ṣaḥābah",
+    "Performs Salah correctly, and is becoming regular with all five prayers",
+    "Reads the Holy Qur'an with Tajweed, even a little each day",
+    "Has memorised short Surahs and everyday duas (eating, sleeping, leaving the house)",
+    "Says Bismillah before starting anything and Alhamdulillah afterwards",
+    "Loves cleanliness and performs wudu properly"] },
+  { k: "emo", name: "Managing emotions", ef: true, items: [
+    "Controls anger instead of reacting impulsively",
+    "Waits patiently and takes turns",
+    "Listens without interrupting",
+    "Finishes what they start instead of giving up quickly",
+    "Tries to solve small problems alone before asking for help"] },
+  { k: "others", name: "How they treat others", items: [
+    "Respects parents and elders, and is kind to younger children",
+    "Tells the truth, even after making a mistake",
+    "Says please, thank you and sorry sincerely",
+    "Keeps their word and returns what does not belong to them",
+    "Is kind, forgiving and willing to help others",
+    "Greets others with Salam; a good friend and neighbour",
+    "Shares, gives charity, and cares for the poor and for animals"] },
+  { k: "habits", name: "Daily habits", ef: true, items: [
+    "Follows a routine and takes responsibility for small chores",
+    "Keeps clean and keeps belongings organised",
+    "Saves instead of spending everything at once",
+    "Stays active, sleeps well and eats healthy food",
+    "Knows basic safety: roads, strangers, emergency contacts, safe internet use",
+    "Stays curious and is not afraid to ask questions"] }
+];
+const LEVELS = ["Not yet", "Learning", "Often", "Habit"];
+const HARVARD = [
+  { t: "A Guide to Executive Function", u: "https://developingchild.harvard.edu/resource-guides/guide-executive-function/", d: "What executive function is: the skills to plan, focus attention, switch gears and juggle tasks." },
+  { t: "Activities Guide: Enhancing and Practicing Executive Function Skills", u: "https://developingchild.harvard.edu/resources/handouts-tools/activities-guide-enhancing-and-practicing-executive-function-skills/", d: "Games and routines grouped by age. Use the 3–5, 5–7 and 7–12 year sections." },
+  { t: "What Is Executive Function? And How Does It Relate to Child Development?", u: "https://developingchild.harvard.edu/resources/infographics/what-is-executive-function-and-how-does-it-relate-to-child-development/", d: "A one-page infographic to share with the other parent or a teacher." }
+];
+
+</script>
+<script>
+(() => {
+"use strict";
+const GRADE_NAMES = ["KG","Class 1","Class 2","Class 3","Class 4","Class 5","Class 6","Class 7","Class 8"];
+const US_GRADE = ["Kindergarten","Grade 1","Grade 2","Grade 3","Grade 4","Grade 5","Grade 6","Grade 7","Grade 8"];
+const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const KEY = "ckledger.v1";
+const TAG_LABEL = { us:"U.S. focus", islam:"Read first", book:"Buy the novel", sa:"South Asia", review:"Parent review", nopage:"No unit page" };
+const NOTE_FOR = f => NOTES[f];
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const uid = () => Math.random().toString(36).slice(2, 10);
+const today = () => new Date().toISOString().slice(0, 10);
+const P = x => Math.round(x * 100) + "%";
+
+/* ---------- state ---------- */
+function newStudent(name, age, grade, example) {
+  return { id: uid(), name, age, grade, start: 4, track: "Sindh Board", status: {}, notes: {}, custom: [], books: [], cv: {}, ccustom: [], example: !!example };
+}
+function fix(s) { s.status ||= {}; s.notes ||= {}; s.custom ||= []; s.books ||= []; s.cv ||= {}; s.ccustom ||= []; if (!s.start) s.start = 4; return s; }
+function sampleState() {
+  const s = newStudent("Sample student", 9, 4, true);
+  ["la-4-2","hg-4-1","hg-4-2","hg-4-3","sci-4-1","sci-4-2"].forEach((id, i) => s.status[id] = { st: "done", d: "2026-0" + (5 + Math.min(i, 4)) + "-1" + i });
+  ["hg-4-7","hg-4-8","hg-4-9","hg-4-10","hg-4-11"].forEach(id => s.status[id] = { st: "skip" });
+  const b = { id: "b-" + uid(), title: "Example book: replace with your own", series: "", subj: "Science", cls: 4,
+    ch: ["Example chapter: Sound and how it travels", "Example chapter: Weather and climate", "Example chapter: Rocks and soil"].map(t => ({ id: "bc-" + uid(), t })) };
+  s.books.push(b); s.status[b.ch[0].id] = { st: "done", d: "2026-06-20" };
+  const lv = { "ch-deen-1": 2, "ch-deen-2": 1, "ch-deen-3": 2, "ch-deen-5": 3, "ch-emo-1": 1, "ch-emo-3": 1, "ch-others-2": 2, "ch-others-6": 3, "ch-habits-1": 1 };
+  for (const [k, v] of Object.entries(lv)) s.cv[k] = { lv: v, d: "2026-09-01", h: [["2026-08-01", Math.max(0, v - 1)], ["2026-09-01", v]] };
+  return { students: [s], active: s.id, ui: { tab: "track", subj: "all", hideUS: false, q: "" } };
+}
+function valid(d) {
+  return d && Array.isArray(d.students) && d.students.length > 0 && d.students.every(s => s && typeof s.id === "string" && typeof s.name === "string"
+    && Number.isInteger(s.grade) && s.grade >= 0 && s.grade <= 8 && s.status && typeof s.status === "object");
+}
+function load() {
+  try { const raw = localStorage.getItem(KEY); if (raw) { const d = JSON.parse(raw); if (valid(d)) { d.students.forEach(fix);
+    d.ui = Object.assign({ tab:"track", subj:"all", hideUS:false, q:"" }, d.ui || {}); return d; } } } catch (e) {}
+  return sampleState();
+}
+let state = load();
+let viewGrade = null, bookClass = null;
+const openRows = new Set();
+function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+const cur = () => state.students.find(s => s.id === state.active) || state.students[0];
+
+/* ---------- maths ---------- */
+function itemsFor(st, g, subj) {
+  const base = ITEMS.filter(i => i.g === g && (subj === "all" || i.s === subj));
+  const own = (subj === "all" || subj === "own") ? st.custom.filter(c => c.g === g).map(c => ({ id: c.id, s: "own", g, unit: "Own", title: c.t, flags: [], own: true })) : [];
+  return subj === "own" ? own : base.concat(own);
+}
+function countList(st, list) {
+  let done = 0, skip = 0;
+  list.forEach(id => { const x = st.status[id]; if (x?.st === "done") done++; else if (x?.st === "skip") skip++; });
+  const total = list.length - skip;
+  return { done, skip, total, all: list.length, pct: total ? done / total : 0 };
+}
+const stats = (st, g, subj) => countList(st, itemsFor(st, g, subj).map(i => i.id));
+const bookStats = (st, cls) => countList(st, st.books.filter(b => cls == null || b.cls === cls).flatMap(b => b.ch.map(c => c.id)));
+function charItems(st) {
+  return CHAR.flatMap(sec => sec.items.map((t, i) => ({ id: `ch-${sec.k}-${i + 1}`, sec: sec.k, t }))
+    .concat(st.ccustom.filter(c => c.sec === sec.k).map(c => ({ id: c.id, sec: sec.k, t: c.t, own: true }))));
+}
+function charScore(st, sec) {
+  const list = charItems(st).filter(i => !sec || i.sec === sec);
+  if (!list.length) return { score: 0, habits: 0, n: 0 };
+  let sum = 0, habits = 0; list.forEach(i => { const v = st.cv[i.id]?.lv || 0; sum += v; if (v === 3) habits++; });
+  return { score: sum / (list.length * 3), habits, n: list.length };
+}
+function expected(st) {
+  const now = new Date();
+  const elapsed = ((now.getMonth() + 1 - st.start + 12) % 12) + (now.getDate() - 1) / 30;
+  return { frac: Math.min(1, elapsed / 10), months: elapsed };
+}
+function paceStatus(pct, exp, total) {
+  if (!total) return { cls: "plain", txt: "Nothing to track" };
+  if (pct >= 1) return { cls: "good", txt: "Complete" };
+  if (exp.months >= 10) return { cls: "info", txt: "Break / revision months" };
+  if (pct >= exp.frac + 0.1) return { cls: "good", txt: "Ahead" };
+  if (pct >= exp.frac - 0.1) return { cls: "good", txt: "On track" };
+  if (pct >= exp.frac - 0.25) return { cls: "warn", txt: "A little behind" };
+  return { cls: "bad", txt: "Behind" };
+}
+
+/* chapter -> Core Knowledge suggestions by shared words */
+const STOP = new Set("the and our with about from into your their this that what when where which while there these those unit chapter lesson part book class grade example other some more most over under between around through very have has how why who are was were will can all any each many much such them they then than also only just like make made used using early first life people world great time times story stories".split(" "));
+const SYN = { indus: "india", harappa: "india", mohenjo: "india", subcontinent: "india", globe: "maps", atlas: "maps", mapping: "maps" };
+const toks = t => [...new Set(String(t).toLowerCase().replace(/isation/g, "ization").replace(/[^a-z\s]/g, " ").split(/\s+/).map(w => SYN[w] || w).filter(w => w.length >= 4 && !STOP.has(w))
+  .map(w => w.endsWith("ies") ? w.slice(0, -3) + "y" : (w.endsWith("s") && !w.endsWith("ss") && w.length > 4 ? w.slice(0, -1) : w)))];
+const ITEM_TOKS = new Map(ITEMS.map(i => [i.id, toks(i.title)]));
+const DF = new Map(); ITEM_TOKS.forEach(ts => ts.forEach(w => DF.set(w, (DF.get(w) || 0) + 1)));
+function suggest(title, subj, cls) {
+  const want = SUBJ_TO_CK[subj]; const t = toks(title); if (!t.length) return [];
+  return ITEMS.filter(i => (!want || want.includes(i.s)) && i.strand !== "skills")
+    .map(i => { const hit = ITEM_TOKS.get(i.id).filter(w => t.includes(w));
+      return { i, n: hit.length, s: hit.reduce((a, w) => a + 1 / Math.sqrt(DF.get(w) || 1), 0) - Math.abs(i.g - cls) * 0.02 }; })
+    .filter(x => x.n >= 1 && x.s > 0.15).sort((a, b) => b.s - a.s).slice(0, 2).map(x => x.i);
+}
+
+/* ---------- toast ---------- */
+let tt;
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(tt); tt = setTimeout(() => t.hidden = true, 2200); }
+
+/* ---------- student card ---------- */
+function fillStudent() {
+  const st = cur();
+  $("#studentSel").innerHTML = state.students.map(s => `<option value="${s.id}" ${s.id === st.id ? "selected" : ""}>${esc(s.name)}</option>`).join("");
+  $("#fName").value = st.name; $("#fAge").value = st.age ?? "";
+  $("#fGrade").innerHTML = GRADE_NAMES.map((n, g) => `<option value="${g}" ${g === st.grade ? "selected" : ""}>${n} (${US_GRADE[g]})</option>`).join("");
+  $("#fStart").innerHTML = MONTHS.map((m, i) => `<option value="${i + 1}" ${i + 1 === st.start ? "selected" : ""}>${m}</option>`).join("");
+  $("#fTrack").value = st.track || "Sindh Board";
+  ageHint();
+}
+function ageHint() {
+  const st = cur(); const a = parseInt(st.age, 10);
+  let h = "";
+  if (a >= 5 && a <= 14) {
+    const g = Math.min(8, Math.max(0, a - 5));
+    h = `Age ${a} usually starts the year in ${GRADE_NAMES[g]} (${US_GRADE[g]}).`;
+    if (g !== st.grade) h += ` ${esc(st.name)} is set to ${GRADE_NAMES[st.grade]}; earlier grades still count, so check the ladder on Compare.`;
+  } else if (a === 4 || a === 3) h = "Core Knowledge starts at Kindergarten (age 5). The Character & deen tab covers ages 4 to 12.";
+  else if (a) h = "Core Knowledge covers ages 5 to 14 (Kindergarten to Grade 8).";
+  if (st.example) h += ` <span class="example-flag">Example data: rename this student or delete it on Backup.</span>`;
+  $("#ageHint").innerHTML = h;
+}
+$("#studentSel").addEventListener("change", e => { state.active = e.target.value; viewGrade = bookClass = null; openRows.clear(); save(); fillStudent(); render(); });
+$("#addStudent").addEventListener("click", () => {
+  const s = newStudent("Student " + (state.students.length + 1), 7, 2, false);
+  state.students.push(s); state.active = s.id; viewGrade = bookClass = null; save(); fillStudent(); render(); $("#fName").focus(); $("#fName").select();
+});
+$("#fName").addEventListener("input", e => { const st = cur(); st.name = e.target.value || "Student"; st.example = false; save();
+  const o = $("#studentSel").selectedOptions[0]; if (o) o.textContent = st.name; ageHint(); if (state.ui.tab === "compare") render(); });
+$("#fAge").addEventListener("change", e => { const st = cur(); st.age = parseInt(e.target.value, 10) || null;
+  if (st.age >= 5 && st.age <= 13 && Object.keys(st.status).length === 0) { st.grade = Math.min(8, st.age - 5); viewGrade = bookClass = null; fillStudent(); }
+  save(); ageHint(); render(); });
+$("#fGrade").addEventListener("change", e => { cur().grade = +e.target.value; viewGrade = bookClass = null; save(); ageHint(); render(); });
+$("#fStart").addEventListener("change", e => { cur().start = +e.target.value; save(); render(); });
+$("#fTrack").addEventListener("change", e => { cur().track = e.target.value; save(); });
+
+document.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => { state.ui.tab = b.dataset.tab; save(); render(); }));
+
+function render() {
+  document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === state.ui.tab)));
+  ({ track: renderTrack, books: renderBooks, char: renderChar, compare: renderCompare, sources: renderSources, backup: renderBackup }[state.ui.tab] || renderTrack)();
+}
+
+function gradeStrip(sel, statFn, attr) {
+  const st = cur();
+  return `<div class="grades">${GRADE_NAMES.map((n, i) => { const s = statFn(i);
+    return `<button class="grade" ${attr}="${i}" aria-pressed="${i === sel}" title="${US_GRADE[i]}: ${s.done} of ${s.total} done">
+      ${i === st.grade ? '<span class="cur">NOW</span>' : ""}<b>${i === 0 ? "K" : i}</b><span>${n}</span><span class="meter"><i style="width:${P(s.pct)}"></i></span></button>`; }).join("")}</div>`;
+}
+
+/* ---------- Core Knowledge tab ---------- */
+function renderTrack() {
+  const st = cur(); const g = viewGrade ?? st.grade; viewGrade = g;
+  const exp = expected(st); const isCur = g === st.grade;
+  const paceBoxes = ["la", "hg", "sci", "own"].map(sj => {
+    const s = stats(st, g, sj); if (sj === "own" && !s.all) return "";
+    const ps = isCur ? paceStatus(s.pct, exp, s.total) : (s.pct >= 1 ? { cls: "good", txt: "Complete" } : g < st.grade ? { cls: s.total - s.done ? "warn" : "good", txt: s.total - s.done ? (s.total - s.done) + " to catch up" : "Complete" } : { cls: "plain", txt: "Later grade" });
+    const name = sj === "own" ? "Our own objectives" : SUBJECTS[sj].name;
+    return `<div class="pbox"><div class="pbox-head"><strong>${name}</strong><span class="pct">${P(s.pct)}</span></div>
+      <div class="bar" role="img" aria-label="${name}: ${P(s.pct)} done${isCur ? ", expected by now " + P(exp.frac) : ""}"><i style="width:${P(s.pct)}"></i>${isCur ? `<em style="left:calc(${P(exp.frac)} - 1px)" title="Expected by now: ${P(exp.frac)}"></em>` : ""}</div>
+      <div class="pbox-head"><span class="muted" style="font-size:.85rem">${s.done} of ${s.total} done${s.skip ? ` · ${s.skip} skipped` : ""}</span><span class="pill ${ps.cls}">${ps.txt}</span></div></div>`;
+  }).join("");
+  const ui = state.ui; const q = (ui.q || "").trim().toLowerCase();
+  const subjOrder = ui.subj === "all" ? ["la", "hg", "sci", "own"] : [ui.subj];
+  const groups = subjOrder.map(sj => {
+    let list = itemsFor(st, g, sj);
+    if (ui.hideUS) list = list.filter(i => !i.flags.includes("us"));
+    if (q) list = list.filter(i => (i.title + " " + i.unit).toLowerCase().includes(q));
+    const name = sj === "own" ? "Our own objectives" : `${SUBJECTS[sj].name} <span class="mono muted">${SUBJECTS[sj].code}</span>`;
+    const usCount = itemsFor(st, g, sj).filter(i => i.flags.includes("us") && !st.status[i.id]).length;
+    let rows = "", lastStrand = null;
+    list.forEach(i => { if (i.strand && i.strand !== lastStrand) { lastStrand = i.strand;
+      rows += `<li class="strand label">${i.strand === "skills" ? "Skills units · phonics, spelling, decodable readers" : "Read-aloud domains · background knowledge"}</li>`; } rows += rowHTML(i); });
+    rows ||= `<li class="empty">${sj === "own" ? "Add anything your family tracks alongside Core Knowledge: Qur'an, Urdu, maths chapters." : "No objectives match."}</li>`;
+    return `<section class="ledger"><div class="group-head"><h3>${name}</h3>
+      ${usCount && sj !== "own" ? `<button class="btn small" data-skipus="${sj}">Skip ${usCount} U.S.-focus</button>` : ""}</div>
+      <ul class="rows">${rows}</ul>
+      ${sj === "own" ? `<form class="add-own" data-addown><label class="label" for="ownIn">Add for ${GRADE_NAMES[g]}</label><input id="ownIn" placeholder="e.g. Ḥifẓ: Juz' 30 revision" maxlength="120"><button class="btn primary">Add</button></form>` : ""}
+    </section>`;
+  }).join("");
+  $("#view").innerHTML = `<div class="stack">
+    <div class="stack-s"><div class="label">Grade · tap to view</div>${gradeStrip(g, i => stats(st, i, "all"), "data-g")}</div>
+    <div class="stack-s"><div class="label">${GRADE_NAMES[g]} · ${US_GRADE[g]}${isCur ? ` · month ${Math.min(10, Math.floor(exp.months) + 1)} of a 10-month year, expected ${P(exp.frac)} (the dark tick)` : ""}</div><div class="pace">${paceBoxes}</div></div>
+    <p class="hint">Tap <b>Details</b> on any unit, then <b>Open unit page</b>. The Foundation’s page has red buttons to download the Teacher Guide, the Student Reader or Book, and the Activity Book as free PDFs.</p>
+    <div class="toolbar">
+      <div class="seg" role="group" aria-label="Subject">${[["all","All"],["la","Language Arts"],["hg","History & Geo"],["sci","Science"],["own","Our own"]].map(([k, l]) => `<button data-subj="${k}" aria-pressed="${ui.subj === k}">${l}</button>`).join("")}</div>
+      <div class="actions">
+        <label class="check"><input type="checkbox" id="hideUS" ${ui.hideUS ? "checked" : ""}> Hide U.S.-focus</label>
+        <input class="search" id="q" type="search" aria-label="Search units" placeholder="Search units" value="${esc(ui.q)}">
+      </div>
+    </div>
+    ${groups}
+  </div>`;
+  bindTrack(st);
+}
+
+function rowHTML(i) {
+  const st = cur(); const x = st.status[i.id]; const done = x?.st === "done", skip = x?.st === "skip";
+  const tags = i.flags.map(f => `<span class="tag ${f}">${TAG_LABEL[f]}</span>`).join("");
+  const open = openRows.has(i.id);
+  let det = "";
+  if (open) {
+    const src = i.own ? null : SOURCES[i.src];
+    const notes = i.flags.map(f => `<p class="notice ${f === "us" ? "us" : f === "book" ? "book" : ""}">${NOTE_FOR(f)}</p>`).join("");
+    det = `<div class="details" id="d-${i.id}">
+      ${i.own ? `<p class="muted">Your own objective for ${GRADE_NAMES[i.g]}.</p>` : `
+      ${i.page ? `<div class="src"><span class="label">Download the unit (free)</span><p><a href="${esc(i.page)}" target="_blank" rel="noopener">Open unit page: ${esc(SUBJECTS[i.s].code)} ${US_GRADE[i.g]}, ${esc(i.title)}</a></p></div>` : ""}
+      ${i.guide ? `<div class="src"><span class="label">Online Resources guide</span><p><a href="${esc(i.guide)}" target="_blank" rel="noopener">Links to videos, maps and extra reading for this unit (PDF)</a></p></div>` : ""}
+      <div class="src"><span class="label">Unit list checked against</span><p><a href="${esc(src.u)}" target="_blank" rel="noopener">${esc(src.t)}</a></p></div>`}
+      ${notes}
+      ${done && x.d ? `<p class="muted">Marked done on ${esc(x.d)}.</p>` : ""}
+      <div><label class="label" for="n-${i.id}">Note</label><textarea id="n-${i.id}" data-note="${i.id}" placeholder="What went well, what to revisit, test score">${esc(st.notes[i.id] || "")}</textarea></div>
+      <div class="actions">
+        <button class="btn small" data-skip="${i.id}">${skip ? "Unskip" : "Skip this unit"}</button>
+        ${i.own ? `<button class="btn small danger" data-delown="${i.id}">Delete objective</button>` : ""}
+      </div></div>`;
+  }
+  return `<li class="row ${done ? "done" : ""} ${skip ? "skip" : ""}">
+    <div class="row-main">
+      <input type="checkbox" id="c-${i.id}" data-tick="${i.id}" ${done ? "checked" : ""} ${skip ? "disabled" : ""}>
+      <label class="row-title" for="c-${i.id}"><span class="t">${esc(i.title)}</span>
+        <span class="meta"><span class="mono muted">${esc(i.unit)}</span>${skip ? '<span class="tag">Skipped</span>' : ""}${tags}</span></label>
+      <button class="linkbtn" data-open="${i.id}" aria-expanded="${open}" aria-controls="d-${i.id}">${open ? "Hide" : "Details"}</button>
+    </div>${det}</li>`;
+}
+
+function bindCommon(v, st, rerender) {
+  v.querySelectorAll("[data-tick]").forEach(c => c.addEventListener("change", () => {
+    const id = c.dataset.tick; if (c.checked) st.status[id] = { st: "done", d: today() }; else delete st.status[id];
+    st.example = false; save(); rerender(); const el = document.getElementById("c-" + id); if (el) el.focus(); }));
+  v.querySelectorAll("[data-open]").forEach(b => b.addEventListener("click", () => { const id = b.dataset.open;
+    openRows.has(id) ? openRows.delete(id) : openRows.add(id); rerender(); const n = document.querySelector(`[data-open="${id}"]`); if (n) n.focus(); }));
+  v.querySelectorAll("[data-note]").forEach(t => t.addEventListener("input", () => { const id = t.dataset.note; if (t.value) st.notes[id] = t.value; else delete st.notes[id]; save(); }));
+}
+function bindTrack(st) {
+  const v = $("#view");
+  bindCommon(v, st, renderTrack);
+  v.querySelectorAll("[data-g]").forEach(b => b.addEventListener("click", () => { viewGrade = +b.dataset.g; renderTrack(); }));
+  v.querySelectorAll("[data-subj]").forEach(b => b.addEventListener("click", () => { state.ui.subj = b.dataset.subj; save(); renderTrack(); }));
+  $("#hideUS").addEventListener("change", e => { state.ui.hideUS = e.target.checked; save(); renderTrack(); });
+  $("#q").addEventListener("input", e => { state.ui.q = e.target.value; save(); const pos = e.target.selectionStart; renderTrack(); const n = $("#q"); n.focus(); n.setSelectionRange(pos, pos); });
+  v.querySelectorAll("[data-skip]").forEach(b => b.addEventListener("click", () => { const id = b.dataset.skip;
+    if (st.status[id]?.st === "skip") delete st.status[id]; else st.status[id] = { st: "skip" }; save(); renderTrack(); }));
+  v.querySelectorAll("[data-skipus]").forEach(b => b.addEventListener("click", () => { const sj = b.dataset.skipus; let n = 0;
+    ITEMS.filter(i => i.g === viewGrade && i.s === sj && i.flags.includes("us")).forEach(i => { if (!st.status[i.id]) { st.status[i.id] = { st: "skip" }; n++; } });
+    save(); renderTrack(); toast(`Skipped ${n} U.S.-focus unit${n === 1 ? "" : "s"}`); }));
+  v.querySelectorAll("[data-delown]").forEach(b => b.addEventListener("click", () => { const id = b.dataset.delown;
+    st.custom = st.custom.filter(c => c.id !== id); delete st.status[id]; delete st.notes[id]; save(); renderTrack(); toast("Objective deleted"); }));
+  const f = v.querySelector("[data-addown]"); if (f) f.addEventListener("submit", e => { e.preventDefault(); const t = $("#ownIn").value.trim(); if (!t) return;
+    st.custom.push({ id: "c-" + uid(), g: viewGrade, t }); save(); renderTrack(); $("#ownIn").focus(); toast("Added"); });
+}
+
+/* ---------- School books tab ---------- */
+function renderBooks() {
+  const st = cur(); const cls = bookClass ?? st.grade; bookClass = cls;
+  const books = st.books.filter(b => b.cls === cls);
+  const exp = expected(st);
+  const cards = books.map(b => {
+    const s = countList(st, b.ch.map(c => c.id));
+    const ps = cls === st.grade ? paceStatus(s.pct, exp, s.total) : { cls: "plain", txt: GRADE_NAMES[cls] };
+    const rows = b.ch.map((c, n) => {
+      const x = st.status[c.id]; const done = x?.st === "done"; const sg = suggest(c.t, b.subj, b.cls); const open = openRows.has(c.id);
+      return `<li class="row ${done ? "done" : ""}"><div class="row-main">
+        <input type="checkbox" id="c-${c.id}" data-tick="${c.id}" ${done ? "checked" : ""}>
+        <label class="row-title" for="c-${c.id}"><span class="t">${esc(c.t)}</span>
+          <span class="meta"><span class="mono muted">Ch. ${n + 1}</span>${done && x.d ? `<span class="muted" style="font-size:.8rem">done ${esc(x.d)}</span>` : ""}</span></label>
+        <button class="linkbtn" data-open="${c.id}" aria-expanded="${open}">${open ? "Hide" : "Edit"}</button></div>
+        ${sg.length ? `<div class="sugg" style="padding:0 12px 8px 46px"><span class="muted">Background in Core Knowledge:</span>${sg.map(i => `<a href="${esc(i.page || i.guide)}" target="_blank" rel="noopener">${SUBJECTS[i.s].code} ${US_GRADE[i.g]} · ${esc(i.title)}</a>`).join("")}</div>` : ""}
+        ${open ? `<div class="details"><div><label class="label" for="ct-${c.id}">Chapter title</label><input id="ct-${c.id}" class="search" style="width:100%" data-chtitle="${b.id}|${c.id}" value="${esc(c.t)}"></div>
+          <div><label class="label" for="n-${c.id}">Note</label><textarea id="n-${c.id}" data-note="${c.id}" placeholder="Test marks, pages to revise">${esc(st.notes[c.id] || "")}</textarea></div>
+          <div class="actions"><button class="btn small danger" data-delch="${b.id}|${c.id}">Delete chapter</button></div></div>` : ""}
+      </li>`; }).join("") || `<li class="empty">No chapters yet. Open the book at its Contents page and paste the chapter titles below.</li>`;
+    return `<section class="ledger"><div class="group-head"><div><h3>${esc(b.title)}</h3><div class="muted" style="font-size:.85rem">${esc(b.subj)}${b.series ? " · " + esc(b.series) : ""} · ${s.done} of ${s.total} chapters</div></div>
+      <div class="actions"><span class="pct">${P(s.pct)}</span><span class="pill ${ps.cls}">${ps.txt}</span></div></div>
+      <ul class="rows">${rows}</ul>
+      <form class="add-own" data-addch="${b.id}"><label class="label" for="ac-${b.id}">Add chapters</label>
+        <textarea id="ac-${b.id}" class="paste" rows="2" placeholder="One chapter per line, as printed in the Contents page"></textarea>
+        <div class="actions"><button class="btn primary">Add</button><button type="button" class="btn small danger" data-delbook="${b.id}">Delete book</button></div></form>
+    </section>`;
+  }).join("");
+  $("#view").innerHTML = `<div class="stack">
+    <div class="stack-s"><div class="label">Class · tap to view</div>${gradeStrip(cls, i => bookStats(st, i), "data-bc")}</div>
+    <p class="hint" style="max-width:70ch">Add the books your child’s school actually uses, Oxford or any other publisher. Chapter lists come from your copy of the book: type or paste the Contents page, one chapter per line. Where a chapter shares a topic with a Core Knowledge unit, the matching unit appears under it as free background reading.</p>
+    ${cards || `<div class="panel"><p class="muted">No books for ${GRADE_NAMES[cls]} yet. Add the first one below.</p></div>`}
+    <section class="panel"><h2>Add a book for ${GRADE_NAMES[cls]}</h2>
+      <form id="bookForm" class="stack-s">
+        <div class="form-grid">
+          <div class="field"><label class="label" for="bSeries">Series</label><select id="bSeries"><option value="">Other publisher or series</option>${BOOK_SERIES.map((s, i) => `<option value="${i}">${esc(s.n)}</option>`).join("")}</select></div>
+          <div class="field"><label class="label" for="bNum">Book number</label><input id="bNum" type="number" min="1" max="12" value="${Math.max(1, cls)}"></div>
+          <div class="field"><label class="label" for="bSubj">Subject</label><select id="bSubj">${BOOK_SUBJECTS.map(s => `<option>${s}</option>`).join("")}</select></div>
+        </div>
+        <div class="field"><label class="label" for="bTitle">Book title</label><input id="bTitle" maxlength="100" placeholder="e.g. New Oxford Social Studies for Pakistan, Book ${Math.max(1, cls)}"></div>
+        <div class="field"><label class="label" for="bCh">Chapters (optional now)</label><textarea id="bCh" class="paste" rows="4" placeholder="1. First chapter title&#10;2. Second chapter title"></textarea></div>
+        <div class="actions"><button class="btn primary">Add book</button><span class="hint">Leading numbers like “1.” or “Unit 3:” are removed automatically.</span></div>
+      </form>
+    </section></div>`;
+  const v = $("#view");
+  bindCommon(v, st, renderBooks);
+  v.querySelectorAll("[data-bc]").forEach(b => b.addEventListener("click", () => { bookClass = +b.dataset.bc; renderBooks(); }));
+  const ser = $("#bSeries"), num = $("#bNum"), ttl = $("#bTitle"), sub = $("#bSubj");
+  const autoTitle = () => { const s = BOOK_SERIES[ser.value]; if (s) { ttl.value = `${s.n}, Book ${num.value || 1}`; sub.value = s.subj; } };
+  ser.addEventListener("change", autoTitle); num.addEventListener("input", () => { if (ser.value !== "") autoTitle(); });
+  $("#bookForm").addEventListener("submit", e => { e.preventDefault();
+    const title = ttl.value.trim() || (BOOK_SERIES[ser.value] ? `${BOOK_SERIES[ser.value].n}, Book ${num.value || 1}` : "");
+    if (!title) { ttl.focus(); toast("Give the book a title"); return; }
+    st.books.push({ id: "b-" + uid(), title, series: BOOK_SERIES[ser.value]?.n || "", subj: sub.value, cls, ch: parseChapters($("#bCh").value) });
+    st.example = false; save(); renderBooks(); toast("Book added"); });
+  v.querySelectorAll("[data-addch]").forEach(f => f.addEventListener("submit", e => { e.preventDefault();
+    const b = st.books.find(x => x.id === f.dataset.addch); const ta = f.querySelector("textarea"); const add = parseChapters(ta.value);
+    if (!add.length) return; b.ch.push(...add); save(); renderBooks(); toast(`Added ${add.length} chapter${add.length === 1 ? "" : "s"}`); }));
+  v.querySelectorAll("[data-delch]").forEach(btn => btn.addEventListener("click", () => { const [bid, cid] = btn.dataset.delch.split("|");
+    const b = st.books.find(x => x.id === bid); b.ch = b.ch.filter(c => c.id !== cid); delete st.status[cid]; delete st.notes[cid]; save(); renderBooks(); }));
+  v.querySelectorAll("[data-chtitle]").forEach(inp => inp.addEventListener("change", () => { const [bid, cid] = inp.dataset.chtitle.split("|");
+    const c = st.books.find(x => x.id === bid)?.ch.find(x => x.id === cid); if (c && inp.value.trim()) { c.t = inp.value.trim(); save(); renderBooks(); } }));
+  let armed = null;
+  v.querySelectorAll("[data-delbook]").forEach(btn => btn.addEventListener("click", () => { const id = btn.dataset.delbook;
+    if (armed !== id) { armed = id; btn.textContent = "Tap again to delete"; return; }
+    const b = st.books.find(x => x.id === id); b.ch.forEach(c => { delete st.status[c.id]; delete st.notes[c.id]; });
+    st.books = st.books.filter(x => x.id !== id); save(); renderBooks(); toast("Book deleted"); }));
+}
+function parseChapters(txt) {
+  return String(txt).split(/\r?\n/).map(l => l.replace(/^\s*(chapter|unit|lesson|ch\.?)?\s*\d+\s*[.:)\-–]?\s*/i, "").replace(/\s+\.{2,}\s*\d+\s*$/, "").trim())
+    .filter(Boolean).slice(0, 80).map(t => ({ id: "bc-" + uid(), t: t.slice(0, 140) }));
+}
+
+/* ---------- Character & deen tab ---------- */
+function renderChar() {
+  const st = cur(); const items = charItems(st);
+  const boxes = CHAR.map(sec => { const s = charScore(st, sec.k);
+    return `<div class="pbox"><div class="pbox-head"><strong>${sec.name}</strong><span class="pct">${s.habits} of ${s.n} habits</span></div>
+      <div class="bar" role="img" aria-label="${sec.name}: ${P(s.score)}"><i style="width:${P(s.score)}"></i></div></div>`; }).join("");
+  const secs = CHAR.map(sec => {
+    const rows = items.filter(i => i.sec === sec.k).map(i => {
+      const v = st.cv[i.id]; const lv = v?.lv ?? 0; const h = v?.h || [];
+      const prev = h.length > 1 ? h[h.length - 2][1] : null;
+      const trend = prev == null ? "" : lv > prev ? `<span class="trend up">up from ${LEVELS[prev]}</span>` : lv < prev ? `<span class="trend down">down from ${LEVELS[prev]}</span>` : "";
+      const open = openRows.has(i.id);
+      return `<li class="row"><div class="crow"><div class="row-title"><span class="t" style="font-weight:600">${esc(i.t)}</span>
+          <span class="meta">${v?.d ? `<span class="muted" style="font-size:.8rem">updated ${esc(v.d)}</span>` : ""}${trend}<button class="linkbtn" data-open="${i.id}" aria-expanded="${open}">${open ? "Hide note" : "Note"}</button></span></div>
+        <div class="levels" role="group" aria-label="Level for: ${esc(i.t)}">${LEVELS.map((L, k) => `<button data-cv="${i.id}" data-lv="${k}" aria-pressed="${k === lv}">${L}</button>`).join("")}</div></div>
+        ${open ? `<div class="details"><div><label class="label" for="n-${i.id}">Note</label><textarea id="n-${i.id}" data-note="${i.id}" placeholder="What you noticed, what helped">${esc(st.notes[i.id] || "")}</textarea></div>
+          ${i.own ? `<div class="actions"><button class="btn small danger" data-delc="${i.id}">Delete</button></div>` : ""}</div>` : ""}</li>`; }).join("");
+    return `<section class="ledger"><div class="group-head"><h3>${sec.name}</h3>${sec.ef ? `<a href="${HARVARD[1].u}" target="_blank" rel="noopener" style="font-size:.85rem">Harvard activities for ages 3–12</a>` : ""}</div>
+      ${sec.ef ? `<p class="strand hint" style="text-transform:none;letter-spacing:0">These draw on executive function: planning, focusing attention, switching gears and juggling tasks. Harvard’s activity guide has games for each age band.</p>` : ""}
+      <ul class="rows">${rows}</ul>
+      <form class="add-own" data-addc="${sec.k}"><label class="label" for="adc-${sec.k}">Add</label><input id="adc-${sec.k}" maxlength="140" placeholder="Another quality to work on"><button class="btn primary">Add</button></form></section>`;
+  }).join("");
+  $("#view").innerHTML = `<div class="stack">
+    <p class="credit">From <i>Things Every Child (4–12) Should Learn — Beyond Just Good Grades</i> by Abul Laith Muhammad Tahir Qadri. Habits grow slowly, so each quality has four levels instead of a tick. Review once a month and change only what you have actually seen; the app shows the direction since the last change.</p>
+    <div class="pace">${boxes}</div>
+    ${secs}
+    <section class="panel"><h2>Further reading</h2><ol class="srclist">${HARVARD.map(h => `<li><a href="${h.u}" target="_blank" rel="noopener">${esc(h.t)}</a><div class="hint">${esc(h.d)} Center on the Developing Child, Harvard University.</div></li>`).join("")}</ol></section>
+  </div>`;
+  const v = $("#view");
+  bindCommon(v, st, renderChar);
+  v.querySelectorAll("[data-cv]").forEach(b => b.addEventListener("click", () => { const id = b.dataset.cv, lv = +b.dataset.lv;
+    const x = st.cv[id] || { lv: 0, h: [] }; if (x.lv === lv && x.d) return;
+    x.lv = lv; x.d = today(); x.h = (x.h || []).filter(e => e[0] !== x.d).concat([[x.d, lv]]).slice(-24); st.cv[id] = x; st.example = false; save(); renderChar();
+    const n = document.querySelector(`[data-cv="${id}"][data-lv="${lv}"]`); if (n) n.focus(); }));
+  v.querySelectorAll("[data-addc]").forEach(f => f.addEventListener("submit", e => { e.preventDefault(); const inp = f.querySelector("input"); const t = inp.value.trim(); if (!t) return;
+    st.ccustom.push({ id: "cc-" + uid(), sec: f.dataset.addc, t }); save(); renderChar(); toast("Added"); }));
+  v.querySelectorAll("[data-delc]").forEach(b => b.addEventListener("click", () => { const id = b.dataset.delc;
+    st.ccustom = st.ccustom.filter(c => c.id !== id); delete st.cv[id]; delete st.notes[id]; save(); renderChar(); }));
+}
+
+/* ---------- Compare tab ---------- */
+function renderCompare() {
+  const st = cur();
+  const cell = x => x.all ? `<td><span class="mini"><i style="width:${P(x.pct)}"></i></span>${P(x.pct)}</td>` : `<td class="muted">–</td>`;
+  const rows = state.students.map(s => {
+    const exp = expected(s); const all = stats(s, s.grade, "all"); const ps = paceStatus(all.pct, exp, all.total);
+    let behind = 0; for (let g = 0; g < s.grade; g++) { const x = stats(s, g, "all"); behind += x.total - x.done; }
+    const bk = bookStats(s, s.grade); const ch = charScore(s);
+    return `<tr><td><strong>${esc(s.name)}</strong>${s.example ? ' <span class="example-flag">Example</span>' : ""}<div class="muted" style="font-size:.85rem">${GRADE_NAMES[s.grade]}${s.age ? ", age " + s.age : ""} · ${esc(s.track || "")}</div></td>
+      ${["la", "hg", "sci"].map(sj => cell(stats(s, s.grade, sj))).join("")}
+      <td>${P(all.pct)} <span class="muted">/ ${P(exp.frac)}</span></td><td><span class="pill ${ps.cls}">${ps.txt}</span></td>
+      ${cell(bk)}<td>${ch.habits} of ${ch.n}</td><td>${behind ? behind + " units" : '<span class="muted">none</span>'}</td></tr>`;
+  }).join("");
+  const ladder = GRADE_NAMES.map((n, g) => { const x = stats(st, g, "all");
+    return `<div class="ladder-row ${g === st.grade ? "cur" : ""}"><span>${n}${g === st.grade ? " · now" : ""}</span><div class="bar"><i style="width:${P(x.pct)}"></i></div><span class="pct">${P(x.pct)}</span></div>`; }).join("");
+  $("#view").innerHTML = `<div class="stack">
+    <section class="panel"><h2>Students this year</h2>
+      <p class="hint">Each student is measured on their own current class. “Expected” assumes a 10-month school year from the start month on the student card (Sindh Board sessions start in April; many O Level schools start in August).</p>
+      <div class="tablewrap"><table><thead><tr><th>Student</th><th>Lang. Arts</th><th>Hist. & Geo</th><th>Science</th><th>CK done / expected</th><th>Pace</th><th>School books</th><th>Habits formed</th><th>Earlier-grade gaps</th></tr></thead><tbody>${rows}</tbody></table></div>
+    </section>
+    <section class="panel"><h2>${esc(st.name)}: every grade</h2>
+      <p class="hint">Core Knowledge is cumulative, so gaps in earlier grades matter. A child who joins in Class 4 can use this ladder to pick the earlier units worth reading first. Skipped units do not count against the percentage.</p>
+      <div class="ladder">${ladder}</div>
+    </section></div>`;
+}
+
+/* ---------- Sources tab ---------- */
+function renderSources() {
+  const counts = {}; ITEMS.forEach(i => counts[i.src] = (counts[i.src] || 0) + 1);
+  const withPage = ITEMS.filter(i => i.page).length;
+  $("#view").innerHTML = `<div class="stack"><section class="panel"><h2>Where every Core Knowledge unit comes from</h2>
+    <p style="max-width:65ch">The ledger holds ${ITEMS.length} Core Knowledge units for Kindergarten to Grade 8. ${withPage} of them link to their own free download page on coreknowledge.org; every one of those addresses was matched against the Foundation’s own index of unit pages on 11 October 2026. The other ${ITEMS.length - withPage} have no separate page and link to their Online Resources guide instead.</p>
+    <ol class="srclist">${Object.entries(SOURCES).map(([k, s]) => `<li><a href="${s.u}" target="_blank" rel="noopener">${esc(s.t)}</a>${counts[k] ? ` <span class="muted">· ${counts[k]} units</span>` : ""}</li>`).join("")}</ol>
+    <p class="hint">Language Arts Grades 4 and 5 follow the units the Foundation currently offers for free, which differ from its 2014 scope-and-sequence documents. Three of them are built around a novel or memoir you buy separately. Tags such as <b>U.S. focus</b> and <b>Read first</b> are this tracker’s guidance for Pakistani Muslim families, not the Foundation’s.</p></section>
+    <section class="panel"><h2>School books</h2>
+      <p style="max-width:65ch">The series list holds Oxford University Press Pakistan titles found on <a href="https://oup.com.pk/" target="_blank" rel="noopener">oup.com.pk</a> and on a Karachi school’s published book list. OUP does not publish chapter lists online, so chapters are typed from your own copy. Topic matches to Core Knowledge units are made by shared words in the titles and are suggestions only.</p></section>
+    <section class="panel"><h2>Character & deen</h2>
+      <p style="max-width:65ch">From the article <i>Things Every Child (4–12) Should Learn — Beyond Just Good Grades</i> by Abul Laith Muhammad Tahir Qadri. Further reading from the Center on the Developing Child at Harvard University, links checked on 11 October 2026.</p></section></div>`;
+}
+
+/* ---------- Backup tab ---------- */
+function renderBackup() {
+  const json = JSON.stringify({ app: "ckledger", v: 2, exported: today(), students: state.students }, null, 1);
+  const canDownload = !!document.querySelector('link[rel="manifest"]');
+  $("#view").innerHTML = `<div class="stack backup">
+    <section class="panel"><h2>Save a backup</h2>
+      <p class="hint">Progress lives in this browser only. Clearing site data or changing phones loses it, so copy a backup now and then and keep it somewhere safe, such as an email to yourself.</p>
+      <label class="label" for="bk">Backup text</label><textarea id="bk" readonly>${esc(json)}</textarea>
+      <div class="actions"><button class="btn primary" id="copyBk">Copy backup</button>${canDownload ? '<button class="btn" id="dlBk">Download file</button>' : ""}</div>
+    </section>
+    <section class="panel"><h2>Restore</h2>
+      <p class="hint">Paste a backup or choose a backup file. Restoring replaces every student on this device.</p>
+      <label class="label" for="imp">Paste backup</label><textarea id="imp" placeholder='{"app":"ckledger", ...}'></textarea>
+      <div class="actions"><button class="btn primary" id="doImp">Restore from text</button><label class="btn" for="impFile">Choose file</label><input type="file" id="impFile" accept=".json,application/json" hidden></div>
+      <p id="impMsg" class="hint"></p>
+    </section>
+    <section class="panel"><h2>Remove a student</h2>
+      <div class="actions">${state.students.map(s => `<button class="btn small danger" data-del="${s.id}">${esc(s.name)}</button>`).join("")}</div>
+      <p id="delMsg" class="hint">Tap a name, then tap it again to confirm.</p>
+    </section></div>`;
+  $("#copyBk").addEventListener("click", () => { const t = $("#bk");
+    if (navigator.clipboard?.writeText) navigator.clipboard.writeText(t.value).then(() => toast("Backup copied"), () => { t.select(); toast("Select all and copy"); });
+    else { t.select(); toast("Select all and copy"); } });
+  $("#dlBk")?.addEventListener("click", () => { try { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([json], { type: "application/json" }));
+    a.download = "ck-ledger-backup-" + today() + ".json"; document.body.appendChild(a); a.click(); a.remove(); toast("Download started"); } catch (e) { toast("Download not available here; use Copy"); } });
+  const restore = txt => { try { const d = JSON.parse(txt); const s = { students: d.students };
+      if (!valid(s)) throw new Error("shape"); s.students.forEach(fix);
+      state.students = s.students; state.active = s.students[0].id; viewGrade = bookClass = null; save(); fillStudent(); state.ui.tab = "track"; render(); toast("Restored " + s.students.length + " student(s)"); }
+    catch (e) { $("#impMsg").textContent = "That text is not a Core Knowledge Ledger backup. Copy the whole backup, from the first { to the last }."; } };
+  $("#doImp").addEventListener("click", () => restore($("#imp").value));
+  $("#impFile").addEventListener("change", e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => restore(r.result); r.readAsText(f); });
+  let armed = null;
+  document.querySelectorAll("[data-del]").forEach(b => b.addEventListener("click", () => {
+    const id = b.dataset.del;
+    if (armed !== id) { armed = id; $("#delMsg").textContent = `Tap “${b.textContent}” again to delete this student and all their progress.`; return; }
+    state.students = state.students.filter(s => s.id !== id);
+    if (!state.students.length) state.students.push(newStudent("Student 1", 7, 2, false));
+    state.active = state.students[0].id; viewGrade = bookClass = null; save(); fillStudent(); renderBackup(); toast("Student removed");
+  }));
+}
+
+fillStudent(); render();
+if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol) && document.querySelector('link[rel="manifest"]')) {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+})();
+</script>
+
+</body>
+</html>

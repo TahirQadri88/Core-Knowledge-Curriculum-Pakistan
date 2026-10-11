@@ -1,0 +1,10 @@
+build/
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+.env
+*.key
+serviceAccount*.json
+.firebase/
+node_modules/
