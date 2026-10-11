@@ -597,7 +597,7 @@ function renderBooks() {
     const ps = !b.ch.length ? { cls: "plain", txt: "No chapters yet" } : cls === st.grade ? paceStatus(s.pct, exp, s.total) : { cls: "plain", txt: GRADE_NAMES[cls] };
     const rows = b.ch.map((c, n) => {
       const head = c.g && c.g !== b.ch[n - 1]?.g ? `<li class="strand label">${esc(c.g)}</li>` : "";
-      const x = st.status[c.id]; const done = x?.st === "done"; const sg = suggest(c.g ? c.g.replace(/^Big Question \d+ · /, "") : c.t, b.subj, b.cls); // story titles say little; the Big Question names the topic const open = openRows.has(c.id);
+      const x = st.status[c.id]; const done = x?.st === "done"; const sg = suggest(/^Big Question/.test(c.g || "") ? c.g.replace(/^Big Question \d+ · /, "") : c.t, b.subj, b.cls); // Oxford Discover story titles say little; its Big Question names the topic const open = openRows.has(c.id);
       return `${head}<li class="row ${done ? "done" : ""}"><div class="row-main">
         <label class="tick"><input type="checkbox" id="c-${c.id}" data-tick="${c.id}" ${done ? "checked" : ""}></label>
         <label class="row-title" for="c-${c.id}"><span class="t">${esc(c.t)}</span>
