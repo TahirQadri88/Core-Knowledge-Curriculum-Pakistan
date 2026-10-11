@@ -1,15 +1,16 @@
 # Core Knowledge Ledger
 
 An offline progressive web app for Karachi families. Parents and students track:
-1. **Core Knowledge** units, Kindergarten to Grade 8 (Language Arts CKLA, History & Geography CKHG, Science CKSci), by class and age.
-2. **School books**: Oxford University Press Pakistan or any other textbooks, chapter by chapter, with matching Core Knowledge units suggested as background reading.
+1. **Class goals**: what Pakistan's National Curriculum expects by the end of each class, KG to Class 8, in plain words.
+2. **School books**: Oxford University Press Pakistan or any other textbooks, chapter by chapter, with matching Core Knowledge units suggested as extra reading.
 3. **Character & deen**: the qualities from the article *Things Every Child (4–12) Should Learn — Beyond Just Good Grades* by Abul Laith Muhammad Tahir Qadri, tracked on four levels (Not yet, Learning, Often, Habit).
+4. **Extra reading**: optional Core Knowledge units, Kindergarten to Grade 8 (Language Arts CKLA, History & Geography CKHG, Science CKSci), by class.
 
 Owner: Tahir (Karachi). Users: Pakistani Muslim parents on phones, Sindh Board, O Level and homeschool families.
 
 ## Layout
 - `src/app.html`: the whole app (HTML, CSS, vanilla JS). The `/*__DATA__*/` marker is replaced with `src/data.js` at build time.
-- `src/data.js`: curriculum data (`RAW`, `ITEMS`, `SOURCES`, `NOTES`), Oxford series list (`BOOK_SERIES`), character list (`CHAR`, `LEVELS`), Harvard links (`HARVARD`).
+- `src/data.js`: curriculum data (`RAW`, `ITEMS`, `SOURCES`, `NOTES`), National Curriculum goals (`NCP`, `NCP_SUBJ`, `NCP_BOOKS`), regions (`HG_REGION`), Oxford series list (`BOOK_SERIES`), character list (`CHAR`, `LEVELS`), Harvard links (`HARVARD`).
 - `build.py`: builds `docs/` (installable PWA: index.html, manifest.json, sw.js, icons) and `build/` (single-file artifact.html and a zip).
 - `scripts/test_app.py`: browser smoke test of `docs/`. `scripts/check_links.py`: checks every unit link against coreknowledge.org.
 - `docs/` is generated. Never edit it by hand; edit `src/` and rebuild.
@@ -46,7 +47,9 @@ After any change: build, run the test, and run the link check if `src/data.js` c
 - Messages go through `toast()`, which also announces them to screen readers; pass an undo function for anything destructive.
 - First visit: a two-question setup (child's name and class) adds that class's `SCHOOL_LIST` books; `ui.welcome` controls it. **Add child** reuses the same form. Child details stay folded behind **Edit details**. Say "child", not "student", in anything parents read.
 - **Install app** button: uses Chrome's install prompt when offered, otherwise shows Safari or Chrome steps. Hidden when already installed or in the artifact build.
-- Tabs: School books (first and default), Core Knowledge, Character & deen, Compare, More (Backup and Sources). Keep at most five.
+- Tabs: Class goals (first and default), School books, Character & deen, Extra reading (Core Knowledge), More (Compare, Backup, Sources). Keep at most five.
+- Class goals come from `NCP` in `src/data.js`: plain-language summaries of Pakistan's National Curriculum progression grids (ncc.gov.pk), each point with the grid's SLO codes. Never add a goal from memory; summarise only what the grid says for that class, and record the source in `notes/decisions.md`. Update them when the draft 2026 national curriculum is final.
+- Core Knowledge is optional extra reading: no "expected by now" pace on it, U.S.-only units hidden unless the parent turns them on, History & Geography grouped by region (`HG_REGION`). Give every new History & Geography unit a region.
 
 ## Design skills
 - `.claude/skills/hig-*`: Apple Human Interface Guidelines skills from HIG Doctor (Raintree Technology, MIT; Apple's reference text in each `references/` folder is © Apple Inc.). Snapshot copied on 11 October 2026 from commit 5e20558.

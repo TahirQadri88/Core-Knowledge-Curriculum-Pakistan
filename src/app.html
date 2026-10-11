@@ -183,7 +183,28 @@ th{font-size:.85rem;color:var(--muted)}
 .toast:not(:has(button)){padding-inline-end:14px}
 .toast[hidden]{display:none}
 .toast button{flex:none;border:1px solid var(--paper);background:none;color:var(--paper);border-radius:6px;font-weight:700;min-height:var(--tap);min-width:var(--tap);padding:0 12px}
-.subnav{max-width:24rem}
+.subnav{max-width:30rem}
+.steps{display:grid;gap:4px;margin:0;padding-inline-start:1.4rem;max-width:65ch}
+.goal > summary{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 12px;min-height:var(--tap);padding-block:8px;padding-inline:16px 12px;cursor:pointer;list-style:none;background:var(--paper)}
+.goal > summary::-webkit-details-marker{display:none}
+.goal > summary h3::before{content:"";display:inline-block;width:.5em;height:.5em;border-inline-end:2px solid currentColor;border-block-end:2px solid currentColor;transform:rotate(-45deg);margin-inline-end:.6em;vertical-align:.1em}
+[dir="rtl"] .goal > summary h3::before{transform:rotate(135deg)}
+.goal[open] > summary h3::before{transform:rotate(45deg)}
+.goal[open] > summary{border-bottom:1px solid var(--line)}
+.goal .gpts{list-style:none;margin:0;padding:0;position:relative}
+.goal .gpts::before{content:"";position:absolute;top:0;bottom:0;inset-inline-start:calc(var(--gut) - 6px);width:1px;background:var(--margin);opacity:.6}
+.goal .gpts li{padding-block:8px;padding-inline:var(--gut) 14px;border-bottom:1px solid var(--rule);display:grid;gap:2px}
+.goal .gpts li p{max-width:65ch}
+.goal .gfoot{padding-block:10px 12px;padding-inline:var(--gut) 14px;display:grid;gap:8px;font-size:.95rem}
+.gsum{font-size:.9rem;color:var(--muted)}
+summary.linkbtn{white-space:normal;text-align:start;cursor:pointer;list-style:none}
+summary.linkbtn::-webkit-details-marker{display:none}
+summary.linkbtn::before{content:"";flex:none;width:.5em;height:.5em;border-inline-end:2px solid currentColor;border-block-end:2px solid currentColor;transform:rotate(-45deg);margin-inline-end:.6em}
+[dir="rtl"] summary.linkbtn::before{transform:rotate(135deg)}
+details[open] > summary.linkbtn::before{transform:rotate(45deg)}
+.cover{display:grid;gap:6px}
+.cover .ladder-row{grid-template-columns:minmax(0,11rem) minmax(0,1fr) 2.2rem}
+@media (max-width:480px){.cover .ladder-row{grid-template-columns:minmax(0,1fr) 2.2rem}.cover .ladder-row .bar{grid-column:1 / -1;grid-row:2}}
 .credit{font-size:.9rem;color:var(--muted);max-width:70ch}
 footer{font-size:.85rem;color:var(--muted);max-width:70ch}
 @media (prefers-reduced-motion:no-preference){.bar>i,.grade .meter i,.mini i{transition:width .3s ease}}
@@ -193,7 +214,7 @@ footer{font-size:.85rem;color:var(--muted);max-width:70ch}
   <header class="top">
     <div class="brand">
       <h1>Core Knowledge Ledger</h1>
-      <small>School books, Core Knowledge and character, for each of your children</small>
+      <small>What your child should learn each class, their school books, and character</small>
     </div>
     <div class="actions">
       <label class="label" for="studentSel">Child</label>
@@ -228,16 +249,16 @@ footer{font-size:.85rem;color:var(--muted);max-width:70ch}
   </section>
 
   <nav class="tabs" role="tablist" aria-label="Sections">
+    <button class="tab" role="tab" data-tab="goals" id="tab-goals" aria-controls="view">Class goals</button>
     <button class="tab" role="tab" data-tab="books" id="tab-books" aria-controls="view">School books</button>
-    <button class="tab" role="tab" data-tab="track" id="tab-track" aria-controls="view">Core Knowledge</button>
     <button class="tab" role="tab" data-tab="char" id="tab-char" aria-controls="view">Character &amp; deen</button>
-    <button class="tab" role="tab" data-tab="compare" id="tab-compare" aria-controls="view">Compare</button>
+    <button class="tab" role="tab" data-tab="track" id="tab-track" aria-controls="view">Extra reading</button>
     <button class="tab" role="tab" data-tab="more" id="tab-more" aria-controls="view">More</button>
   </nav>
 
   <main id="view" role="tabpanel" tabindex="-1"></main>
 
-  <footer>Core Knowledge unit lists and download pages: Core Knowledge Foundation, checked on coreknowledge.org on 11 October 2026. This tracker is independent and not affiliated with the Foundation or with Oxford University Press. Progress is saved on this device only; use More, then Backup, to move it.</footer>
+  <footer>Class goals: summarised from Pakistan’s National Curriculum (National Curriculum Council, ncc.gov.pk). Extra reading: Core Knowledge Foundation unit pages, checked on coreknowledge.org on 11 October 2026. This tracker is independent and not affiliated with the National Curriculum Council, the Core Knowledge Foundation or Oxford University Press. Progress is saved on this device only; use More, then Backup, to move it.</footer>
 </div>
 <div class="toast" id="toast" hidden></div>
 <div class="sr-only" id="live" role="status" aria-live="polite"></div>
@@ -254,6 +275,8 @@ const MONTHS = ["January","February","March","April","May","June","July","August
 const KEY = "ckledger.v1";
 const TAG_LABEL = { us:"U.S. focus", islam:"Read first", book:"Buy the novel", sa:"South Asia", review:"Parent review", nopage:"No unit page" };
 const NOTE_FOR = f => NOTES[f];
+const REGION_NAME = Object.fromEntries(HG_REGIONS); const REGION_AT = Object.fromEntries(HG_REGIONS.map(([k], n) => [k, n]));
+const regionOf = i => i.flags.includes("us") ? "us" : HG_REGION[i.id] || "world";
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -267,7 +290,7 @@ function newStudent(name, age, grade, example) {
 }
 function fix(s) { s.status ||= {}; s.notes ||= {}; s.custom ||= []; s.books ||= []; s.cv ||= {}; s.ccustom ||= []; if (!s.start) s.start = 4; return s; }
 function sampleState() {
-  const s = newStudent("Sample student", 9, 4, true);
+  const s = newStudent("Sample child", 9, 4, true);
   ["la-4-2","hg-4-1","hg-4-2","hg-4-3","sci-4-1","sci-4-2"].forEach((id, i) => s.status[id] = { st: "done", d: "2026-0" + (5 + Math.min(i, 4)) + "-1" + i });
   ["hg-4-7","hg-4-8","hg-4-9","hg-4-10","hg-4-11"].forEach(id => s.status[id] = { st: "skip" });
   const b = { id: "b-" + uid(), title: "Example book: replace with your own", series: "", subj: "Science", cls: 4,
@@ -276,7 +299,7 @@ function sampleState() {
   const lv = { "ch-deen-1": 2, "ch-deen-2": 1, "ch-deen-3": 2, "ch-deen-5": 3, "ch-emo-1": 1, "ch-emo-3": 1, "ch-others-2": 2, "ch-others-6": 3, "ch-habits-1": 1 };
   for (const [k, v] of Object.entries(lv)) s.cv[k] = { lv: v, d: "2026-09-01", h: [["2026-08-01", Math.max(0, v - 1)], ["2026-09-01", v]] };
   s.sample = true;
-  return { students: [s], active: s.id, ui: { tab: "books", subj: "all", hideUS: false, q: "", more: "backup", welcome: true } };
+  return { students: [s], active: s.id, ui: { tab: "goals", subj: "all", hideUS: true, q: "", more: "backup", welcome: true, v: 2 } };
 }
 function valid(d) {
   return d && Array.isArray(d.students) && d.students.length > 0 && d.students.every(s => s && typeof s.id === "string" && typeof s.name === "string"
@@ -285,19 +308,21 @@ function valid(d) {
 function load() {
   try { const raw = localStorage.getItem(KEY); if (raw) { const d = JSON.parse(raw); if (valid(d)) { d.students.forEach(fix);
     d.ui = Object.assign({ tab:"books", subj:"all", hideUS:false, q:"", more:"backup" }, d.ui || {});
-    if (d.ui.tab === "sources" || d.ui.tab === "backup") { d.ui.more = d.ui.tab; d.ui.tab = "more"; }
+    if (d.ui.tab === "sources" || d.ui.tab === "backup" || d.ui.tab === "compare") { d.ui.more = d.ui.tab; d.ui.tab = "more"; }
+    if (!(d.ui.v >= 2)) { d.ui.v = 2; d.ui.hideUS = true; } /* v2: U.S.-only units are hidden until a parent turns them on */
     if (d.ui.welcome === undefined && d.students.length === 1 && d.students[0].example) { d.ui.welcome = true; d.students[0].sample = true; } return d; } } } catch (e) {}
   return sampleState();
 }
 let state = load();
-let viewGrade = null, bookClass = null;
+let viewGrade = null, bookClass = null, goalClass = null;
 const openRows = new Set();
 function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
 const cur = () => state.students.find(s => s.id === state.active) || state.students[0];
 
 /* ---------- maths ---------- */
 function itemsFor(st, g, subj) {
-  const base = ITEMS.filter(i => i.g === g && (subj === "all" || i.s === subj));
+  /* hidden U.S.-only units do not count, unless the child has already done them */
+  const base = ITEMS.filter(i => i.g === g && (subj === "all" || i.s === subj) && !(state.ui.hideUS && i.flags.includes("us") && st.status[i.id]?.st !== "done"));
   const own = (subj === "all" || subj === "own") ? st.custom.filter(c => c.g === g).map(c => ({ id: c.id, s: "own", g, unit: "Own", title: c.t, flags: [], own: true })) : [];
   return subj === "own" ? own : base.concat(own);
 }
@@ -399,7 +424,7 @@ function renderSetup() {
     const list = $("#sBooks").checked ? SCHOOL_LIST.classes[grade] || [] : [];
     s.books = list.map(([title, subj, pub, isbn]) => ({ id: "b-" + uid(), title, series: "", subj, pub, isbn, cls: grade, ch: chaptersFor(isbn) }));
     state.students = state.students.filter(x => !x.sample && !x.example).concat(s); state.active = s.id;
-    state.ui.setup = state.ui.welcome = false; state.ui.tab = "books"; viewGrade = bookClass = null; openRows.clear(); save(); fillStudent(); render();
+    state.ui.setup = state.ui.welcome = false; state.ui.tab = "goals"; viewGrade = bookClass = goalClass = null; openRows.clear(); save(); fillStudent(); render();
     const nch = s.books.reduce((a, b) => a + b.ch.length, 0);
     toast(list.length ? `${name} is ready, with ${list.length} school books${nch ? ` and ${nch} chapters` : ""}` : `${name} is ready`); $("#view").focus(); });
   if (mode === "add") $("#sName").focus();
@@ -428,20 +453,20 @@ function ageHint() {
   if (a >= 5 && a <= 14) {
     const g = Math.min(8, Math.max(0, a - 5));
     h = `Age ${a} usually starts the year in ${GRADE_NAMES[g]} (${US_GRADE[g]}).`;
-    if (g !== st.grade) h += ` ${esc(st.name)} is set to ${GRADE_NAMES[st.grade]}; earlier grades still count, so check the ladder on Compare.`;
+    if (g !== st.grade) h += ` ${esc(st.name)} is set to ${GRADE_NAMES[st.grade]}; earlier grades still count, so check the ladder under More, then Compare.`;
   } else if (a === 4 || a === 3) h = "Core Knowledge starts at Kindergarten (age 5). The Character & deen tab covers ages 4 to 12.";
   else if (a) h = "Core Knowledge covers ages 5 to 14 (Kindergarten to Grade 8).";
   if (st.example) h += ` <span class="example-flag">This is a sample child to show how the app works.</span>`;
   $("#ageHint").innerHTML = h;
 }
-$("#studentSel").addEventListener("change", e => { state.active = e.target.value; viewGrade = bookClass = null; openRows.clear(); save(); fillStudent(); render(); });
+$("#studentSel").addEventListener("change", e => { state.active = e.target.value; viewGrade = bookClass = goalClass = null; openRows.clear(); save(); fillStudent(); render(); });
 $("#addStudent").addEventListener("click", () => { state.ui.setup = true; save(); renderSetup(); $("#setup").scrollIntoView({ block: "start" }); });
 $("#fName").addEventListener("input", e => { const st = cur(); st.name = e.target.value || "Child"; st.example = false; save();
-  const o = $("#studentSel").selectedOptions[0]; if (o) o.textContent = st.name; ageHint(); if (state.ui.tab === "compare") render(); });
+  const o = $("#studentSel").selectedOptions[0]; if (o) o.textContent = st.name; ageHint(); if (state.ui.tab === "more") render(); });
 $("#fAge").addEventListener("change", e => { const st = cur(); st.age = parseInt(e.target.value, 10) || null;
-  if (st.age >= 5 && st.age <= 13 && Object.keys(st.status).length === 0) { st.grade = Math.min(8, st.age - 5); viewGrade = bookClass = null; fillStudent(); }
+  if (st.age >= 5 && st.age <= 13 && Object.keys(st.status).length === 0) { st.grade = Math.min(8, st.age - 5); viewGrade = bookClass = goalClass = null; fillStudent(); }
   save(); ageHint(); render(); });
-$("#fGrade").addEventListener("change", e => { cur().grade = +e.target.value; viewGrade = bookClass = null; save(); ageHint(); render(); });
+$("#fGrade").addEventListener("change", e => { cur().grade = +e.target.value; viewGrade = bookClass = goalClass = null; save(); ageHint(); render(); });
 $("#fStart").addEventListener("change", e => { cur().start = +e.target.value; save(); render(); });
 $("#fTrack").addEventListener("change", e => { cur().track = e.target.value; save(); });
 
@@ -455,23 +480,23 @@ $(".tabs").addEventListener("keydown", e => {
 });
 
 function render() {
-  if (!["track", "books", "char", "compare", "more"].includes(state.ui.tab)) state.ui.tab = "books";
+  if (!["goals", "track", "books", "char", "more"].includes(state.ui.tab)) state.ui.tab = "goals";
   document.querySelectorAll(".tab").forEach(b => { const on = b.dataset.tab === state.ui.tab;
     b.setAttribute("aria-selected", String(on)); b.tabIndex = on ? 0 : -1; });
   $("#view").setAttribute("aria-labelledby", "tab-" + state.ui.tab);
-  ({ track: renderTrack, books: renderBooks, char: renderChar, compare: renderCompare, more: renderMore }[state.ui.tab])();
+  ({ goals: renderGoals, track: renderTrack, books: renderBooks, char: renderChar, more: renderMore }[state.ui.tab])();
 }
 
-/* ---------- More tab: Backup and Sources ---------- */
+/* ---------- More tab: Compare, Backup and Sources ---------- */
 function renderMore() {
-  const sub = state.ui.more === "sources" ? "sources" : "backup";
+  const sub = ["compare", "sources"].includes(state.ui.more) ? state.ui.more : "backup";
   $("#view").innerHTML = `<div class="stack">
-    <div class="seg subnav" role="group" aria-label="More">${[["backup", "Backup"], ["sources", "Sources"]].map(([k, l]) =>
+    <div class="seg subnav" role="group" aria-label="More">${[["compare", "Compare"], ["backup", "Backup"], ["sources", "Sources"]].map(([k, l]) =>
       `<button data-more="${k}" aria-pressed="${k === sub}">${l}</button>`).join("")}</div>
     <div id="moreBody"></div></div>`;
   document.querySelectorAll("[data-more]").forEach(b => b.addEventListener("click", () => {
     state.ui.more = b.dataset.more; save(); renderMore(); document.querySelector(`[data-more="${b.dataset.more}"]`).focus(); }));
-  (sub === "sources" ? renderSources : renderBackup)();
+  ({ compare: renderCompare, sources: renderSources, backup: renderBackup }[sub])();
 }
 
 function gradeStrip(sel, statFn, attr) {
@@ -481,13 +506,57 @@ function gradeStrip(sel, statFn, attr) {
       ${i === st.grade ? '<span class="cur">NOW</span>' : ""}<b>${i === 0 ? "K" : i}</b><span>${n}</span><span class="meter"><i style="width:${P(s.pct)}"></i></span></button>`; }).join("")}</div>`;
 }
 
+/* ---------- Class goals tab: what the National Curriculum expects by the end of each class ---------- */
+const openGoals = new Set();
+function renderGoals() {
+  const st = cur(); const cls = goalClass ?? st.grade; goalClass = cls;
+  const subs = NCP[cls] || {}; const name = esc(st.name);
+  const books = st.books.filter(b => b.cls === cls);
+  const cards = Object.entries(subs).map(([k, pts]) => {
+    const m = NCP_SUBJ[k]; const id = "g-" + k;
+    const mine = k === "ece" ? books : books.filter(b => (NCP_BOOKS[k] || []).includes(b.subj));
+    const bs = countList(st, mine.flatMap(b => b.ch.map(c => c.id)));
+    const sum = mine.length ? (bs.all ? `School books ${P(bs.pct)} done` : `${mine.length} school book${mine.length === 1 ? "" : "s"}`) : "";
+    const ck = k === "ece" ? "la" : NCP_CK[k];
+    return `<details class="ledger goal" data-goal="${k}" ${openGoals.has(k) ? "open" : ""}>
+      <summary aria-describedby="${id}-s"><h3>${m.n}</h3><span class="gsum" id="${id}-s">${pts.length} goals${sum ? " · " + sum : ""}</span></summary>
+      <ul class="gpts">${pts.map(([t, c]) => `<li><p>${esc(t)}</p><span class="mono muted">${esc(c)}</span></li>`).join("")}</ul>
+      <div class="gfoot">
+        ${mine.length ? `<p>${mine.map(b => `${esc(b.title)} <span class="muted">(${countList(st, b.ch.map(c => c.id)).done} of ${b.ch.length} chapters)</span>`).join("<br>")}</p>` : ""}
+        <div class="actions">${mine.length ? `<button class="btn small" data-gobooks>Tick chapters in School books</button>` : ""}
+          ${ck ? `<button class="btn small" data-gock="${ck}">Extra reading: ${SUBJECTS[ck].name}</button>` : ""}</div>
+        <p class="hint">Source: <a href="${NCF + m.src}" target="_blank" rel="noopener">National Curriculum of Pakistan, ${esc(m.st)} (PDF)</a></p>
+      </div></details>`;
+  }).join("");
+  const isCur = cls === st.grade; const keys = Object.keys(subs);
+  const allOpen = () => keys.every(k => openGoals.has(k)); const allLabel = () => allOpen() ? "Close all subjects" : "Open all subjects";
+  $("#view").innerHTML = `<div class="stack">
+    <div class="stack-s"><div class="label">Class · tap to view</div>${gradeStrip(cls, i => bookStats(st, i), "data-gc")}</div>
+    <section class="panel">
+      <h2>By the end of ${GRADE_NAMES[cls]}${isCur ? `, ${name} should be able to…` : ""}</h2>
+      <p style="max-width:65ch">${isCur ? "" : `${name} is in ${GRADE_NAMES[st.grade]}. `}These are the main goals of Pakistan’s National Curriculum for ${GRADE_NAMES[cls]}${cls === 0 ? " (the Early Childhood curriculum, ages 4 to 5)" : ""}, in plain words. Schools use different books, but they aim at these goals.</p>
+      <ol class="steps"><li>Open a subject below to see its goals.</li><li>Tick chapters in <b>School books</b> as ${name} finishes them.</li><li>For a topic ${name} enjoys, use <b>Extra reading</b> for free books that go further.</li></ol>
+      <div class="actions"><button class="btn small" id="goalsAll">${allLabel()}</button></div>
+    </section>
+    ${cards}
+    <p class="hint" style="max-width:70ch">Summaries of the official progression grids: the National Curriculum of Pakistan 2020 for KG to Class 5 and 2022-23 for Classes 6 to 8. The codes are the grid’s own learning outcome numbers, so a teacher can look them up. Sindh Board and Cambridge schools may teach some topics a year earlier or later. A new national curriculum (2026) is in draft; these goals will be updated when it is final.</p>
+  </div>`;
+  const v = $("#view");
+  v.querySelectorAll("[data-gc]").forEach(b => b.addEventListener("click", () => { goalClass = +b.dataset.gc; renderGoals(); v.querySelector(`[data-gc="${goalClass}"]`)?.focus(); }));
+  v.querySelectorAll("details[data-goal]").forEach(d => d.addEventListener("toggle", () => { d.open ? openGoals.add(d.dataset.goal) : openGoals.delete(d.dataset.goal);
+    $("#goalsAll").textContent = allLabel(); }));
+  $("#goalsAll").addEventListener("click", () => { const all = allOpen(); keys.forEach(k => all ? openGoals.delete(k) : openGoals.add(k)); renderGoals(); $("#goalsAll").focus(); });
+  v.querySelectorAll("[data-gobooks]").forEach(b => b.addEventListener("click", () => { bookClass = cls; state.ui.tab = "books"; save(); render(); $("#view").focus(); }));
+  v.querySelectorAll("[data-gock]").forEach(b => b.addEventListener("click", () => { viewGrade = cls; state.ui.subj = b.dataset.gock; state.ui.tab = "track"; save(); render(); $("#view").focus(); }));
+}
+
 /* ---------- Core Knowledge tab ---------- */
 function renderTrack() {
   const st = cur(); const g = viewGrade ?? st.grade; viewGrade = g;
-  const exp = expected(st); const isCur = g === st.grade;
+  const isCur = false; /* extra reading is optional, so it has no "expected by now" marker */
   const paceBoxes = ["la", "hg", "sci", "own"].map(sj => {
     const s = stats(st, g, sj); if (sj === "own" && !s.all) return "";
-    const ps = isCur ? paceStatus(s.pct, exp, s.total) : (s.pct >= 1 ? { cls: "good", txt: "Complete" } : g < st.grade ? { cls: s.total - s.done ? "warn" : "good", txt: s.total - s.done ? (s.total - s.done) + " to catch up" : "Complete" } : { cls: "plain", txt: "Later grade" });
+    const ps = !s.total ? { cls: "plain", txt: "Nothing to show" } : s.pct >= 1 ? { cls: "good", txt: "All read" } : { cls: "plain", txt: "Optional" };
     const name = sj === "own" ? "Our own objectives" : SUBJECTS[sj].name;
     return `<div class="pbox"><div class="pbox-head"><strong>${name}</strong><span class="pct">${P(s.pct)}</span></div>
       <div class="bar${isCur ? " has-exp" : ""}" role="img" aria-label="${name}: ${P(s.pct)} done${isCur ? ", expected by now " + P(exp.frac) : ""}"><i style="width:${P(s.pct)}"></i>${isCur ? `<em style="inset-inline-start:calc(${P(exp.frac)} - 1px)"></em><span class="exp" aria-hidden="true" style="inset-inline-start:${Math.min(85, Math.max(15, Math.round(exp.frac * 100)))}%">Expected ${P(exp.frac)}</span>` : ""}</div>
@@ -497,28 +566,40 @@ function renderTrack() {
   const subjOrder = ui.subj === "all" ? ["la", "hg", "sci", "own"] : [ui.subj];
   const groups = subjOrder.map(sj => {
     let list = itemsFor(st, g, sj);
-    if (ui.hideUS) list = list.filter(i => !i.flags.includes("us"));
     if (q) list = list.filter(i => (i.title + " " + i.unit).toLowerCase().includes(q));
+    if (sj === "hg") list = list.map((i, n) => ({ i, n, r: REGION_AT[regionOf(i)] })).sort((a, b) => a.r - b.r || a.n - b.n).map(x => x.i);
     const name = sj === "own" ? "Our own objectives" : `${SUBJECTS[sj].name} <span class="mono muted">${SUBJECTS[sj].code}</span>`;
     const usCount = itemsFor(st, g, sj).filter(i => i.flags.includes("us") && !st.status[i.id]).length;
+    const usHidden = ui.hideUS ? ITEMS.filter(i => i.g === g && i.s === sj && i.flags.includes("us") && st.status[i.id]?.st !== "done").length : 0;
     let rows = "", lastStrand = null;
-    list.forEach(i => { if (i.strand && i.strand !== lastStrand) { lastStrand = i.strand;
-      rows += `<li class="strand label">${i.strand === "skills" ? "Skills units · phonics, spelling, decodable readers" : "Read-aloud domains · background knowledge"}</li>`; } rows += rowHTML(i); });
+    list.forEach(i => { const head = sj === "hg" ? regionOf(i) : i.strand;
+      if (head && head !== lastStrand) { lastStrand = head;
+      rows += `<li class="strand label">${sj === "hg" ? REGION_NAME[head] : i.strand === "skills" ? "Skills units · phonics, spelling, decodable readers" : "Read-aloud domains · background knowledge"}</li>`; } rows += rowHTML(i); });
     rows ||= `<li class="empty">${sj === "own" ? "Add anything your family tracks alongside Core Knowledge: Qur'an, Urdu, maths chapters." : "No objectives match."}</li>`;
     return `<section class="ledger"><div class="group-head"><h3>${name}</h3>
-      ${usCount && sj !== "own" ? `<button class="btn small" data-skipus="${sj}">Skip ${usCount} U.S.-focus</button>` : ""}</div>
+      ${usCount && sj !== "own" && !ui.hideUS ? `<button class="btn small" data-skipus="${sj}">Skip ${usCount} U.S.-focus</button>` : ""}
+      ${usHidden && sj !== "own" ? `<span class="hint">${usHidden} U.S. unit${usHidden === 1 ? "" : "s"} hidden</span>` : ""}</div>
       <ul class="rows">${rows}</ul>
       ${sj === "own" ? `<form class="add-own" data-addown><label class="label" for="ownIn">Add for ${GRADE_NAMES[g]}</label><input id="ownIn" placeholder="e.g. Ḥifẓ: Juz' 30 revision" maxlength="120"><button class="btn primary">Add</button></form>` : ""}
     </section>`;
   }).join("");
+  const hgAll = ITEMS.filter(i => i.s === "hg"); const byRegion = HG_REGIONS.map(([k, n]) => [n, hgAll.filter(i => regionOf(i) === k).length]);
+  const nUS = byRegion[byRegion.length - 1][1], nSA = hgAll.filter(i => regionOf(i) === "sa").length;
   $("#view").innerHTML = `<div class="stack">
+    <section class="panel"><h2>Extra reading from Core Knowledge</h2>
+      <p style="max-width:65ch">Optional. Core Knowledge is a free curriculum written for American schools, with good books on world history, science and literature. Your child does not need it to finish their school year. Use it when a school chapter or a question sparks interest.</p>
+      <details><summary class="linkbtn" style="justify-content:flex-start;padding:0">Where in the world its history units are set</summary>
+        <p class="hint" style="max-width:65ch;margin-block:6px">${nUS} of its ${hgAll.length} History &amp; Geography units are about the United States, and ${nSA} is about South Asia. Pakistan’s own history and geography are in your child’s Social Studies books and on the <b>Class goals</b> tab. U.S. units are hidden unless you turn them on.</p>
+        <div class="cover">${byRegion.map(([n, c]) => `<div class="ladder-row"><span>${n}</span><div class="bar" aria-hidden="true"><i style="width:${P(c / hgAll.length)}"></i></div><span class="pct">${c}</span></div>`).join("")}</div>
+      </details>
+    </section>
     <div class="stack-s"><div class="label">Grade · tap to view</div>${gradeStrip(g, i => stats(st, i, "all"), "data-g")}</div>
-    <div class="stack-s"><div class="label">${GRADE_NAMES[g]} · ${US_GRADE[g]}${isCur ? ` · month ${Math.min(10, Math.floor(exp.months) + 1)} of a 10-month year. The dark marker on each bar shows where you should be by now` : ""}</div><div class="pace">${paceBoxes}</div></div>
-    <p class="hint">Tap <b>Details</b> on any unit, then <b>Open unit page</b>. The Foundation’s page has red buttons to download the Teacher Guide, the Student Reader or Book, and the Activity Book as free PDFs.</p>
+    <div class="stack-s"><div class="label">${GRADE_NAMES[g]} · American ${US_GRADE[g]}</div><div class="pace">${paceBoxes}</div></div>
+    <p class="hint" style="max-width:70ch">Tap <b>Details</b> on any unit, then <b>Open unit page</b>. The Foundation’s page has red buttons to download the Teacher Guide, the Student Reader or Book, and the Activity Book as free PDFs.</p>
     <div class="toolbar">
       <div class="seg" role="group" aria-label="Subject">${[["all","All","All subjects"],["la","Language","Language Arts"],["hg","History","History and Geography"],["sci","Science","Science"],["own","Our own","Our own objectives"]].map(([k, l, full]) => `<button data-subj="${k}" aria-pressed="${ui.subj === k}"${full !== l ? ` aria-label="${full}"` : ""}>${l}</button>`).join("")}</div>
       <div class="actions">
-        <label class="check"><input type="checkbox" id="hideUS" ${ui.hideUS ? "checked" : ""}> Hide U.S.-focus</label>
+        <label class="check"><input type="checkbox" id="showUS" ${ui.hideUS ? "" : "checked"}> Show U.S. units</label>
         <input class="search" id="q" type="search" aria-label="Search units" placeholder="Search units" value="${esc(ui.q)}">
       </div>
     </div>
@@ -570,7 +651,7 @@ function bindTrack(st) {
   bindCommon(v, st, renderTrack);
   v.querySelectorAll("[data-g]").forEach(b => b.addEventListener("click", () => { viewGrade = +b.dataset.g; renderTrack(); }));
   v.querySelectorAll("[data-subj]").forEach(b => b.addEventListener("click", () => { state.ui.subj = b.dataset.subj; save(); renderTrack(); }));
-  $("#hideUS").addEventListener("change", e => { state.ui.hideUS = e.target.checked; save(); renderTrack(); });
+  $("#showUS").addEventListener("change", e => { state.ui.hideUS = !e.target.checked; save(); renderTrack(); $("#showUS").focus(); });
   $("#q").addEventListener("input", e => { state.ui.q = e.target.value; save(); const pos = e.target.selectionStart; renderTrack(); const n = $("#q"); n.focus(); n.setSelectionRange(pos, pos);
     if (state.ui.q.trim()) { const c = $("#view").querySelectorAll(".row").length; announce(c ? `${c} unit${c === 1 ? "" : "s"} match` : "No units match"); } });
   v.querySelectorAll("[data-skip]").forEach(b => b.addEventListener("click", () => { const id = b.dataset.skip;
@@ -605,7 +686,7 @@ function renderBooks() {
         <label class="row-title" for="c-${c.id}"><span class="t" dir="auto">${esc(c.t)}</span>
           <span class="meta"><span class="mono muted">${esc(c.n || "Ch. " + (n + 1))}${c.pg ? ` · p. ${c.pg}` : ""}</span>${done && x.d ? `<span class="muted" style="font-size:.8rem">done ${esc(x.d)}</span>` : ""}</span></label>
         <button class="linkbtn" data-open="${c.id}" aria-expanded="${open}" aria-controls="d-${c.id}">${open ? "Hide" : "Edit"}</button></div>
-        ${sg.length ? `<div class="sugg"><span class="muted">Background in Core Knowledge:</span>${sg.map(i => `<a href="${esc(i.page || i.guide)}" target="_blank" rel="noopener">${SUBJECTS[i.s].code} ${US_GRADE[i.g]} · ${esc(i.title)}</a>`).join("")}</div>` : ""}
+        ${sg.length ? `<div class="sugg"><span class="muted">Extra reading:</span>${sg.map(i => `<a href="${esc(i.page || i.guide)}" target="_blank" rel="noopener">${SUBJECTS[i.s].code} ${US_GRADE[i.g]} · ${esc(i.title)}</a>`).join("")}</div>` : ""}
         ${open ? `<div class="details" id="d-${c.id}"><div><label class="label" for="ct-${c.id}">Chapter title</label><input id="ct-${c.id}" class="search" style="width:100%" data-chtitle="${b.id}|${c.id}" value="${esc(c.t)}"></div>
           <div><label class="label" for="n-${c.id}">Note</label><textarea id="n-${c.id}" data-note="${c.id}" placeholder="Test marks, pages to revise">${esc(st.notes[c.id] || "")}</textarea></div>
           <div class="actions"><button class="btn small danger" data-delch="${b.id}|${c.id}">Delete chapter</button></div></div>` : ""}
@@ -729,23 +810,22 @@ function renderCompare() {
   const st = cur();
   const cell = x => x.all ? `<td><span class="mini"><i style="width:${P(x.pct)}"></i></span>${P(x.pct)}</td>` : `<td class="muted">–</td>`;
   const rows = state.students.map(s => {
-    const exp = expected(s); const all = stats(s, s.grade, "all"); const ps = paceStatus(all.pct, exp, all.total);
+    const exp = expected(s); const all = stats(s, s.grade, "all"); const bk = bookStats(s, s.grade); const ps = paceStatus(bk.pct, exp, bk.total);
     let behind = 0; for (let g = 0; g < s.grade; g++) { const x = stats(s, g, "all"); behind += x.total - x.done; }
-    const bk = bookStats(s, s.grade); const ch = charScore(s);
+    const ch = charScore(s);
     return `<tr><td><strong>${esc(s.name)}</strong>${s.example ? ' <span class="example-flag">Example</span>' : ""}<div class="muted" style="font-size:.85rem">${GRADE_NAMES[s.grade]}${s.age ? ", age " + s.age : ""} · ${esc(s.track || "")}</div></td>
-      ${["la", "hg", "sci"].map(sj => cell(stats(s, s.grade, sj))).join("")}
-      <td>${P(all.pct)} <span class="muted">/ ${P(exp.frac)}</span></td><td><span class="pill ${ps.cls}">${ps.txt}</span></td>
-      ${cell(bk)}<td>${ch.habits} of ${ch.n}</td><td>${behind ? behind + " units" : '<span class="muted">none</span>'}</td></tr>`;
+      <td>${bk.all ? `${P(bk.pct)} <span class="muted">/ ${P(exp.frac)}</span>` : '<span class="muted">no chapters</span>'}</td><td><span class="pill ${ps.cls}">${ps.txt}</span></td>
+      <td>${ch.habits} of ${ch.n}</td>${cell(all)}<td>${behind ? behind + " units" : '<span class="muted">none</span>'}</td></tr>`;
   }).join("");
   const ladder = GRADE_NAMES.map((n, g) => { const x = stats(st, g, "all");
     return `<div class="ladder-row ${g === st.grade ? "cur" : ""}"><span>${n}${g === st.grade ? " · now" : ""}</span><div class="bar"><i style="width:${P(x.pct)}"></i></div><span class="pct">${P(x.pct)}</span></div>`; }).join("");
-  $("#view").innerHTML = `<div class="stack">
+  $("#moreBody").innerHTML = `<div class="stack">
     <section class="panel"><h2>Children this year</h2>
-      <p class="hint">Each child is measured on their own current class. “Expected” assumes a 10-month school year from the start month in the child’s details (Sindh Board sessions start in April; many O Level schools start in August).</p>
-      <div class="tablewrap"><table><thead><tr><th>Child</th><th>Lang. Arts</th><th>Hist. & Geo</th><th>Science</th><th>CK done / expected</th><th>Pace</th><th>School books</th><th>Habits formed</th><th>Earlier-grade gaps</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <p class="hint">Each child is measured on the chapters of their own current class’s school books. “Expected” assumes a 10-month school year from the start month in the child’s details (Sindh Board sessions start in April; many O Level schools start in August).</p>
+      <div class="tablewrap"><table><thead><tr><th>Child</th><th>School books done / expected</th><th>Pace</th><th>Habits formed</th><th>Extra reading</th><th>Earlier extra reading not read</th></tr></thead><tbody>${rows}</tbody></table></div>
     </section>
-    <section class="panel"><h2>${esc(st.name)}: every grade</h2>
-      <p class="hint">Core Knowledge is cumulative, so gaps in earlier grades matter. A child who joins in Class 4 can use this ladder to pick the earlier units worth reading first. Skipped units do not count against the percentage.</p>
+    <section class="panel"><h2>${esc(st.name)}: extra reading in every grade</h2>
+      <p class="hint">Core Knowledge builds year on year. A child who starts it later can use this ladder to pick earlier units worth reading. Skipped units, and U.S. units while they are hidden, do not count.</p>
       <div class="ladder">${ladder}</div>
     </section></div>`;
 }
@@ -754,7 +834,11 @@ function renderCompare() {
 function renderSources() {
   const counts = {}; ITEMS.forEach(i => counts[i.src] = (counts[i.src] || 0) + 1);
   const withPage = ITEMS.filter(i => i.page).length;
-  $("#moreBody").innerHTML = `<div class="stack"><section class="panel"><h2>Where every Core Knowledge unit comes from</h2>
+  $("#moreBody").innerHTML = `<div class="stack"><section class="panel"><h2>Class goals: Pakistan’s National Curriculum</h2>
+    <p style="max-width:65ch">The <b>Class goals</b> tab summarises, in plain words, the progression grids published by the National Curriculum Council of Pakistan on <a href="https://ncc.gov.pk/" target="_blank" rel="noopener">ncc.gov.pk</a>. Those in force are the National Curriculum of Pakistan 2020 (Early Childhood to Class 5) and 2022-23 (Classes 6 to 8). Each goal shows the grid’s own learning outcome codes. The summaries were written on 11 October 2026; read the original grid for the full detail.</p>
+    <ol class="srclist">${Object.values(NCP_SUBJ).map(m => `<li><a href="${NCF + m.src}" target="_blank" rel="noopener">${esc(m.n)}: ${esc(m.st)}</a> <span class="muted">(PDF)</span></li>`).join("")}</ol>
+    <p class="hint">Classes 1 to 3 study Science and Social Studies inside General Knowledge. A new national curriculum (2026) is in draft and is not used here yet.</p></section>
+    <section class="panel"><h2>Where every Core Knowledge unit comes from</h2>
     <p style="max-width:65ch">The ledger holds ${ITEMS.length} Core Knowledge units for Kindergarten to Grade 8. ${withPage} of them link to their own free download page on coreknowledge.org; every one of those addresses was matched against the Foundation’s own index of unit pages on 11 October 2026. The other ${ITEMS.length - withPage} have no separate page and link to their Online Resources guide instead.</p>
     <ol class="srclist">${Object.entries(SOURCES).map(([k, s]) => `<li><a href="${s.u}" target="_blank" rel="noopener">${esc(s.t)}</a>${counts[k] ? ` <span class="muted">· ${counts[k]} units</span>` : ""}</li>`).join("")}</ol>
     <p class="hint">Language Arts Grades 4 and 5 follow the units the Foundation currently offers for free, which differ from its 2014 scope-and-sequence documents. Three of them are built around a novel or memoir you buy separately. Tags such as <b>U.S. focus</b> and <b>Read first</b> are this tracker’s guidance for Pakistani Muslim families, not the Foundation’s.</p></section>
@@ -791,7 +875,7 @@ function renderBackup() {
     a.download = "ck-ledger-backup-" + today() + ".json"; document.body.appendChild(a); a.click(); a.remove(); toast("Download started"); } catch (e) { toast("Download not available here; use Copy"); } });
   const restore = txt => { try { const d = JSON.parse(txt); const s = { students: d.students };
       if (!valid(s)) throw new Error("shape"); s.students.forEach(fix);
-      state.students = s.students; state.active = s.students[0].id; viewGrade = bookClass = null; save(); fillStudent(); state.ui.tab = "books"; render(); toast("Restored " + s.students.length + " student(s)"); }
+      state.students = s.students; state.active = s.students[0].id; viewGrade = bookClass = goalClass = null; save(); fillStudent(); state.ui.tab = "books"; render(); toast("Restored " + s.students.length + " student(s)"); }
     catch (e) { $("#impMsg").textContent = "That text is not a Core Knowledge Ledger backup. Copy the whole backup, from the first { to the last }."; } };
   $("#doImp").addEventListener("click", () => restore($("#imp").value));
   $("#impFile").addEventListener("change", e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => restore(r.result); r.readAsText(f); });
@@ -801,7 +885,7 @@ function renderBackup() {
     if (armed !== id) { armed = id; $("#delMsg").textContent = `Tap “${b.textContent}” again to delete this child and all their progress.`; return; }
     state.students = state.students.filter(s => s.id !== id);
     if (!state.students.length) state.students.push(newStudent("Child 1", 7, 2, false));
-    state.active = state.students[0].id; viewGrade = bookClass = null; save(); fillStudent(); renderBackup(); toast("Child removed");
+    state.active = state.students[0].id; viewGrade = bookClass = goalClass = null; save(); fillStudent(); renderBackup(); toast("Child removed");
   }));
 }
 

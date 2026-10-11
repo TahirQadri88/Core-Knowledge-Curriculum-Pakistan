@@ -3,7 +3,7 @@
 Read by the hig-* skills before they ask questions.
 
 ## Product
-- What it does: an offline progressive web app where Karachi parents and students track Core Knowledge units, school textbook chapters, and character and deen goals for each child.
+- What it does: an offline progressive web app where Karachi parents see what Pakistan's National Curriculum expects in each class, and track school textbook chapters, character and deen goals, and optional Core Knowledge reading for each child.
 - Category: education / family productivity.
 - Stage: shipped (version 2), now adding Firebase family sync.
 

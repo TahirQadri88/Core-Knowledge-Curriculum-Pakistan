@@ -38,7 +38,23 @@ async def main():
         await pg.reload()
         await pg.wait_for_timeout(500)
 
-        check(await pg.get_attribute("#tab-books", "aria-selected") == "true", "School books is the first tab shown")
+        check(await pg.get_attribute("#tab-goals", "aria-selected") == "true", "Class goals is the first tab shown")
+        check(await pg.locator("details.goal").count() == 5, "Class 4 has goals for 5 National Curriculum subjects")
+        await pg.locator("#goalsAll").click(); await pg.wait_for_timeout(100)
+        g4 = await pg.inner_text("#view")
+        check(await pg.locator("details.goal[open]").count() == 5 and "water cycle" in g4 and "SCI-04-C-01" in g4 and "ncc.gov.pk" in await pg.locator("details.goal a").first.get_attribute("href"),
+              "Open all shows each goal with its code and the ncc.gov.pk source")
+        await pg.locator('[data-gc="0"]').click(); await pg.wait_for_timeout(100)
+        await pg.locator("#goalsAll").click(); await pg.wait_for_timeout(100)
+        check("first Kalimah" in await pg.inner_text("#view"), "KG goals come from the Early Childhood curriculum")
+        await pg.locator('[data-gc="7"]').click(); await pg.wait_for_timeout(100)
+        check(await pg.locator("details.goal").count() == 7, "Class 7 has goals for 7 subjects")
+        await pg.locator('[data-gc="4"]').click(); await pg.wait_for_timeout(100)
+        await pg.locator('details.goal[data-goal="sci"] [data-gock]').click(); await pg.wait_for_timeout(150)
+        check(await pg.get_attribute("#tab-track", "aria-selected") == "true" and await pg.get_attribute('[data-subj="sci"]', "aria-pressed") == "true",
+              "A subject's Extra reading button opens Core Knowledge Science for that class")
+        await pg.locator('[data-subj="all"]').click()
+        await pg.locator("#tab-books").click(); await pg.wait_for_timeout(150)
         before = await pg.locator(".ledger").count()
         await pg.locator("#addList").click(); await pg.wait_for_timeout(150)
         check(await pg.locator(".ledger").count() == before + 13, "School list adds all 13 Class 4 books in one tap")
@@ -46,9 +62,13 @@ async def main():
         await pg.locator("#toast button").click(); await pg.wait_for_timeout(150)
         check(await pg.locator(".ledger").count() == before, "Undo removes the books just added")
         await pg.locator("#tab-track").click(); await pg.wait_for_timeout(150)
-        check(await pg.locator(".row").count() > 20, "Core Knowledge rows render for the sample student")
+        check(await pg.locator(".row").count() > 15, "Core Knowledge rows render for the sample student")
+        check(await pg.locator('[data-tick="hg-4-7"]').count() == 0 and "30 of its 73" in await pg.text_content("#view"),
+              "U.S. units are hidden by default, and the region summary counts them")
         await pg.locator('[data-g="1"]').click()
-        check(await pg.locator(".strand").count() == 2, "Grade 1 Language Arts shows both strands")
+        strands = await pg.locator(".strand").all_inner_texts()
+        check(any("Read-aloud" in t for t in strands) and any("Skills" in t for t in strands) and any("Middle East, Africa and Islam" in t for t in strands),
+              "Grade 1 shows the Language Arts strands and History grouped by region")
         await pg.locator('[data-open="la-1-2"]').click()
         href = await pg.locator("#d-la-1-2 a").first.get_attribute("href")
         check(href and "/free-resource/ckla-domain-02-human-body/" in href, "Details links to the unit download page")
@@ -71,8 +91,9 @@ async def main():
         await pg.locator('[data-cv="ch-emo-2"][data-lv="3"]').click()
         check(await pg.locator('[data-cv="ch-emo-2"][data-lv="3"]').get_attribute("aria-pressed") == "true", "Character level saves")
 
-        await pg.locator("#tab-compare").click(); await pg.wait_for_timeout(100)
         await pg.locator("#tab-more").click(); await pg.wait_for_timeout(100)
+        await pg.locator('[data-more="compare"]').click(); await pg.wait_for_timeout(100)
+        check("Children this year" in await pg.inner_text("#moreBody"), "Compare sits under More")
         await pg.locator('[data-more="sources"]').click(); await pg.wait_for_timeout(100)
         check(await pg.locator("#moreBody h2").count() >= 1, "More tab shows Sources")
         await pg.locator('[data-more="backup"]').click(); await pg.wait_for_timeout(100)
@@ -84,6 +105,8 @@ async def main():
         small = await pg.evaluate("""[...document.querySelectorAll('.tab, .seg button, .linkbtn, .btn, .tick, .search, .check')]
             .filter(e => e.offsetParent).map(e => e.getBoundingClientRect()).filter(r => r.height < 43.5 || r.width < 43.5).length""")
         check(small == 0, f"Core Knowledge controls are at least 44px ({small} too small)")
+        await pg.locator("#showUS").check(); await pg.wait_for_timeout(100)
+        check(await pg.locator('[data-tick="hg-1-7"]').count() == 1, "Show U.S. units brings them back")
         await pg.locator('[data-skipus]').first.click(); await pg.wait_for_timeout(100)
         await pg.locator("#toast button").click(); await pg.wait_for_timeout(100)
         check(await pg.locator('[data-skipus]').count() >= 1, "Undo restores skipped U.S.-focus units")
@@ -105,6 +128,9 @@ async def main():
         await pg.fill("#sName", "Aisha"); await pg.select_option("#sGrade", "0")
         check("9 books" in await pg.inner_text("#sBooksLbl"), "KG offers the 9 Nursery-list books")
         await pg.select_option("#sGrade", "5"); await pg.locator("#setupForm .btn.primary").click(); await pg.wait_for_timeout(200)
+        check(await pg.get_attribute("#tab-goals", "aria-selected") == "true" and "Aisha should be able to" in await pg.inner_text("#view"),
+              "After setup the parent sees what the child should learn this year")
+        await pg.locator("#tab-books").click(); await pg.wait_for_timeout(150)
         check(await pg.locator("#view .ledger").count() == 12 and "Aisha" in await pg.inner_text("#childSum"), "Setup creates the child with all 12 Class 5 books")
         view = await pg.inner_text("#view")
         check("Ancient civilisations of the world" in view and "Ch. 9a" in view and "Space and Satellites" in view and "Probability" in view,
@@ -124,9 +150,11 @@ async def main():
         check(await pg.locator("#setup").is_hidden() and await pg.locator("#studentSel option").count() == 1, "Setup replaces the sample child and closes")
         await pg.locator("#addStudent").click(); await pg.fill("#sName", "Hamza"); await pg.select_option("#sGrade", "0")
         await pg.locator("#setupForm .btn.primary").click(); await pg.wait_for_timeout(200)
+        await pg.locator("#tab-books").click(); await pg.wait_for_timeout(150)
         check(await pg.locator("#studentSel option").count() == 2 and await pg.locator("#view .ledger").count() == 9, "Add child adds a second child with the KG books")
         await pg.locator("#addStudent").click(); await pg.fill("#sName", "Ali"); await pg.select_option("#sGrade", "7")
         await pg.locator("#setupForm .btn.primary").click(); await pg.wait_for_timeout(200)
+        await pg.locator("#tab-books").click(); await pg.wait_for_timeout(150)
         v7 = await pg.inner_text("#view")
         check("Striving for peace" in v7 and "Structure of an Atom" in v7 and "Section 2 · History" in v7 and "Entrepreneurial Design Thinking" in v7,
               "A Class 7 child gets Oxford chapters from the Teaching Guides (English, Science, Social Studies, Keyboard)")

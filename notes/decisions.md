@@ -42,6 +42,20 @@ All checks were made on 11 October 2026 unless stated.
   - Not available from oup.com.pk: Oxford Discover guides (OUP English Language Teaching, not OUP Pakistan), and the non-Oxford books (Paragon, Paramount, Maktaba Barkat-ul-Madina). Parents paste these.
 - Chapter-to-unit suggestions: shared title words, weighted by rarity, light preference for nearby grades, small synonym map (`SYN`, e.g. indus → india). Suggestions only.
 
+## Class goals: Pakistan's National Curriculum (11 October 2026)
+- Why: the owner found the app did not show what a Pakistani child should know by a given class, and Core Knowledge's history is mostly American. The owner chose the National Curriculum as the backbone, Core Knowledge as optional extra reading grouped by region, and KG to Class 8.
+- Source: the National Curriculum Council's progression grids on ncc.gov.pk (`NCP_SUBJ` in `src/data.js` holds each PDF). In force: National Curriculum of Pakistan 2020 for Early Childhood to Class 5, and 2022-23 for Classes 6 to 8. The Draft Federal Education Policy and the 2026 national curriculum are drafts and are not used. fbise.edu.pk refused our requests (403), so FBISE copies were not checked.
+- Subjects by class, as the grids set them: KG = the Early Childhood grid's 4 to 5 years column; Classes 1 to 3 = English, Urdu, Mathematics, Islamiyat, General Knowledge; Classes 4 and 5 = those without General Knowledge, plus Science and Social Studies; Classes 6 to 8 = English, Urdu, Mathematics, Islamiyat, Science, History, Geography, Computer Science.
+- `NCP` holds 4 to 11 plain-English points per subject and class, each with the grid's SLO codes (or the grid section where none are printed). They are summaries, not copies. They were written from the grids only, with no gaps filled from general knowledge:
+  - Mathematics: from the "Required Standards and SLOs" tables (Classes 1 to 8).
+  - English: from the "Suggested Guidelines" (Competencies A to D).
+  - Urdu: from the "Required Standards and SLOs", read as page images because the PDF text is in visual order. Starred (advanced) items are left out. So is U-01-C-09 (noon ghunna, tashdeed and tanween in Class 1), which is too advanced to show as a Class 1 expectation. Two code misprints were noticed: page 4 prints "U-02-03-A" for U-03-A-02, and page 10 has a Class 1 cell labelled U-02-B-03, which is not used.
+  - Islamiyat: from the scanned Islamiyat grid, read as page images.
+  - Social Studies, Class 5: the grid prints the culture outcomes under Class 5 with codes SS-06-B-01 to B-05. The codes are cited as printed.
+- Progress on each subject comes from the child's school books whose subject teaches it (`NCP_BOOKS`). The goals themselves are not ticked, so no new ids are stored.
+- Core Knowledge is now "Extra reading". It has no expected-by-now marker, because it is optional. U.S.-flagged units are hidden by default (`ui.hideUS`, switched on once for existing users by `ui.v = 2`), and hidden units do not count in percentages unless already done. History & Geography units are grouped by region (`HG_REGIONS`, `HG_REGION`; this tracker's grouping): 30 of 73 are about the United States, and 1 (Ancient India) is about South Asia.
+- Tabs became Class goals (first and default; setup lands there), School books, Character & deen, Extra reading, More (Compare, Backup, Sources). Compare now measures each child on their school books.
+
 ## Character & deen
 - Items are the article's own list, made gender-neutral ("they") so the app works for daughters and sons.
 - Four levels instead of a checkbox because habits form gradually. Each change is dated; history keeps the last 24 changes, used for the up/down trend.
