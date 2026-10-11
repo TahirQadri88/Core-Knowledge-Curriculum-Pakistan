@@ -552,10 +552,10 @@ const SCHOOL_LIST = { name: "School book list 2026–27", classes: {
 } };
 
 /* Chapter lists copied from Oxford Pakistan's free Teaching Guides on oup.com.pk, keyed by the ISBN of the pupil's book (11 October 2026).
-   ch: [label, title]. check: the guide is an older printing than the school's edition, so parents are asked to compare it with their book. */
+   ch: [label, title, page in the pupil's book (when checked against a printed copy)]. check: the guide is an older printing than the school's edition, so parents are asked to compare it with their book. */
 const BOOK_CHAPTERS = {
-  "9780190706999": { src: "Oxford Pakistan, New Oxford Social Studies for Pakistan Teaching Guide 5 SNC (contents page)", u: "https://oup.com.pk/media/teaching-guides/New%20Oxford%20Social%20Studies%20for%20Pakistan%204th%20Edition/05-New%20Oxford%20Social%20Studies%20for%20Pakistan%20TG%205%20SNC.pdf",
-    ch: [["Ch. 1", "Maps"], ["Ch. 2", "World climate"], ["Ch. 3", "Life in desert and forest regions"], ["Ch. 4", "The polar regions and exploration"], ["Ch. 5", "Our country"], ["Ch. 6", "Minerals, power resources, and industries"], ["Ch. 7", "Agriculture and irrigation in Pakistan"], ["Ch. 8", "Pakistan and her neighbours"], ["Ch. 9", "Economics"], ["Ch. 9a", "Entrepreneurship"], ["Ch. 10", "Information communication"], ["Ch. 11", "The government and the law"], ["Ch. 12", "Our culture"], ["Ch. 13", "Ancient civilisations of the world"], ["Ch. 14", "The struggle for independence"], ["Ch. 15", "Human rights"]] },
+  "9780190706999": { src: "Oxford Pakistan, New Oxford Social Studies for Pakistan Teaching Guide 5 SNC; checked against the printed book (Eighth Impression 2026), with its page numbers", u: "https://oup.com.pk/media/teaching-guides/New%20Oxford%20Social%20Studies%20for%20Pakistan%204th%20Edition/05-New%20Oxford%20Social%20Studies%20for%20Pakistan%20TG%205%20SNC.pdf",
+    ch: [["Ch. 1", "Maps", 2], ["Ch. 2", "World climate", 7], ["Ch. 3", "Life in desert and forest regions", 16], ["Ch. 4", "The polar regions and exploration", 26], ["Ch. 5", "Our country", 36], ["Ch. 6", "Minerals, power resources, and industries", 50], ["Ch. 7", "Agriculture and irrigation in Pakistan", 62], ["Ch. 8", "Pakistan and her neighbours", 72], ["Ch. 9", "Economics", 80], ["Ch. 9a", "Entrepreneurship", 90], ["Ch. 10", "Information communication", 92], ["Ch. 11", "The government and the law", 98], ["Ch. 12", "Our culture", 106], ["Ch. 13", "Ancient civilisations of the world", 114], ["Ch. 14", "The struggle for independence", 118], ["Ch. 15", "Human rights", 127]] },
   "9780190706944": { src: "Oxford Pakistan, New Oxford Primary Science Teaching Guide 5 SNC (contents page; Unit 9 title from its lesson pages)", u: "https://oup.com.pk/media/teaching-guides/New%20Oxford%20Primary%20Science%203rd%20Edition/NOPS%20TG%205%20SNC.pdf",
     ch: [["Unit 1", "Classification of Living Things"], ["Unit 2", "Microorganisms"], ["Unit 3", "Flowers and Seeds"], ["Unit 4", "Environmental Pollution"], ["Unit 5", "Physical and Chemical Changes of Matter"], ["Unit 6a", "Light"], ["Unit 6b", "Sound"], ["Unit 7", "Electricity and Magnetism"], ["Unit 8", "The Structure of the Earth"], ["Unit 9", "Space and Satellites"], ["Unit 10", "Technology in Everyday Life"]] },
   "9780190709693": { src: "Oxford Pakistan, New Syllabus Primary Mathematics Teacher's Resource Book 5 (2nd Edition, 2020)", u: "https://oup.com.pk/media/teaching-guides/New%20Syllabus%20Primary%20Mathematics%202nd%20Edition/NSPM-Teacher's-Resource-Book-5.pdf", check: true,
@@ -905,7 +905,7 @@ function bindTrack(st) {
 }
 
 /* ---------- School books tab ---------- */
-const chaptersFor = isbn => (BOOK_CHAPTERS[isbn]?.ch || []).map(([n, t]) => ({ id: "bc-" + uid(), t, n }));
+const chaptersFor = isbn => (BOOK_CHAPTERS[isbn]?.ch || []).map(([n, t, pg]) => ({ id: "bc-" + uid(), t, n, ...(pg ? { pg } : {}) }));
 function renderBooks() {
   const st = cur(); const cls = bookClass ?? st.grade; bookClass = cls;
   const books = st.books.filter(b => b.cls === cls);
@@ -918,7 +918,7 @@ function renderBooks() {
       return `<li class="row ${done ? "done" : ""}"><div class="row-main">
         <label class="tick"><input type="checkbox" id="c-${c.id}" data-tick="${c.id}" ${done ? "checked" : ""}></label>
         <label class="row-title" for="c-${c.id}"><span class="t">${esc(c.t)}</span>
-          <span class="meta"><span class="mono muted">${esc(c.n || "Ch. " + (n + 1))}</span>${done && x.d ? `<span class="muted" style="font-size:.8rem">done ${esc(x.d)}</span>` : ""}</span></label>
+          <span class="meta"><span class="mono muted">${esc(c.n || "Ch. " + (n + 1))}${c.pg ? ` · p. ${c.pg}` : ""}</span>${done && x.d ? `<span class="muted" style="font-size:.8rem">done ${esc(x.d)}</span>` : ""}</span></label>
         <button class="linkbtn" data-open="${c.id}" aria-expanded="${open}" aria-controls="d-${c.id}">${open ? "Hide" : "Edit"}</button></div>
         ${sg.length ? `<div class="sugg"><span class="muted">Background in Core Knowledge:</span>${sg.map(i => `<a href="${esc(i.page || i.guide)}" target="_blank" rel="noopener">${SUBJECTS[i.s].code} ${US_GRADE[i.g]} · ${esc(i.title)}</a>`).join("")}</div>` : ""}
         ${open ? `<div class="details" id="d-${c.id}"><div><label class="label" for="ct-${c.id}">Chapter title</label><input id="ct-${c.id}" class="search" style="width:100%" data-chtitle="${b.id}|${c.id}" value="${esc(c.t)}"></div>
@@ -927,7 +927,7 @@ function renderBooks() {
       </li>`; }).join("") || (BOOK_CHAPTERS[b.isbn] ? `<li class="empty"><button class="btn primary" data-loadch="${b.id}">Load the ${BOOK_CHAPTERS[b.isbn].ch.length} chapters</button></li>`
         : `<li class="empty">No chapters yet. Open the book at its Contents page and type or paste the chapter titles below.</li>`);
     const bc = BOOK_CHAPTERS[b.isbn];
-    const srcNote = bc && b.ch.length ? `<p class="hint chsrc">Chapters from <a href="${esc(bc.u)}" target="_blank" rel="noopener">Oxford’s free Teaching Guide</a>.${bc.check ? ` <span class="pill warn">Please check them against your book’s Contents page</span>` : ""}</p>` : "";
+    const srcNote = bc && b.ch.length ? `<p class="hint chsrc">Chapters from <a href="${esc(bc.u)}" target="_blank" rel="noopener">Oxford’s free Teaching Guide</a>${bc.ch[0]?.[2] ? ", checked against the printed book" : ""}.${bc.check ? ` <span class="pill warn">Please check them against your book’s Contents page</span>` : ""}</p>` : "";
     return `<section class="ledger"><div class="group-head"><div><h3>${esc(b.title)}</h3><div class="muted" style="font-size:.9rem">${esc(b.subj)}${b.pub ? " · " + esc(b.pub) : b.series ? " · " + esc(b.series) : ""}${b.isbn ? ` · <span class="mono">ISBN ${esc(b.isbn)}</span>` : ""} · ${s.done} of ${s.total} chapters</div></div>
       <div class="actions"><span class="pct">${P(s.pct)}</span><span class="pill ${ps.cls}">${ps.txt}</span></div></div>
       ${srcNote}<ul class="rows">${rows}</ul>
