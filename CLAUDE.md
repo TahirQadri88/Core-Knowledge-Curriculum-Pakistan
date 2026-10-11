@@ -38,6 +38,11 @@ After any change: build, run the test, and run the link check if `src/data.js` c
 - When `docs/` content changes, bump `CACHE` in the service worker string inside `build.py` (e.g. `ckledger-v3`) so installed copies update.
 - Mobile first: must work at 400px wide with no horizontal scroll. Light and dark themes via the CSS tokens at the top of `src/app.html`; no literal colours in components.
 - Keyboard focus visible, every control labelled, `prefers-reduced-motion` respected.
+- Every tappable control is at least 44×44px (`--tap`). Borders of controls use `--control-line` (3:1 contrast); `--line` is for decorative dividers only.
+- Sizes in `rem`, never a fixed `px` font size, so text follows the phone's text-size setting. No horizontal scroll at 200% zoom.
+- Use logical CSS (`padding-inline-start`, `inset-inline-end`, `text-align:start`) instead of left/right, so the planned Urdu (right-to-left) layout mirrors correctly.
+- Messages go through `toast()`, which also announces them to screen readers; pass an undo function for anything destructive.
+- Tabs: Core Knowledge, School books, Character & deen, Compare, More (Backup and Sources). Keep at most five.
 
 ## Design skills
 - `.claude/skills/hig-*`: Apple Human Interface Guidelines skills from HIG Doctor (Raintree Technology, MIT; Apple's reference text in each `references/` folder is © Apple Inc.). Snapshot copied on 11 October 2026 from commit 5e20558.

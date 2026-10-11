@@ -62,9 +62,29 @@ async def main():
         await pg.locator('[data-cv="ch-emo-2"][data-lv="3"]').click()
         check(await pg.locator('[data-cv="ch-emo-2"][data-lv="3"]').get_attribute("aria-pressed") == "true", "Character level saves")
 
-        for tab in ["compare", "sources", "backup"]:
-            await pg.locator(f"#tab-{tab}").click(); await pg.wait_for_timeout(100)
-        check("ckledger" in await pg.input_value("#bk"), "Backup text is produced")
+        await pg.locator("#tab-compare").click(); await pg.wait_for_timeout(100)
+        await pg.locator("#tab-more").click(); await pg.wait_for_timeout(100)
+        await pg.locator('[data-more="sources"]').click(); await pg.wait_for_timeout(100)
+        check(await pg.locator("#moreBody h2").count() >= 1, "More tab shows Sources")
+        await pg.locator('[data-more="backup"]').click(); await pg.wait_for_timeout(100)
+        check("ckledger" in await pg.input_value("#bk"), "More tab shows Backup and the backup text is produced")
+
+        await pg.locator("#tab-track").click(); await pg.wait_for_timeout(200)
+        tabs_fit = await pg.evaluate("[...document.querySelectorAll('.tab')].every(t => t.getBoundingClientRect().right <= innerWidth)")
+        check(tabs_fit, "All tabs are visible at phone width")
+        small = await pg.evaluate("""[...document.querySelectorAll('.tab, .seg button, .linkbtn, .btn, .tick, .search, .check')]
+            .filter(e => e.offsetParent).map(e => e.getBoundingClientRect()).filter(r => r.height < 43.5 || r.width < 43.5).length""")
+        check(small == 0, f"Core Knowledge controls are at least 44px ({small} too small)")
+        await pg.locator('[data-skipus]').first.click(); await pg.wait_for_timeout(100)
+        await pg.locator("#toast button").click(); await pg.wait_for_timeout(100)
+        check(await pg.locator('[data-skipus]').count() >= 1, "Undo restores skipped U.S.-focus units")
+        await pg.evaluate("document.documentElement.dir = 'rtl'"); await pg.wait_for_timeout(100)
+        check(await pg.evaluate("document.documentElement.scrollWidth") <= 400, "No horizontal scroll in right-to-left layout")
+        await pg.evaluate("document.documentElement.dir = ''")
+        await pg.set_viewport_size({"width": 200, "height": 450}); await pg.wait_for_timeout(200)
+        width200 = await pg.evaluate("document.documentElement.scrollWidth")
+        check(width200 <= 200, f"No horizontal scroll at 200% zoom ({width200}px)")
+        await pg.set_viewport_size({"width": 400, "height": 900}); await pg.wait_for_timeout(100)
 
         width = await pg.evaluate("document.documentElement.scrollWidth")
         check(width <= 400, f"No horizontal scroll at phone width ({width}px)")

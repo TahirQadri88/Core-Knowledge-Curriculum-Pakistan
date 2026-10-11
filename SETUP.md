@@ -139,7 +139,7 @@ Commit and push.
 
 Progress recorded in the earlier claude.ai version of the app lives only in that browser. To move it:
 1. In the old version: **Backup → Copy backup**.
-2. In the GitHub Pages app: **Backup → paste → Restore from text**.
+2. In the GitHub Pages app: **More → Backup → paste → Restore from text**.
 
 ## 8. If something goes wrong
 
