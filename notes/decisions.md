@@ -21,7 +21,9 @@ All checks were made on 11 October 2026 unless stated.
 - `review` on CKSci Grade 5 *Human Hormones and Reproduction*, Grade 8 *Genetics* and *Natural Selection and Common Ancestry*.
 
 ## School books
-- OUP Pakistan series names come from oup.com.pk product pages and a Karachi school book list (https://dps.edu.pk/doc/book-list/Class-V.pdf). OUP publishes no chapter lists, so none are bundled.
+- OUP Pakistan series names come from oup.com.pk product pages and a Karachi school book list (https://dps.edu.pk/doc/book-list/Class-V.pdf).
+- `SCHOOL_LIST` (11 October 2026): the owner's school book list for 2026–27, printed 15 July 2026 (Cambridge Levels I–VI, Matric Grades VII–VIII). Titles, editions, publishers and ISBNs were extracted from the PDF text, not retyped. Level n is stored as Class n. The optional Little Oxford Dictionary is left out. Pre-Nursery, Nursery and Grades IX–X are not stored, because the app covers KG to Class 8 and the IX–X pages list Sindh Textbook Board books without titles. The list has no KG page.
+- Correction (11 October 2026): OUP Pakistan does publish contents pages, inside the free Teaching Guide PDFs on oup.com.pk (for example New Oxford Social Studies for Pakistan 4th Edition, Oxford Reading Circle 2nd Edition). Bundled chapter lists must be copied from those guides or from the printed Contents page, with the source recorded here. None are bundled yet; oup.com.pk is blocked in the current Claude Code environment until the owner allows it.
 - Chapter-to-unit suggestions: shared title words, weighted by rarity, light preference for nearby grades, small synonym map (`SYN`, e.g. indus → india). Suggestions only.
 
 ## Character & deen

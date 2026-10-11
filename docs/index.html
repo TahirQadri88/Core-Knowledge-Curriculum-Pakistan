@@ -153,7 +153,8 @@ button{cursor:pointer}
 .add-own{display:flex;gap:8px;padding-block:10px 12px;padding-inline:var(--gut) 14px;flex-wrap:wrap;align-items:center}
 .add-own input{flex:1 1 14rem;min-width:0;border:1px solid var(--control-line);background:var(--paper);border-radius:8px;padding:7px 10px;min-height:var(--tap)}
 .empty{padding-block:14px;padding-inline:var(--gut) 14px;color:var(--muted)}
-.sugg{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:.85rem;margin-top:3px}
+.sugg{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:.9rem;padding-block:0 10px;padding-inline:var(--gut) 12px}
+.sugg a{display:inline-flex;align-items:center;min-height:var(--tap)}
 .sugg a{text-decoration:none;border-bottom:1px dotted var(--accent)}
 
 .levels{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;flex-wrap:wrap}
@@ -221,8 +222,8 @@ footer{font-size:.85rem;color:var(--muted);max-width:70ch}
   </section>
 
   <nav class="tabs" role="tablist" aria-label="Sections">
-    <button class="tab" role="tab" data-tab="track" id="tab-track" aria-controls="view">Core Knowledge</button>
     <button class="tab" role="tab" data-tab="books" id="tab-books" aria-controls="view">School books</button>
+    <button class="tab" role="tab" data-tab="track" id="tab-track" aria-controls="view">Core Knowledge</button>
     <button class="tab" role="tab" data-tab="char" id="tab-char" aria-controls="view">Character &amp; deen</button>
     <button class="tab" role="tab" data-tab="compare" id="tab-compare" aria-controls="view">Compare</button>
     <button class="tab" role="tab" data-tab="more" id="tab-more" aria-controls="view">More</button>
@@ -352,9 +353,18 @@ const BOOK_SERIES = [
   { n: "Oxford International Primary Computing", subj: "Computing" },
   { n: "Islamiyat for Primary Classes", subj: "Islamiyat" },
   { n: "Urdu Say Dosti", subj: "Urdu" },
-  { n: "Nai Oxford Waqfiyat-e-Aama", subj: "Social Studies" }
+  { n: "Nai Oxford Waqfiyat-e-Aama", subj: "Social Studies" },
+  /* from a Karachi school's 2026–27 book list (see SCHOOL_LIST) */
+  { n: "Oxford Discover", subj: "English" },
+  { n: "Primary Mathematics", subj: "Mathematics" },
+  { n: "Countdown", subj: "Mathematics" },
+  { n: "New Oxford Primary Science", subj: "Science" },
+  { n: "New Oxford Secondary Science", subj: "Science" },
+  { n: "Secondary Social Studies for Pakistan", subj: "Social Studies" },
+  { n: "Keyboard", subj: "Computing" },
+  { n: "Karwan-e-Urdu", subj: "Urdu" }
 ];
-const BOOK_SUBJECTS = ["English","Urdu","Mathematics","Science","Social Studies","History","Geography","Islamiyat","Computing","Other"];
+const BOOK_SUBJECTS = ["English","Urdu","Mathematics","Science","Social Studies","History","Geography","Islamiyat","Qur'an","Computing","Sindhi","Art","Other"];
 const SUBJ_TO_CK = { English: ["la"], Science: ["sci"], "Social Studies": ["hg","sci"], History: ["hg"], Geography: ["hg","sci"] };
 
 /* From the article "Things Every Child (4–12) Should Learn — Beyond Just Good Grades" by Abul Laith Muhammad Tahir Qadri */
@@ -395,6 +405,117 @@ const HARVARD = [
   { t: "What Is Executive Function? And How Does It Relate to Child Development?", u: "https://developingchild.harvard.edu/resources/infographics/what-is-executive-function-and-how-does-it-relate-to-child-development/", d: "A one-page infographic to share with the other parent or a teacher." }
 ];
 
+/* A Karachi school's book list for 2026–27, supplied by the owner (printed 15 July 2026): Cambridge Levels I–VI and Matric Grades VII–VIII.
+   Each row: [title as printed, subject, publisher, ISBN]. The optional dictionary is left out. The list gives no chapters. */
+const SCHOOL_LIST = { name: "School book list 2026–27", classes: {
+  1: [
+    ["Oxford Discover Student Book 1 (2nd Edition)", "English", "Oxford", "9780194053877"],
+    ["Oxford Discover Workbook 1 (2nd Edition)", "English", "Oxford", "9780194053891"],
+    ["Join Handwriting Series 1", "English", "Sheikh Shoukat Ali & Sons", ""],
+    ["Primary Mathematics Book 1 (2nd Edition) SNC", "Mathematics", "Oxford", "9780190709655"],
+    ["Primary Mathematics Book 1A (2nd Edition)", "Mathematics", "Oxford", "9780190701505"],
+    ["Primary Mathematics Book 1B (2nd Edition)", "Mathematics", "Oxford", "9780190701512"],
+    ["Karwan-e-Urdu Book - 1", "Urdu", "Paramount", "9789696370499"],
+    ["Keyboard Book - 1 (4th Edition)", "Computing", "Oxford", "9789697346219"],
+    ["Islamiat Juzz Awwal", "Islamiyat", "Maktaba Barkat-ul-Madina", ""],
+    ["My Creative Club Book - 1", "Art", "Paramount", ""]
+  ],
+  2: [
+    ["Oxford Discover Student Book 2 (2nd Edition)", "English", "Oxford", "9780194053907"],
+    ["Oxford Discover Workbook 2 (2nd Edition)", "English", "Oxford", "9780194053921"],
+    ["Join Handwriting Series 2", "English", "Sheikh Shoukat Ali & Sons", ""],
+    ["Primary Mathematics Book 2 (2nd Edition) SNC", "Mathematics", "Oxford", "9780190709662"],
+    ["Primary Mathematics Book 2A (2nd Edition)", "Mathematics", "Oxford", "9780190701529"],
+    ["Primary Mathematics Book 2B (2nd Edition)", "Mathematics", "Oxford", "9780190701536"],
+    ["Karwan-e-Urdu Book - 2", "Urdu", "Paramount", "9789696370581"],
+    ["Keyboard Book 2 (4th Edition)", "Computing", "Oxford", "9789697346226"],
+    ["Islamiat Juzz Doem", "Islamiyat", "Maktaba Barkat-ul-Madina", ""],
+    ["My Creative Club Book - 2", "Art", "Paramount", ""]
+  ],
+  3: [
+    ["Oxford Discover Student Book 3 (2nd Edition)", "English", "Oxford", "9780194053938"],
+    ["Oxford Discover Workbook 3 (2nd Edition)", "English", "Oxford", "9780194053952"],
+    ["Join Handwriting Series 3", "English", "Sheikh Shoukat Ali & Sons", ""],
+    ["Primary Mathematics Book 3 (2nd Edition) SNC", "Mathematics", "Oxford", "9780190709679"],
+    ["Primary Mathematics Book 3A (2nd Edition)", "Mathematics", "Oxford", "9780190701543"],
+    ["Primary Mathematics Book 3B (2nd Edition)", "Mathematics", "Oxford", "9780190701550"],
+    ["Karwan-e-Urdu Book - 3", "Urdu", "Paramount", "9789696370598"],
+    ["New Oxford Primary Science Book 3 (3rd Edition)", "Science", "Oxford", "9780190700072"],
+    ["Keyboard Book 3 (4th Edition)", "Computing", "Oxford", "9789697346233"],
+    ["New Oxford Social Studies for Pakistan Book 3 (4th Edition)", "Social Studies", "Oxford", "9780190700621"],
+    ["Islamiat Juzz Salis (Revised Edition)", "Islamiyat", "Maktaba Barkat-ul-Madina", ""],
+    ["My Creative Club Book - 3", "Art", "Paramount", ""],
+    ["Asaan Tajweed", "Qur'an", "Maktaba Barkat-ul-Madina", ""]
+  ],
+  4: [
+    ["Oxford Discover Student Book 4 (2nd Edition)", "English", "Oxford", "9780194053969"],
+    ["Oxford Discover Workbook 4 (2nd Edition)", "English", "Oxford", "9780194053983"],
+    ["Join Handwriting Series 4", "English", "Sheikh Shoukat Ali & Sons", ""],
+    ["Primary Mathematics Book 4 (2nd Edition) SNC", "Mathematics", "Oxford", "9780190709686"],
+    ["Primary Mathematics Book 4A (2nd Edition)", "Mathematics", "Oxford", "9780190701567"],
+    ["Primary Mathematics Book 4B (2nd Edition)", "Mathematics", "Oxford", "9780190701574"],
+    ["Karwan-e-Urdu Book - 4", "Urdu", "Paramount", "9789696370536"],
+    ["New Oxford Primary Science Book 4 (3rd Edition) SNC", "Science", "Oxford", "9780190706937"],
+    ["Keyboard Book 4 (4th Edition)", "Computing", "Oxford", "9789697346240"],
+    ["New Oxford Social Studies for Pakistan Book 4 (4th Edition) SNC", "Social Studies", "Oxford", "9780190706982"],
+    ["Islamiat Juzz Chaharum", "Islamiyat", "Maktaba Barkat-ul-Madina", ""],
+    ["My Creative Club Book - 4", "Art", "Paramount", ""],
+    ["Asaan Tajweed", "Qur'an", "Maktaba Barkat-ul-Madina", ""]
+  ],
+  5: [
+    ["Oxford Discover Student Book 5 (2nd Edition)", "English", "Oxford", "9780194053990"],
+    ["Oxford Discover Workbook 5 (2nd Edition)", "English", "Oxford", "9780194054010"],
+    ["Primary Mathematics Book 5 (2nd Edition) SNC", "Mathematics", "Oxford", "9780190709693"],
+    ["Primary Mathematics Book 5A (2nd Edition)", "Mathematics", "Oxford", "9780190701581"],
+    ["Primary Mathematics Book 5B (2nd Edition)", "Mathematics", "Oxford", "9780190701598"],
+    ["Karwan-e-Urdu Book - 5", "Urdu", "Paramount", "9789696370543"],
+    ["New Oxford Primary Science Book 5 (3rd Edition) SNC", "Science", "Oxford", "9780190706944"],
+    ["Keyboard Book 5 (4th Edition)", "Computing", "Oxford", "9789697346257"],
+    ["New Oxford Social Studies for Pakistan Book 5 (4th Edition) SNC", "Social Studies", "Oxford", "9780190706999"],
+    ["Islamiat Juzz Punjum", "Islamiyat", "Maktaba Barkat-ul-Madina", ""],
+    ["My Creative Club Book - 5", "Art", "Paramount", ""],
+    ["Asaan Tajweed", "Qur'an", "Maktaba Barkat-ul-Madina", ""]
+  ],
+  6: [
+    ["Oxford Discover Student Book 6 (2nd Edition)", "English", "Oxford", "9780194054027"],
+    ["Oxford Discover Workbook 6 (2nd Edition)", "English", "Oxford", "9780194054041"],
+    ["Primary Mathematics Book 6 (2nd Edition)", "Mathematics", "Oxford", "9780190701499"],
+    ["Primary Mathematics Book 6A (2nd Edition)", "Mathematics", "Oxford", "9780190701604"],
+    ["Primary Mathematics Book 6B (2nd Edition)", "Mathematics", "Oxford", "9780190701611"],
+    ["Karwan-e-Urdu Book - 6", "Urdu", "Paramount", "9789696370550"],
+    ["New Oxford Secondary Science Book 6 (1st Edition)", "Science", "Oxford", "9789697340033"],
+    ["New Oxford Secondary Science Workbook 6 (1st Edition)", "Science", "Oxford", "9789697344307"],
+    ["Keyboard Book 6 (4th Edition)", "Computing", "Oxford", "9789697341870"],
+    ["Secondary Social Studies for Pakistan Book - 1 (Revised Edition)", "Social Studies", "Oxford", "9780195478952"],
+    ["Bahar-e-Shariat Juzz Shashum", "Islamiyat", "Maktaba Barkat-ul-Madina", ""],
+    ["Asaan Tajweed", "Qur'an", "Maktaba Barkat-ul-Madina", ""]
+  ],
+  7: [
+    ["Oxford Progressive English 7 (2nd Edition) SNC", "English", "Oxford", "9780190701871"],
+    ["Countdown Book 7 (3rd Edition) SNC", "Mathematics", "Oxford", "9789697342662"],
+    ["Karwan-e-Urdu Book - 7", "Urdu", "Paramount", "9789696370567"],
+    ["New Oxford Secondary Science Book 7 (1st Edition)", "Science", "Oxford", "9789697340040"],
+    ["New Oxford Secondary Science Workbook 7 (1st Edition)", "Science", "Oxford", "9789697344314"],
+    ["Secondary Social Studies for Pakistan Book - 2 (Revised Edition)", "Social Studies", "Oxford", "9780195478969"],
+    ["Keyboard Book - 7 (4th Edition)", "Computing", "Oxford", "9789697341887"],
+    ["Bahar-e-Shariat Juzz Haftum", "Islamiyat", "Maktaba Barkat-ul-Madina", ""],
+    ["Asan Sindhi Book for Grade 7", "Sindhi", "Sindh Textbook Board, Jamshoro", ""],
+    ["Asaan Tajweed", "Qur'an", "Maktaba Barkat-ul-Madina", ""]
+  ],
+  8: [
+    ["Oxford Progressive English 8 (2nd Edition) SNC", "English", "Oxford", "9780190701888"],
+    ["Count Down Book 8 (3rd Edition) SNC", "Mathematics", "Oxford", "9789697342679"],
+    ["Karwan-e-Urdu Book - 8", "Urdu", "Paramount", "9789696370574"],
+    ["New Oxford Secondary Science Book 8 (1st Edition)", "Science", "Oxford", "9789697340057"],
+    ["New Oxford Secondary Science Workbook 8 (1st Edition)", "Science", "Oxford", "9789697344321"],
+    ["Secondary Social Studies for Pakistan Book - 3 (Revised Edition)", "Social Studies", "Oxford", "9780195478976"],
+    ["Keyboard Book - 8 (4th Edition)", "Computing", "Oxford", "9789697341894"],
+    ["Bahar-e-Shariat Juzz Hashtum", "Islamiyat", "Maktaba Barkat-ul-Madina", ""],
+    ["Asan Sindhi Book for Grade 8", "Sindhi", "Sindh Textbook Board, Jamshoro", ""],
+    ["Asaan Tajweed", "Qur'an", "Maktaba Barkat-ul-Madina", ""]
+  ]
+} };
+
 </script>
 <script>
 (() => {
@@ -426,7 +547,7 @@ function sampleState() {
   s.books.push(b); s.status[b.ch[0].id] = { st: "done", d: "2026-06-20" };
   const lv = { "ch-deen-1": 2, "ch-deen-2": 1, "ch-deen-3": 2, "ch-deen-5": 3, "ch-emo-1": 1, "ch-emo-3": 1, "ch-others-2": 2, "ch-others-6": 3, "ch-habits-1": 1 };
   for (const [k, v] of Object.entries(lv)) s.cv[k] = { lv: v, d: "2026-09-01", h: [["2026-08-01", Math.max(0, v - 1)], ["2026-09-01", v]] };
-  return { students: [s], active: s.id, ui: { tab: "track", subj: "all", hideUS: false, q: "", more: "backup" } };
+  return { students: [s], active: s.id, ui: { tab: "books", subj: "all", hideUS: false, q: "", more: "backup" } };
 }
 function valid(d) {
   return d && Array.isArray(d.students) && d.students.length > 0 && d.students.every(s => s && typeof s.id === "string" && typeof s.name === "string"
@@ -434,7 +555,7 @@ function valid(d) {
 }
 function load() {
   try { const raw = localStorage.getItem(KEY); if (raw) { const d = JSON.parse(raw); if (valid(d)) { d.students.forEach(fix);
-    d.ui = Object.assign({ tab:"track", subj:"all", hideUS:false, q:"", more:"backup" }, d.ui || {});
+    d.ui = Object.assign({ tab:"books", subj:"all", hideUS:false, q:"", more:"backup" }, d.ui || {});
     if (d.ui.tab === "sources" || d.ui.tab === "backup") { d.ui.more = d.ui.tab; d.ui.tab = "more"; } return d; } } } catch (e) {}
   return sampleState();
 }
@@ -556,7 +677,7 @@ $(".tabs").addEventListener("keydown", e => {
 });
 
 function render() {
-  if (!["track", "books", "char", "compare", "more"].includes(state.ui.tab)) state.ui.tab = "track";
+  if (!["track", "books", "char", "compare", "more"].includes(state.ui.tab)) state.ui.tab = "books";
   document.querySelectorAll(".tab").forEach(b => { const on = b.dataset.tab === state.ui.tab;
     b.setAttribute("aria-selected", String(on)); b.tabIndex = on ? 0 : -1; });
   $("#view").setAttribute("aria-labelledby", "tab-" + state.ui.tab);
@@ -699,16 +820,16 @@ function renderBooks() {
     const rows = b.ch.map((c, n) => {
       const x = st.status[c.id]; const done = x?.st === "done"; const sg = suggest(c.t, b.subj, b.cls); const open = openRows.has(c.id);
       return `<li class="row ${done ? "done" : ""}"><div class="row-main">
-        <input type="checkbox" id="c-${c.id}" data-tick="${c.id}" ${done ? "checked" : ""}>
+        <label class="tick"><input type="checkbox" id="c-${c.id}" data-tick="${c.id}" ${done ? "checked" : ""}></label>
         <label class="row-title" for="c-${c.id}"><span class="t">${esc(c.t)}</span>
           <span class="meta"><span class="mono muted">Ch. ${n + 1}</span>${done && x.d ? `<span class="muted" style="font-size:.8rem">done ${esc(x.d)}</span>` : ""}</span></label>
-        <button class="linkbtn" data-open="${c.id}" aria-expanded="${open}">${open ? "Hide" : "Edit"}</button></div>
-        ${sg.length ? `<div class="sugg" style="padding:0 12px 8px 46px"><span class="muted">Background in Core Knowledge:</span>${sg.map(i => `<a href="${esc(i.page || i.guide)}" target="_blank" rel="noopener">${SUBJECTS[i.s].code} ${US_GRADE[i.g]} · ${esc(i.title)}</a>`).join("")}</div>` : ""}
-        ${open ? `<div class="details"><div><label class="label" for="ct-${c.id}">Chapter title</label><input id="ct-${c.id}" class="search" style="width:100%" data-chtitle="${b.id}|${c.id}" value="${esc(c.t)}"></div>
+        <button class="linkbtn" data-open="${c.id}" aria-expanded="${open}" aria-controls="d-${c.id}">${open ? "Hide" : "Edit"}</button></div>
+        ${sg.length ? `<div class="sugg"><span class="muted">Background in Core Knowledge:</span>${sg.map(i => `<a href="${esc(i.page || i.guide)}" target="_blank" rel="noopener">${SUBJECTS[i.s].code} ${US_GRADE[i.g]} · ${esc(i.title)}</a>`).join("")}</div>` : ""}
+        ${open ? `<div class="details" id="d-${c.id}"><div><label class="label" for="ct-${c.id}">Chapter title</label><input id="ct-${c.id}" class="search" style="width:100%" data-chtitle="${b.id}|${c.id}" value="${esc(c.t)}"></div>
           <div><label class="label" for="n-${c.id}">Note</label><textarea id="n-${c.id}" data-note="${c.id}" placeholder="Test marks, pages to revise">${esc(st.notes[c.id] || "")}</textarea></div>
           <div class="actions"><button class="btn small danger" data-delch="${b.id}|${c.id}">Delete chapter</button></div></div>` : ""}
-      </li>`; }).join("") || `<li class="empty">No chapters yet. Open the book at its Contents page and paste the chapter titles below.</li>`;
-    return `<section class="ledger"><div class="group-head"><div><h3>${esc(b.title)}</h3><div class="muted" style="font-size:.85rem">${esc(b.subj)}${b.series ? " · " + esc(b.series) : ""} · ${s.done} of ${s.total} chapters</div></div>
+      </li>`; }).join("") || `<li class="empty">No chapters yet. Open the book at its Contents page and type or paste the chapter titles below.</li>`;
+    return `<section class="ledger"><div class="group-head"><div><h3>${esc(b.title)}</h3><div class="muted" style="font-size:.9rem">${esc(b.subj)}${b.pub ? " · " + esc(b.pub) : b.series ? " · " + esc(b.series) : ""}${b.isbn ? ` · <span class="mono">ISBN ${esc(b.isbn)}</span>` : ""} · ${s.done} of ${s.total} chapters</div></div>
       <div class="actions"><span class="pct">${P(s.pct)}</span><span class="pill ${ps.cls}">${ps.txt}</span></div></div>
       <ul class="rows">${rows}</ul>
       <form class="add-own" data-addch="${b.id}"><label class="label" for="ac-${b.id}">Add chapters</label>
@@ -716,9 +837,16 @@ function renderBooks() {
         <div class="actions"><button class="btn primary">Add</button><button type="button" class="btn small danger" data-delbook="${b.id}">Delete book</button></div></form>
     </section>`;
   }).join("");
+  const listed = SCHOOL_LIST.classes[cls] || [];
+  const missing = listed.filter(([t]) => !books.some(b => b.title === t));
+  const listPanel = missing.length ? `<section class="panel"><h2>${esc(SCHOOL_LIST.name)}: ${GRADE_NAMES[cls]}</h2>
+      <p class="hint">${listed.length} books for ${GRADE_NAMES[cls]} (${cls <= 6 ? "Cambridge Level" : "Matric Grade"} ${["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII"][cls]}): ${[...new Set(listed.map(b => b[2]))].join(", ")}.${missing.length < listed.length ? ` ${listed.length - missing.length} already added.` : ""}</p>
+      <ul class="srclist">${missing.map(([t]) => `<li>${esc(t)}</li>`).join("")}</ul>
+      <div class="actions"><button class="btn primary" id="addList">Add ${missing.length === listed.length ? "all " : ""}${missing.length} book${missing.length === 1 ? "" : "s"}</button></div></section>` : "";
   $("#view").innerHTML = `<div class="stack">
     <div class="stack-s"><div class="label">Class · tap to view</div>${gradeStrip(cls, i => bookStats(st, i), "data-bc")}</div>
-    <p class="hint" style="max-width:70ch">Add the books your child’s school actually uses, Oxford or any other publisher. Chapter lists come from your copy of the book: type or paste the Contents page, one chapter per line. Where a chapter shares a topic with a Core Knowledge unit, the matching unit appears under it as free background reading.</p>
+    <p class="hint" style="max-width:70ch">Track the books your child’s school uses, chapter by chapter. Where a chapter shares a topic with a Core Knowledge unit, the matching unit appears under it as free background reading.</p>
+    ${listPanel}
     ${cards || `<div class="panel"><p class="muted">No books for ${GRADE_NAMES[cls]} yet. Add the first one below.</p></div>`}
     <section class="panel"><h2>Add a book for ${GRADE_NAMES[cls]}</h2>
       <form id="bookForm" class="stack-s">
@@ -735,6 +863,12 @@ function renderBooks() {
   const v = $("#view");
   bindCommon(v, st, renderBooks);
   v.querySelectorAll("[data-bc]").forEach(b => b.addEventListener("click", () => { bookClass = +b.dataset.bc; renderBooks(); }));
+  $("#addList")?.addEventListener("click", () => {
+    const added = missing.map(([title, subj, pub, isbn]) => ({ id: "b-" + uid(), title, series: "", subj, pub, isbn, cls, ch: [] }));
+    st.books.push(...added); st.example = false; save(); renderBooks();
+    toast(`Added ${added.length} book${added.length === 1 ? "" : "s"}`, () => {
+      const ids = new Set(added.map(b => b.id)); st.books = st.books.filter(b => !ids.has(b.id)); save(); renderBooks(); });
+  });
   const ser = $("#bSeries"), num = $("#bNum"), ttl = $("#bTitle"), sub = $("#bSubj");
   const autoTitle = () => { const s = BOOK_SERIES[ser.value]; if (s) { ttl.value = `${s.n}, Book ${num.value || 1}`; sub.value = s.subj; } };
   ser.addEventListener("change", autoTitle); num.addEventListener("input", () => { if (ser.value !== "") autoTitle(); });
@@ -747,14 +881,17 @@ function renderBooks() {
     const b = st.books.find(x => x.id === f.dataset.addch); const ta = f.querySelector("textarea"); const add = parseChapters(ta.value);
     if (!add.length) return; b.ch.push(...add); save(); renderBooks(); toast(`Added ${add.length} chapter${add.length === 1 ? "" : "s"}`); }));
   v.querySelectorAll("[data-delch]").forEach(btn => btn.addEventListener("click", () => { const [bid, cid] = btn.dataset.delch.split("|");
-    const b = st.books.find(x => x.id === bid); b.ch = b.ch.filter(c => c.id !== cid); delete st.status[cid]; delete st.notes[cid]; save(); renderBooks(); }));
+    const b = st.books.find(x => x.id === bid); const at = b.ch.findIndex(c => c.id === cid), ch = b.ch[at], stat = st.status[cid], note = st.notes[cid];
+    b.ch = b.ch.filter(c => c.id !== cid); delete st.status[cid]; delete st.notes[cid]; openRows.delete(cid); save(); renderBooks();
+    toast("Chapter deleted", () => { b.ch.splice(at, 0, ch); if (stat) st.status[cid] = stat; if (note) st.notes[cid] = note; save(); renderBooks(); }); }));
   v.querySelectorAll("[data-chtitle]").forEach(inp => inp.addEventListener("change", () => { const [bid, cid] = inp.dataset.chtitle.split("|");
     const c = st.books.find(x => x.id === bid)?.ch.find(x => x.id === cid); if (c && inp.value.trim()) { c.t = inp.value.trim(); save(); renderBooks(); } }));
-  let armed = null;
   v.querySelectorAll("[data-delbook]").forEach(btn => btn.addEventListener("click", () => { const id = btn.dataset.delbook;
-    if (armed !== id) { armed = id; btn.textContent = "Tap again to delete"; return; }
-    const b = st.books.find(x => x.id === id); b.ch.forEach(c => { delete st.status[c.id]; delete st.notes[c.id]; });
-    st.books = st.books.filter(x => x.id !== id); save(); renderBooks(); toast("Book deleted"); }));
+    const at = st.books.findIndex(x => x.id === id), b = st.books[at];
+    const kept = b.ch.map(c => [c.id, st.status[c.id], st.notes[c.id]]);
+    b.ch.forEach(c => { delete st.status[c.id]; delete st.notes[c.id]; });
+    st.books = st.books.filter(x => x.id !== id); save(); renderBooks();
+    toast("Book deleted", () => { st.books.splice(at, 0, b); kept.forEach(([cid, x, n]) => { if (x) st.status[cid] = x; if (n) st.notes[cid] = n; }); save(); renderBooks(); }); }));
 }
 function parseChapters(txt) {
   return String(txt).split(/\r?\n/).map(l => l.replace(/^\s*(chapter|unit|lesson|ch\.?)?\s*\d+\s*[.:)\-–]?\s*/i, "").replace(/\s+\.{2,}\s*\d+\s*$/, "").trim())
@@ -868,7 +1005,7 @@ function renderBackup() {
     a.download = "ck-ledger-backup-" + today() + ".json"; document.body.appendChild(a); a.click(); a.remove(); toast("Download started"); } catch (e) { toast("Download not available here; use Copy"); } });
   const restore = txt => { try { const d = JSON.parse(txt); const s = { students: d.students };
       if (!valid(s)) throw new Error("shape"); s.students.forEach(fix);
-      state.students = s.students; state.active = s.students[0].id; viewGrade = bookClass = null; save(); fillStudent(); state.ui.tab = "track"; render(); toast("Restored " + s.students.length + " student(s)"); }
+      state.students = s.students; state.active = s.students[0].id; viewGrade = bookClass = null; save(); fillStudent(); state.ui.tab = "books"; render(); toast("Restored " + s.students.length + " student(s)"); }
     catch (e) { $("#impMsg").textContent = "That text is not a Core Knowledge Ledger backup. Copy the whole backup, from the first { to the last }."; } };
   $("#doImp").addEventListener("click", () => restore($("#imp").value));
   $("#impFile").addEventListener("change", e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => restore(r.result); r.readAsText(f); });

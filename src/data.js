@@ -114,9 +114,18 @@ const BOOK_SERIES = [
   { n: "Oxford International Primary Computing", subj: "Computing" },
   { n: "Islamiyat for Primary Classes", subj: "Islamiyat" },
   { n: "Urdu Say Dosti", subj: "Urdu" },
-  { n: "Nai Oxford Waqfiyat-e-Aama", subj: "Social Studies" }
+  { n: "Nai Oxford Waqfiyat-e-Aama", subj: "Social Studies" },
+  /* from a Karachi school's 2026–27 book list (see SCHOOL_LIST) */
+  { n: "Oxford Discover", subj: "English" },
+  { n: "Primary Mathematics", subj: "Mathematics" },
+  { n: "Countdown", subj: "Mathematics" },
+  { n: "New Oxford Primary Science", subj: "Science" },
+  { n: "New Oxford Secondary Science", subj: "Science" },
+  { n: "Secondary Social Studies for Pakistan", subj: "Social Studies" },
+  { n: "Keyboard", subj: "Computing" },
+  { n: "Karwan-e-Urdu", subj: "Urdu" }
 ];
-const BOOK_SUBJECTS = ["English","Urdu","Mathematics","Science","Social Studies","History","Geography","Islamiyat","Computing","Other"];
+const BOOK_SUBJECTS = ["English","Urdu","Mathematics","Science","Social Studies","History","Geography","Islamiyat","Qur'an","Computing","Sindhi","Art","Other"];
 const SUBJ_TO_CK = { English: ["la"], Science: ["sci"], "Social Studies": ["hg","sci"], History: ["hg"], Geography: ["hg","sci"] };
 
 /* From the article "Things Every Child (4–12) Should Learn — Beyond Just Good Grades" by Abul Laith Muhammad Tahir Qadri */
@@ -156,3 +165,114 @@ const HARVARD = [
   { t: "Activities Guide: Enhancing and Practicing Executive Function Skills", u: "https://developingchild.harvard.edu/resources/handouts-tools/activities-guide-enhancing-and-practicing-executive-function-skills/", d: "Games and routines grouped by age. Use the 3–5, 5–7 and 7–12 year sections." },
   { t: "What Is Executive Function? And How Does It Relate to Child Development?", u: "https://developingchild.harvard.edu/resources/infographics/what-is-executive-function-and-how-does-it-relate-to-child-development/", d: "A one-page infographic to share with the other parent or a teacher." }
 ];
+
+/* A Karachi school's book list for 2026–27, supplied by the owner (printed 15 July 2026): Cambridge Levels I–VI and Matric Grades VII–VIII.
+   Each row: [title as printed, subject, publisher, ISBN]. The optional dictionary is left out. The list gives no chapters. */
+const SCHOOL_LIST = { name: "School book list 2026–27", classes: {
+  1: [
+    ["Oxford Discover Student Book 1 (2nd Edition)", "English", "Oxford", "9780194053877"],
+    ["Oxford Discover Workbook 1 (2nd Edition)", "English", "Oxford", "9780194053891"],
+    ["Join Handwriting Series 1", "English", "Sheikh Shoukat Ali & Sons", ""],
+    ["Primary Mathematics Book 1 (2nd Edition) SNC", "Mathematics", "Oxford", "9780190709655"],
+    ["Primary Mathematics Book 1A (2nd Edition)", "Mathematics", "Oxford", "9780190701505"],
+    ["Primary Mathematics Book 1B (2nd Edition)", "Mathematics", "Oxford", "9780190701512"],
+    ["Karwan-e-Urdu Book - 1", "Urdu", "Paramount", "9789696370499"],
+    ["Keyboard Book - 1 (4th Edition)", "Computing", "Oxford", "9789697346219"],
+    ["Islamiat Juzz Awwal", "Islamiyat", "Maktaba Barkat-ul-Madina", ""],
+    ["My Creative Club Book - 1", "Art", "Paramount", ""]
+  ],
+  2: [
+    ["Oxford Discover Student Book 2 (2nd Edition)", "English", "Oxford", "9780194053907"],
+    ["Oxford Discover Workbook 2 (2nd Edition)", "English", "Oxford", "9780194053921"],
+    ["Join Handwriting Series 2", "English", "Sheikh Shoukat Ali & Sons", ""],
+    ["Primary Mathematics Book 2 (2nd Edition) SNC", "Mathematics", "Oxford", "9780190709662"],
+    ["Primary Mathematics Book 2A (2nd Edition)", "Mathematics", "Oxford", "9780190701529"],
+    ["Primary Mathematics Book 2B (2nd Edition)", "Mathematics", "Oxford", "9780190701536"],
+    ["Karwan-e-Urdu Book - 2", "Urdu", "Paramount", "9789696370581"],
+    ["Keyboard Book 2 (4th Edition)", "Computing", "Oxford", "9789697346226"],
+    ["Islamiat Juzz Doem", "Islamiyat", "Maktaba Barkat-ul-Madina", ""],
+    ["My Creative Club Book - 2", "Art", "Paramount", ""]
+  ],
+  3: [
+    ["Oxford Discover Student Book 3 (2nd Edition)", "English", "Oxford", "9780194053938"],
+    ["Oxford Discover Workbook 3 (2nd Edition)", "English", "Oxford", "9780194053952"],
+    ["Join Handwriting Series 3", "English", "Sheikh Shoukat Ali & Sons", ""],
+    ["Primary Mathematics Book 3 (2nd Edition) SNC", "Mathematics", "Oxford", "9780190709679"],
+    ["Primary Mathematics Book 3A (2nd Edition)", "Mathematics", "Oxford", "9780190701543"],
+    ["Primary Mathematics Book 3B (2nd Edition)", "Mathematics", "Oxford", "9780190701550"],
+    ["Karwan-e-Urdu Book - 3", "Urdu", "Paramount", "9789696370598"],
+    ["New Oxford Primary Science Book 3 (3rd Edition)", "Science", "Oxford", "9780190700072"],
+    ["Keyboard Book 3 (4th Edition)", "Computing", "Oxford", "9789697346233"],
+    ["New Oxford Social Studies for Pakistan Book 3 (4th Edition)", "Social Studies", "Oxford", "9780190700621"],
+    ["Islamiat Juzz Salis (Revised Edition)", "Islamiyat", "Maktaba Barkat-ul-Madina", ""],
+    ["My Creative Club Book - 3", "Art", "Paramount", ""],
+    ["Asaan Tajweed", "Qur'an", "Maktaba Barkat-ul-Madina", ""]
+  ],
+  4: [
+    ["Oxford Discover Student Book 4 (2nd Edition)", "English", "Oxford", "9780194053969"],
+    ["Oxford Discover Workbook 4 (2nd Edition)", "English", "Oxford", "9780194053983"],
+    ["Join Handwriting Series 4", "English", "Sheikh Shoukat Ali & Sons", ""],
+    ["Primary Mathematics Book 4 (2nd Edition) SNC", "Mathematics", "Oxford", "9780190709686"],
+    ["Primary Mathematics Book 4A (2nd Edition)", "Mathematics", "Oxford", "9780190701567"],
+    ["Primary Mathematics Book 4B (2nd Edition)", "Mathematics", "Oxford", "9780190701574"],
+    ["Karwan-e-Urdu Book - 4", "Urdu", "Paramount", "9789696370536"],
+    ["New Oxford Primary Science Book 4 (3rd Edition) SNC", "Science", "Oxford", "9780190706937"],
+    ["Keyboard Book 4 (4th Edition)", "Computing", "Oxford", "9789697346240"],
+    ["New Oxford Social Studies for Pakistan Book 4 (4th Edition) SNC", "Social Studies", "Oxford", "9780190706982"],
+    ["Islamiat Juzz Chaharum", "Islamiyat", "Maktaba Barkat-ul-Madina", ""],
+    ["My Creative Club Book - 4", "Art", "Paramount", ""],
+    ["Asaan Tajweed", "Qur'an", "Maktaba Barkat-ul-Madina", ""]
+  ],
+  5: [
+    ["Oxford Discover Student Book 5 (2nd Edition)", "English", "Oxford", "9780194053990"],
+    ["Oxford Discover Workbook 5 (2nd Edition)", "English", "Oxford", "9780194054010"],
+    ["Primary Mathematics Book 5 (2nd Edition) SNC", "Mathematics", "Oxford", "9780190709693"],
+    ["Primary Mathematics Book 5A (2nd Edition)", "Mathematics", "Oxford", "9780190701581"],
+    ["Primary Mathematics Book 5B (2nd Edition)", "Mathematics", "Oxford", "9780190701598"],
+    ["Karwan-e-Urdu Book - 5", "Urdu", "Paramount", "9789696370543"],
+    ["New Oxford Primary Science Book 5 (3rd Edition) SNC", "Science", "Oxford", "9780190706944"],
+    ["Keyboard Book 5 (4th Edition)", "Computing", "Oxford", "9789697346257"],
+    ["New Oxford Social Studies for Pakistan Book 5 (4th Edition) SNC", "Social Studies", "Oxford", "9780190706999"],
+    ["Islamiat Juzz Punjum", "Islamiyat", "Maktaba Barkat-ul-Madina", ""],
+    ["My Creative Club Book - 5", "Art", "Paramount", ""],
+    ["Asaan Tajweed", "Qur'an", "Maktaba Barkat-ul-Madina", ""]
+  ],
+  6: [
+    ["Oxford Discover Student Book 6 (2nd Edition)", "English", "Oxford", "9780194054027"],
+    ["Oxford Discover Workbook 6 (2nd Edition)", "English", "Oxford", "9780194054041"],
+    ["Primary Mathematics Book 6 (2nd Edition)", "Mathematics", "Oxford", "9780190701499"],
+    ["Primary Mathematics Book 6A (2nd Edition)", "Mathematics", "Oxford", "9780190701604"],
+    ["Primary Mathematics Book 6B (2nd Edition)", "Mathematics", "Oxford", "9780190701611"],
+    ["Karwan-e-Urdu Book - 6", "Urdu", "Paramount", "9789696370550"],
+    ["New Oxford Secondary Science Book 6 (1st Edition)", "Science", "Oxford", "9789697340033"],
+    ["New Oxford Secondary Science Workbook 6 (1st Edition)", "Science", "Oxford", "9789697344307"],
+    ["Keyboard Book 6 (4th Edition)", "Computing", "Oxford", "9789697341870"],
+    ["Secondary Social Studies for Pakistan Book - 1 (Revised Edition)", "Social Studies", "Oxford", "9780195478952"],
+    ["Bahar-e-Shariat Juzz Shashum", "Islamiyat", "Maktaba Barkat-ul-Madina", ""],
+    ["Asaan Tajweed", "Qur'an", "Maktaba Barkat-ul-Madina", ""]
+  ],
+  7: [
+    ["Oxford Progressive English 7 (2nd Edition) SNC", "English", "Oxford", "9780190701871"],
+    ["Countdown Book 7 (3rd Edition) SNC", "Mathematics", "Oxford", "9789697342662"],
+    ["Karwan-e-Urdu Book - 7", "Urdu", "Paramount", "9789696370567"],
+    ["New Oxford Secondary Science Book 7 (1st Edition)", "Science", "Oxford", "9789697340040"],
+    ["New Oxford Secondary Science Workbook 7 (1st Edition)", "Science", "Oxford", "9789697344314"],
+    ["Secondary Social Studies for Pakistan Book - 2 (Revised Edition)", "Social Studies", "Oxford", "9780195478969"],
+    ["Keyboard Book - 7 (4th Edition)", "Computing", "Oxford", "9789697341887"],
+    ["Bahar-e-Shariat Juzz Haftum", "Islamiyat", "Maktaba Barkat-ul-Madina", ""],
+    ["Asan Sindhi Book for Grade 7", "Sindhi", "Sindh Textbook Board, Jamshoro", ""],
+    ["Asaan Tajweed", "Qur'an", "Maktaba Barkat-ul-Madina", ""]
+  ],
+  8: [
+    ["Oxford Progressive English 8 (2nd Edition) SNC", "English", "Oxford", "9780190701888"],
+    ["Count Down Book 8 (3rd Edition) SNC", "Mathematics", "Oxford", "9789697342679"],
+    ["Karwan-e-Urdu Book - 8", "Urdu", "Paramount", "9789696370574"],
+    ["New Oxford Secondary Science Book 8 (1st Edition)", "Science", "Oxford", "9789697340057"],
+    ["New Oxford Secondary Science Workbook 8 (1st Edition)", "Science", "Oxford", "9789697344321"],
+    ["Secondary Social Studies for Pakistan Book - 3 (Revised Edition)", "Social Studies", "Oxford", "9780195478976"],
+    ["Keyboard Book - 8 (4th Edition)", "Computing", "Oxford", "9789697341894"],
+    ["Bahar-e-Shariat Juzz Hashtum", "Islamiyat", "Maktaba Barkat-ul-Madina", ""],
+    ["Asan Sindhi Book for Grade 8", "Sindhi", "Sindh Textbook Board, Jamshoro", ""],
+    ["Asaan Tajweed", "Qur'an", "Maktaba Barkat-ul-Madina", ""]
+  ]
+} };

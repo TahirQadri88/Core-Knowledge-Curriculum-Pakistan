@@ -30,7 +30,8 @@ After any change: build, run the test, and run the link check if `src/data.js` c
 - Each row in `RAW` is `"title|unit-page-slug|online-resources-pdf-path|flags"`. The slug goes after `https://www.coreknowledge.org/free-resource/`. Leave the slug empty when no page exists and add the `nopage` flag.
 - Flags: `us` (U.S.-focused, optional for Pakistani families), `islam` (written about Islam from outside the faith; parent reads first), `sa` (South Asia link), `review` (parent may want to read first), `book` (needs a purchased novel), `nopage`.
 - Item ids (`la-4-2`, `la-1-s3`, `hg-4-4`, `sci-5-6`) are stored in users' saved progress. Never renumber or reuse an id. To retire a unit, keep the id and mark it in `notes/decisions.md`.
-- Do not invent Oxford chapter lists. OUP does not publish them online; parents paste the Contents page from their own copy.
+- Do not invent chapter lists. Bundle one only when it is copied from OUP Pakistan's Teaching Guide PDFs on oup.com.pk or from the book's printed Contents page, and record the source in `notes/decisions.md`. Otherwise parents paste the Contents page from their own copy.
+- `SCHOOL_LIST` in `src/data.js` is the owner's school book list for 2026–27 (Classes 1–8). Keep titles and ISBNs exactly as printed.
 
 ## Rules for the app
 - Vanilla JS, one HTML file, no framework, no build tools beyond `build.py`. Only external request: Google Fonts (cached by the service worker).
@@ -42,7 +43,7 @@ After any change: build, run the test, and run the link check if `src/data.js` c
 - Sizes in `rem`, never a fixed `px` font size, so text follows the phone's text-size setting. No horizontal scroll at 200% zoom.
 - Use logical CSS (`padding-inline-start`, `inset-inline-end`, `text-align:start`) instead of left/right, so the planned Urdu (right-to-left) layout mirrors correctly.
 - Messages go through `toast()`, which also announces them to screen readers; pass an undo function for anything destructive.
-- Tabs: Core Knowledge, School books, Character & deen, Compare, More (Backup and Sources). Keep at most five.
+- Tabs: School books (first and default), Core Knowledge, Character & deen, Compare, More (Backup and Sources). Keep at most five.
 
 ## Design skills
 - `.claude/skills/hig-*`: Apple Human Interface Guidelines skills from HIG Doctor (Raintree Technology, MIT; Apple's reference text in each `references/` folder is © Apple Inc.). Snapshot copied on 11 October 2026 from commit 5e20558.

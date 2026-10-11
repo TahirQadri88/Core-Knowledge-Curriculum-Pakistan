@@ -38,6 +38,14 @@ async def main():
         await pg.reload()
         await pg.wait_for_timeout(500)
 
+        check(await pg.get_attribute("#tab-books", "aria-selected") == "true", "School books is the first tab shown")
+        before = await pg.locator(".ledger").count()
+        await pg.locator("#addList").click(); await pg.wait_for_timeout(150)
+        check(await pg.locator(".ledger").count() == before + 13, "School list adds all 13 Class 4 books in one tap")
+        check("9780190706982" in await pg.inner_text("#view"), "Added books show their ISBN")
+        await pg.locator("#toast button").click(); await pg.wait_for_timeout(150)
+        check(await pg.locator(".ledger").count() == before, "Undo removes the books just added")
+        await pg.locator("#tab-track").click(); await pg.wait_for_timeout(150)
         check(await pg.locator(".row").count() > 20, "Core Knowledge rows render for the sample student")
         await pg.locator('[data-g="1"]').click()
         check(await pg.locator(".strand").count() == 2, "Grade 1 Language Arts shows both strands")
@@ -47,6 +55,7 @@ async def main():
 
         await pg.locator('[data-tick="la-1-1"]').check()
         await pg.reload(); await pg.wait_for_timeout(300)
+        await pg.locator("#tab-track").click()
         await pg.locator('[data-g="1"]').click()
         check(await pg.locator('[data-tick="la-1-1"]').is_checked(), "Ticks persist after reload")
 
