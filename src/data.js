@@ -288,3 +288,14 @@ const SCHOOL_LIST = { name: "School book list 2026–27", classes: {
     ["Asaan Tajweed", "Qur'an", "Maktaba Barkat-ul-Madina", ""]
   ]
 } };
+
+/* Chapter lists copied from Oxford Pakistan's free Teaching Guides on oup.com.pk, keyed by the ISBN of the pupil's book (11 October 2026).
+   ch: [label, title]. check: the guide is an older printing than the school's edition, so parents are asked to compare it with their book. */
+const BOOK_CHAPTERS = {
+  "9780190706999": { src: "Oxford Pakistan, New Oxford Social Studies for Pakistan Teaching Guide 5 SNC (contents page)", u: "https://oup.com.pk/media/teaching-guides/New%20Oxford%20Social%20Studies%20for%20Pakistan%204th%20Edition/05-New%20Oxford%20Social%20Studies%20for%20Pakistan%20TG%205%20SNC.pdf",
+    ch: [["Ch. 1", "Maps"], ["Ch. 2", "World climate"], ["Ch. 3", "Life in desert and forest regions"], ["Ch. 4", "The polar regions and exploration"], ["Ch. 5", "Our country"], ["Ch. 6", "Minerals, power resources, and industries"], ["Ch. 7", "Agriculture and irrigation in Pakistan"], ["Ch. 8", "Pakistan and her neighbours"], ["Ch. 9", "Economics"], ["Ch. 9a", "Entrepreneurship"], ["Ch. 10", "Information communication"], ["Ch. 11", "The government and the law"], ["Ch. 12", "Our culture"], ["Ch. 13", "Ancient civilisations of the world"], ["Ch. 14", "The struggle for independence"], ["Ch. 15", "Human rights"]] },
+  "9780190706944": { src: "Oxford Pakistan, New Oxford Primary Science Teaching Guide 5 SNC (contents page; Unit 9 title from its lesson pages)", u: "https://oup.com.pk/media/teaching-guides/New%20Oxford%20Primary%20Science%203rd%20Edition/NOPS%20TG%205%20SNC.pdf",
+    ch: [["Unit 1", "Classification of Living Things"], ["Unit 2", "Microorganisms"], ["Unit 3", "Flowers and Seeds"], ["Unit 4", "Environmental Pollution"], ["Unit 5", "Physical and Chemical Changes of Matter"], ["Unit 6a", "Light"], ["Unit 6b", "Sound"], ["Unit 7", "Electricity and Magnetism"], ["Unit 8", "The Structure of the Earth"], ["Unit 9", "Space and Satellites"], ["Unit 10", "Technology in Everyday Life"]] },
+  "9780190709693": { src: "Oxford Pakistan, New Syllabus Primary Mathematics Teacher's Resource Book 5 (2nd Edition, 2020)", u: "https://oup.com.pk/media/teaching-guides/New%20Syllabus%20Primary%20Mathematics%202nd%20Edition/NSPM-Teacher's-Resource-Book-5.pdf", check: true,
+    ch: [["Ch. 1", "Numbers up to 10 Million"], ["Ch. 2", "Four Operations"], ["Ch. 3", "Introduction to Algebra"], ["Ch. 4", "Fractions"], ["Ch. 5", "Ratio"], ["Ch. 6", "Area of Triangles"], ["Ch. 7", "Volume"], ["Ch. 8", "Decimals"], ["Ch. 9", "Percentage"], ["Ch. 10", "Average"], ["Ch. 11", "Rate"], ["Ch. 12", "Angles"], ["Ch. 13", "Properties of Triangles"], ["Ch. 14", "Properties of Four-sided Figures"], ["Ch. 15", "Probability"]] }
+};

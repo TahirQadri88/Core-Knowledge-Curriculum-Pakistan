@@ -147,6 +147,8 @@ button{cursor:pointer}
 .add-own{display:flex;gap:8px;padding-block:10px 12px;padding-inline:var(--gut) 14px;flex-wrap:wrap;align-items:center}
 .add-own input{flex:1 1 14rem;min-width:0;border:1px solid var(--control-line);background:var(--paper);border-radius:8px;padding:7px 10px;min-height:var(--tap)}
 .empty{padding-block:14px;padding-inline:var(--gut) 14px;color:var(--muted)}
+.chsrc{padding-block:8px;padding-inline:var(--gut) 12px;border-bottom:1px solid var(--rule)}
+.chsrc .pill{white-space:normal}
 .sugg{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:.9rem;padding-block:0 10px;padding-inline:var(--gut) 12px}
 .sugg a{display:inline-flex;align-items:center;min-height:var(--tap)}
 .sugg a{text-decoration:none;border-bottom:1px dotted var(--accent)}
@@ -394,10 +396,11 @@ function renderSetup() {
     const name = $("#sName").value.trim(); if (!name) { $("#sName").focus(); return; }
     const grade = +g.value, s = newStudent(name, null, grade, false);
     const list = $("#sBooks").checked ? SCHOOL_LIST.classes[grade] || [] : [];
-    s.books = list.map(([title, subj, pub, isbn]) => ({ id: "b-" + uid(), title, series: "", subj, pub, isbn, cls: grade, ch: [] }));
+    s.books = list.map(([title, subj, pub, isbn]) => ({ id: "b-" + uid(), title, series: "", subj, pub, isbn, cls: grade, ch: chaptersFor(isbn) }));
     state.students = state.students.filter(x => !x.sample && !x.example).concat(s); state.active = s.id;
     state.ui.setup = state.ui.welcome = false; state.ui.tab = "books"; viewGrade = bookClass = null; openRows.clear(); save(); fillStudent(); render();
-    toast(list.length ? `${name} is ready, with ${list.length} school books` : `${name} is ready`); $("#view").focus(); });
+    const nch = s.books.reduce((a, b) => a + b.ch.length, 0);
+    toast(list.length ? `${name} is ready, with ${list.length} school books${nch ? ` and ${nch} chapters` : ""}` : `${name} is ready`); $("#view").focus(); });
   if (mode === "add") $("#sName").focus();
 }
 $("#editChild").addEventListener("click", e => { const f = $("#childFields"); f.hidden = !f.hidden; e.currentTarget.setAttribute("aria-expanded", String(!f.hidden));
@@ -584,6 +587,7 @@ function bindTrack(st) {
 }
 
 /* ---------- School books tab ---------- */
+const chaptersFor = isbn => (BOOK_CHAPTERS[isbn]?.ch || []).map(([n, t]) => ({ id: "bc-" + uid(), t, n }));
 function renderBooks() {
   const st = cur(); const cls = bookClass ?? st.grade; bookClass = cls;
   const books = st.books.filter(b => b.cls === cls);
@@ -596,16 +600,19 @@ function renderBooks() {
       return `<li class="row ${done ? "done" : ""}"><div class="row-main">
         <label class="tick"><input type="checkbox" id="c-${c.id}" data-tick="${c.id}" ${done ? "checked" : ""}></label>
         <label class="row-title" for="c-${c.id}"><span class="t">${esc(c.t)}</span>
-          <span class="meta"><span class="mono muted">Ch. ${n + 1}</span>${done && x.d ? `<span class="muted" style="font-size:.8rem">done ${esc(x.d)}</span>` : ""}</span></label>
+          <span class="meta"><span class="mono muted">${esc(c.n || "Ch. " + (n + 1))}</span>${done && x.d ? `<span class="muted" style="font-size:.8rem">done ${esc(x.d)}</span>` : ""}</span></label>
         <button class="linkbtn" data-open="${c.id}" aria-expanded="${open}" aria-controls="d-${c.id}">${open ? "Hide" : "Edit"}</button></div>
         ${sg.length ? `<div class="sugg"><span class="muted">Background in Core Knowledge:</span>${sg.map(i => `<a href="${esc(i.page || i.guide)}" target="_blank" rel="noopener">${SUBJECTS[i.s].code} ${US_GRADE[i.g]} · ${esc(i.title)}</a>`).join("")}</div>` : ""}
         ${open ? `<div class="details" id="d-${c.id}"><div><label class="label" for="ct-${c.id}">Chapter title</label><input id="ct-${c.id}" class="search" style="width:100%" data-chtitle="${b.id}|${c.id}" value="${esc(c.t)}"></div>
           <div><label class="label" for="n-${c.id}">Note</label><textarea id="n-${c.id}" data-note="${c.id}" placeholder="Test marks, pages to revise">${esc(st.notes[c.id] || "")}</textarea></div>
           <div class="actions"><button class="btn small danger" data-delch="${b.id}|${c.id}">Delete chapter</button></div></div>` : ""}
-      </li>`; }).join("") || `<li class="empty">No chapters yet. Open the book at its Contents page and type or paste the chapter titles below.</li>`;
+      </li>`; }).join("") || (BOOK_CHAPTERS[b.isbn] ? `<li class="empty"><button class="btn primary" data-loadch="${b.id}">Load the ${BOOK_CHAPTERS[b.isbn].ch.length} chapters</button></li>`
+        : `<li class="empty">No chapters yet. Open the book at its Contents page and type or paste the chapter titles below.</li>`);
+    const bc = BOOK_CHAPTERS[b.isbn];
+    const srcNote = bc && b.ch.length ? `<p class="hint chsrc">Chapters from <a href="${esc(bc.u)}" target="_blank" rel="noopener">Oxford’s free Teaching Guide</a>.${bc.check ? ` <span class="pill warn">Please check them against your book’s Contents page</span>` : ""}</p>` : "";
     return `<section class="ledger"><div class="group-head"><div><h3>${esc(b.title)}</h3><div class="muted" style="font-size:.9rem">${esc(b.subj)}${b.pub ? " · " + esc(b.pub) : b.series ? " · " + esc(b.series) : ""}${b.isbn ? ` · <span class="mono">ISBN ${esc(b.isbn)}</span>` : ""} · ${s.done} of ${s.total} chapters</div></div>
       <div class="actions"><span class="pct">${P(s.pct)}</span><span class="pill ${ps.cls}">${ps.txt}</span></div></div>
-      <ul class="rows">${rows}</ul>
+      ${srcNote}<ul class="rows">${rows}</ul>
       <form class="add-own" data-addch="${b.id}"><label class="label" for="ac-${b.id}">Add chapters</label>
         <textarea id="ac-${b.id}" class="paste" rows="2" placeholder="One chapter per line, as printed in the Contents page"></textarea>
         <div class="actions"><button class="btn primary">Add</button><button type="button" class="btn small danger" data-delbook="${b.id}">Delete book</button></div></form>
@@ -638,7 +645,7 @@ function renderBooks() {
   bindCommon(v, st, renderBooks);
   v.querySelectorAll("[data-bc]").forEach(b => b.addEventListener("click", () => { bookClass = +b.dataset.bc; renderBooks(); }));
   $("#addList")?.addEventListener("click", () => {
-    const added = missing.map(([title, subj, pub, isbn]) => ({ id: "b-" + uid(), title, series: "", subj, pub, isbn, cls, ch: [] }));
+    const added = missing.map(([title, subj, pub, isbn]) => ({ id: "b-" + uid(), title, series: "", subj, pub, isbn, cls, ch: chaptersFor(isbn) }));
     st.books.push(...added); st.example = false; save(); renderBooks();
     toast(`Added ${added.length} book${added.length === 1 ? "" : "s"}`, () => {
       const ids = new Set(added.map(b => b.id)); st.books = st.books.filter(b => !ids.has(b.id)); save(); renderBooks(); });
@@ -651,6 +658,8 @@ function renderBooks() {
     if (!title) { ttl.focus(); toast("Give the book a title"); return; }
     st.books.push({ id: "b-" + uid(), title, series: BOOK_SERIES[ser.value]?.n || "", subj: sub.value, cls, ch: parseChapters($("#bCh").value) });
     st.example = false; save(); renderBooks(); toast("Book added"); });
+  v.querySelectorAll("[data-loadch]").forEach(btn => btn.addEventListener("click", () => { const b = st.books.find(x => x.id === btn.dataset.loadch);
+    b.ch = chaptersFor(b.isbn); save(); renderBooks(); toast(`Added ${b.ch.length} chapters`); }));
   v.querySelectorAll("[data-addch]").forEach(f => f.addEventListener("submit", e => { e.preventDefault();
     const b = st.books.find(x => x.id === f.dataset.addch); const ta = f.querySelector("textarea"); const add = parseChapters(ta.value);
     if (!add.length) return; b.ch.push(...add); save(); renderBooks(); toast(`Added ${add.length} chapter${add.length === 1 ? "" : "s"}`); }));

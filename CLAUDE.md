@@ -31,7 +31,8 @@ After any change: build, run the test, and run the link check if `src/data.js` c
 - Flags: `us` (U.S.-focused, optional for Pakistani families), `islam` (written about Islam from outside the faith; parent reads first), `sa` (South Asia link), `review` (parent may want to read first), `book` (needs a purchased novel), `nopage`.
 - Item ids (`la-4-2`, `la-1-s3`, `hg-4-4`, `sci-5-6`) are stored in users' saved progress. Never renumber or reuse an id. To retire a unit, keep the id and mark it in `notes/decisions.md`.
 - Do not invent chapter lists. Bundle one only when it is copied from OUP Pakistan's Teaching Guide PDFs on oup.com.pk or from the book's printed Contents page, and record the source in `notes/decisions.md`. Otherwise parents paste the Contents page from their own copy.
-- `SCHOOL_LIST` in `src/data.js` is the owner's school book list for 2026–27 (Classes 1–8). Keep titles and ISBNs exactly as printed.
+- `SCHOOL_LIST` in `src/data.js` is the owner's school book list for 2026–27 (KG uses the Nursery list; Classes 1–8). Keep titles and ISBNs exactly as printed.
+- `BOOK_CHAPTERS` holds chapter lists keyed by the pupil's-book ISBN, each with its Teaching Guide URL. Match the edition exactly (SNC guides for SNC books). Set `check: true` when the guide is an older printing than the book.
 
 ## Rules for the app
 - Vanilla JS, one HTML file, no framework, no build tools beyond `build.py`. Only external request: Google Fonts (cached by the service worker).

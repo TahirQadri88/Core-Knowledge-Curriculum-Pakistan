@@ -106,6 +106,10 @@ async def main():
         check("9 books" in await pg.inner_text("#sBooksLbl"), "KG offers the 9 Nursery-list books")
         await pg.select_option("#sGrade", "5"); await pg.locator("#setupForm .btn.primary").click(); await pg.wait_for_timeout(200)
         check(await pg.locator("#view .ledger").count() == 12 and "Aisha" in await pg.inner_text("#childSum"), "Setup creates the child with all 12 Class 5 books")
+        view = await pg.inner_text("#view")
+        check("Ancient civilisations of the world" in view and "Ch. 9a" in view and "Space and Satellites" in view and "Probability" in view,
+              "Class 5 Oxford books come with their chapters (Social Studies, Science, Mathematics)")
+        check(await pg.locator(".chsrc").count() == 3 and await pg.locator(".chsrc .pill").count() == 1, "Each loaded chapter list names its source; Mathematics asks for a check")
         check(await pg.locator("#setup").is_hidden() and await pg.locator("#studentSel option").count() == 1, "Setup replaces the sample child and closes")
         await pg.locator("#addStudent").click(); await pg.fill("#sName", "Hamza"); await pg.select_option("#sGrade", "0")
         await pg.locator("#setupForm .btn.primary").click(); await pg.wait_for_timeout(200)
