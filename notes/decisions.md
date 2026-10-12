@@ -56,6 +56,14 @@ All checks were made on 11 October 2026 unless stated.
 - Core Knowledge is now "Extra reading". It has no expected-by-now marker, because it is optional. U.S.-flagged units are hidden by default (`ui.hideUS`, switched on once for existing users by `ui.v = 2`), and hidden units do not count in percentages unless already done. History & Geography units are grouped by region (`HG_REGIONS`, `HG_REGION`; this tracker's grouping): 30 of 73 are about the United States, and 1 (Ancient India) is about South Asia.
 - Tabs became Class goals (first and default; setup lands there), School books, Character & deen, Extra reading, More (Compare, Backup, Sources). Compare now measures each child on their school books.
 
+## Qur'an tracker (12 October 2026)
+- The owner chose: inside Character & deen (sections Qur'an and Character, Qur'an first), four hifz levels, and this order: Qur'an, then the daily routine, then Urdu.
+- Surah names, ayah counts and the juz each surah starts in: Tanzil Quran Metadata 1.0, https://tanzil.net/res/text/metadata/quran-data.js (Creative Commons Attribution 3.0), downloaded 12 October 2026, generated into `SURAHS`. Ayat al-Kursi (2:255) is tracked as its own item, id "ak".
+- `QURAN_CLASS`: the surahs each class memorises, from the I-<class>-A SLOs of the National Curriculum Islamiyat grid (see Class goals). Class 3's al-Lahab is Tanzil's Al-Masad, and Class 8's al-Inshirah is Tanzil's Ash-Sharh.
+- Saved per child as `quran.h[<surah number or "ak">] = { lv, d, r }`: lv is 0 Not started, 1 Learning, 2 Memorised, 3 Revise; d is the date the level changed; r is the date last revised. Plus `quran.read` ("q" for Qaida, or the para number) and `quran.khatm`. Surah numbers never change, so these ids are stable. `fix()` gives the defaults.
+- "Due for revision" means marked Revise, or memorised and not revised for 30 days. Marking a surah Memorised counts as its first revision.
+- Hifz opens on Ayat al-Kursi and Juz 30 from Surah an-Nas, the usual order for children. Due and All 114 (grouped by juz) are one tap away.
+
 ## Character & deen
 - Items are the article's own list, made gender-neutral ("they") so the app works for daughters and sons.
 - Four levels instead of a checkbox because habits form gradually. Each change is dated; history keeps the last 24 changes, used for the up/down trend.

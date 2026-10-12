@@ -168,7 +168,12 @@ button{cursor:pointer}
 .sugg a{text-decoration:none;border-bottom:1px dotted var(--accent)}
 
 .levels{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;flex-wrap:wrap}
-.levels button{border:0;background:var(--surface);padding:4px 8px;font-size:.8rem;font-weight:700;color:var(--muted);white-space:nowrap}
+.levels button{border:0;background:var(--surface);padding:4px 8px;font-size:.8rem;font-weight:700;color:var(--muted);white-space:nowrap;min-height:var(--tap)}
+.levels{border-color:var(--control-line)}
+.ar{font-size:1.2rem;font-weight:600}
+.qrow-act{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:flex-end}
+.stepper{display:inline-flex;align-items:center;gap:8px}
+.stepper .btn{min-width:var(--tap)}
 .levels button+button{border-inline-start:1px solid var(--line)}
 .levels button[aria-pressed="true"][data-lv="0"]{background:var(--l0);color:var(--ink)}
 .levels button[aria-pressed="true"][data-lv="1"]{background:var(--l1);color:var(--ink)}
@@ -1062,6 +1067,129 @@ const HG_REGION = {
   "hg-1-10": "world", "hg-2-12": "world", "hg-5-14": "world", "hg-8-1": "world", "hg-8-2": "world", "hg-8-3": "world"
 }; /* every unit flagged "us" is in the United States group */
 
+/* The 114 surahs: [Arabic name, transliteration, ayahs, juz where it starts]. From Tanzil Quran Metadata 1.0,
+   https://tanzil.net/res/text/metadata/quran-data.js (Creative Commons Attribution 3.0), downloaded 12 October 2026. */
+const SURAHS = [null,
+  ["الفاتحة", "Al-Faatiha", 7, 1],
+  ["البقرة", "Al-Baqara", 286, 1],
+  ["آل عمران", "Aal-i-Imraan", 200, 3],
+  ["النساء", "An-Nisaa", 176, 4],
+  ["المائدة", "Al-Maaida", 120, 6],
+  ["الأنعام", "Al-An'aam", 165, 7],
+  ["الأعراف", "Al-A'raaf", 206, 8],
+  ["الأنفال", "Al-Anfaal", 75, 9],
+  ["التوبة", "At-Tawba", 129, 10],
+  ["يونس", "Yunus", 109, 11],
+  ["هود", "Hud", 123, 11],
+  ["يوسف", "Yusuf", 111, 12],
+  ["الرعد", "Ar-Ra'd", 43, 13],
+  ["ابراهيم", "Ibrahim", 52, 13],
+  ["الحجر", "Al-Hijr", 99, 14],
+  ["النحل", "An-Nahl", 128, 14],
+  ["الإسراء", "Al-Israa", 111, 15],
+  ["الكهف", "Al-Kahf", 110, 15],
+  ["مريم", "Maryam", 98, 16],
+  ["طه", "Taa-Haa", 135, 16],
+  ["الأنبياء", "Al-Anbiyaa", 112, 17],
+  ["الحج", "Al-Hajj", 78, 17],
+  ["المؤمنون", "Al-Muminoon", 118, 18],
+  ["النور", "An-Noor", 64, 18],
+  ["الفرقان", "Al-Furqaan", 77, 18],
+  ["الشعراء", "Ash-Shu'araa", 227, 19],
+  ["النمل", "An-Naml", 93, 19],
+  ["القصص", "Al-Qasas", 88, 20],
+  ["العنكبوت", "Al-Ankaboot", 69, 20],
+  ["الروم", "Ar-Room", 60, 21],
+  ["لقمان", "Luqman", 34, 21],
+  ["السجدة", "As-Sajda", 30, 21],
+  ["الأحزاب", "Al-Ahzaab", 73, 21],
+  ["سبإ", "Saba", 54, 22],
+  ["فاطر", "Faatir", 45, 22],
+  ["يس", "Yaseen", 83, 22],
+  ["الصافات", "As-Saaffaat", 182, 23],
+  ["ص", "Saad", 88, 23],
+  ["الزمر", "Az-Zumar", 75, 23],
+  ["غافر", "Al-Ghaafir", 85, 24],
+  ["فصلت", "Fussilat", 54, 24],
+  ["الشورى", "Ash-Shura", 53, 25],
+  ["الزخرف", "Az-Zukhruf", 89, 25],
+  ["الدخان", "Ad-Dukhaan", 59, 25],
+  ["الجاثية", "Al-Jaathiya", 37, 25],
+  ["الأحقاف", "Al-Ahqaf", 35, 26],
+  ["محمد", "Muhammad", 38, 26],
+  ["الفتح", "Al-Fath", 29, 26],
+  ["الحجرات", "Al-Hujuraat", 18, 26],
+  ["ق", "Qaaf", 45, 26],
+  ["الذاريات", "Adh-Dhaariyat", 60, 26],
+  ["الطور", "At-Tur", 49, 27],
+  ["النجم", "An-Najm", 62, 27],
+  ["القمر", "Al-Qamar", 55, 27],
+  ["الرحمن", "Ar-Rahmaan", 78, 27],
+  ["الواقعة", "Al-Waaqia", 96, 27],
+  ["الحديد", "Al-Hadid", 29, 27],
+  ["المجادلة", "Al-Mujaadila", 22, 28],
+  ["الحشر", "Al-Hashr", 24, 28],
+  ["الممتحنة", "Al-Mumtahana", 13, 28],
+  ["الصف", "As-Saff", 14, 28],
+  ["الجمعة", "Al-Jumu'a", 11, 28],
+  ["المنافقون", "Al-Munaafiqoon", 11, 28],
+  ["التغابن", "At-Taghaabun", 18, 28],
+  ["الطلاق", "At-Talaaq", 12, 28],
+  ["التحريم", "At-Tahrim", 12, 28],
+  ["الملك", "Al-Mulk", 30, 29],
+  ["القلم", "Al-Qalam", 52, 29],
+  ["الحاقة", "Al-Haaqqa", 52, 29],
+  ["المعارج", "Al-Ma'aarij", 44, 29],
+  ["نوح", "Nooh", 28, 29],
+  ["الجن", "Al-Jinn", 28, 29],
+  ["المزمل", "Al-Muzzammil", 20, 29],
+  ["المدثر", "Al-Muddaththir", 56, 29],
+  ["القيامة", "Al-Qiyaama", 40, 29],
+  ["الانسان", "Al-Insaan", 31, 29],
+  ["المرسلات", "Al-Mursalaat", 50, 29],
+  ["النبإ", "An-Naba", 40, 30],
+  ["النازعات", "An-Naazi'aat", 46, 30],
+  ["عبس", "Abasa", 42, 30],
+  ["التكوير", "At-Takwir", 29, 30],
+  ["الإنفطار", "Al-Infitaar", 19, 30],
+  ["المطففين", "Al-Mutaffifin", 36, 30],
+  ["الإنشقاق", "Al-Inshiqaaq", 25, 30],
+  ["البروج", "Al-Burooj", 22, 30],
+  ["الطارق", "At-Taariq", 17, 30],
+  ["الأعلى", "Al-A'laa", 19, 30],
+  ["الغاشية", "Al-Ghaashiya", 26, 30],
+  ["الفجر", "Al-Fajr", 30, 30],
+  ["البلد", "Al-Balad", 20, 30],
+  ["الشمس", "Ash-Shams", 15, 30],
+  ["الليل", "Al-Lail", 21, 30],
+  ["الضحى", "Ad-Dhuhaa", 11, 30],
+  ["الشرح", "Ash-Sharh", 8, 30],
+  ["التين", "At-Tin", 8, 30],
+  ["العلق", "Al-Alaq", 19, 30],
+  ["القدر", "Al-Qadr", 5, 30],
+  ["البينة", "Al-Bayyina", 8, 30],
+  ["الزلزلة", "Az-Zalzala", 8, 30],
+  ["العاديات", "Al-Aadiyaat", 11, 30],
+  ["القارعة", "Al-Qaari'a", 11, 30],
+  ["التكاثر", "At-Takaathur", 8, 30],
+  ["العصر", "Al-Asr", 3, 30],
+  ["الهمزة", "Al-Humaza", 9, 30],
+  ["الفيل", "Al-Fil", 5, 30],
+  ["قريش", "Quraish", 4, 30],
+  ["الماعون", "Al-Maa'un", 7, 30],
+  ["الكوثر", "Al-Kawthar", 3, 30],
+  ["الكافرون", "Al-Kaafiroon", 6, 30],
+  ["النصر", "An-Nasr", 3, 30],
+  ["المسد", "Al-Masad", 5, 30],
+  ["الإخلاص", "Al-Ikhlaas", 4, 30],
+  ["الفلق", "Al-Falaq", 5, 30],
+  ["الناس", "An-Naas", 6, 30]];
+/* Ayat al-Kursi (al-Baqarah 2:255) is tracked like a surah under the id "ak" */
+const AYAT_KURSI = ["آية الكرسي", "Ayat al-Kursi", 1, 3];
+/* What each class memorises for Islamiyat, from the National Curriculum Islamiyat grid (the I-<class>-A SLOs; see NCP) */
+const QURAN_CLASS = { 1: ["1", "112"], 2: ["113", "114"], 3: ["108", "110", "111"], 4: ["107", "109"], 5: ["ak", "105", "106"],
+  6: ["99", "100", "101", "102", "103", "104"], 7: ["95", "96", "97", "98"], 8: ["90", "91", "92", "93", "94"] };
+
 </script>
 <script>
 (() => {
@@ -1083,9 +1211,10 @@ const P = x => Math.round(x * 100) + "%";
 
 /* ---------- state ---------- */
 function newStudent(name, age, grade, example) {
-  return { id: uid(), name, age, grade, start: 4, track: "Sindh Board", status: {}, notes: {}, custom: [], books: [], cv: {}, ccustom: [], example: !!example };
+  return fix({ id: uid(), name, age, grade, start: 4, track: "Sindh Board", status: {}, notes: {}, custom: [], books: [], cv: {}, ccustom: [], example: !!example });
 }
-function fix(s) { s.status ||= {}; s.notes ||= {}; s.custom ||= []; s.books ||= []; s.cv ||= {}; s.ccustom ||= []; if (!s.start) s.start = 4; return s; }
+function fix(s) { s.status ||= {}; s.notes ||= {}; s.custom ||= []; s.books ||= []; s.cv ||= {}; s.ccustom ||= []; if (!s.start) s.start = 4;
+  s.quran ||= {}; s.quran.h ||= {}; s.quran.read ??= ""; s.quran.khatm ??= 0; return s; }
 function sampleState() {
   const s = newStudent("Sample child", 9, 4, true);
   ["la-4-2","hg-4-1","hg-4-2","hg-4-3","sci-4-1","sci-4-2"].forEach((id, i) => s.status[id] = { st: "done", d: "2026-0" + (5 + Math.min(i, 4)) + "-1" + i });
@@ -1095,6 +1224,7 @@ function sampleState() {
   s.books.push(b); s.status[b.ch[0].id] = { st: "done", d: "2026-06-20" };
   const lv = { "ch-deen-1": 2, "ch-deen-2": 1, "ch-deen-3": 2, "ch-deen-5": 3, "ch-emo-1": 1, "ch-emo-3": 1, "ch-others-2": 2, "ch-others-6": 3, "ch-habits-1": 1 };
   for (const [k, v] of Object.entries(lv)) s.cv[k] = { lv: v, d: "2026-09-01", h: [["2026-08-01", Math.max(0, v - 1)], ["2026-09-01", v]] };
+  ["1", "112", "113", "114", "108"].forEach(k => s.quran.h[k] = { lv: 2, d: "2026-06-01", r: "2026-09-20" }); s.quran.h["110"] = { lv: 1, d: "2026-09-25" }; s.quran.read = "6";
   s.sample = true;
   return { students: [s], active: s.id, ui: { tab: "goals", subj: "all", hideUS: true, q: "", more: "backup", welcome: true, v: 2 } };
 }
@@ -1281,7 +1411,7 @@ function render() {
   document.querySelectorAll(".tab").forEach(b => { const on = b.dataset.tab === state.ui.tab;
     b.setAttribute("aria-selected", String(on)); b.tabIndex = on ? 0 : -1; });
   $("#view").setAttribute("aria-labelledby", "tab-" + state.ui.tab);
-  ({ goals: renderGoals, track: renderTrack, books: renderBooks, char: renderChar, more: renderMore }[state.ui.tab])();
+  ({ goals: renderGoals, track: renderTrack, books: renderBooks, char: () => (state.ui.deen === "char" ? renderChar : renderQuran)(), more: renderMore }[state.ui.tab])();
 }
 
 /* ---------- More tab: Compare, Backup and Sources ---------- */
@@ -1562,7 +1692,72 @@ function parseChapters(txt) {
     .filter(Boolean).slice(0, 80).map(t => ({ id: "bc-" + uid(), t: t.slice(0, 140) }));
 }
 
-/* ---------- Character & deen tab ---------- */
+/* ---------- Character & deen tab: Qur'an and Character ---------- */
+function deenNav(sub) {
+  return `<div class="seg subnav" role="group" aria-label="Character and deen">${[["quran", "Qur’an"], ["char", "Character"]].map(([k, l]) =>
+    `<button data-deen="${k}" aria-pressed="${k === sub}">${l}</button>`).join("")}</div>`;
+}
+function bindDeenNav() {
+  document.querySelectorAll("[data-deen]").forEach(b => b.addEventListener("click", () => {
+    state.ui.deen = b.dataset.deen; save(); render(); document.querySelector(`[data-deen="${b.dataset.deen}"]`)?.focus(); }));
+}
+
+const QLV = ["Not started", "Learning", "Memorised", "Revise"];
+const QKEYS = ["ak", ...Array.from({ length: 114 }, (_, i) => String(i + 1))];
+const qSurah = k => k === "ak" ? AYAT_KURSI : SURAHS[+k];
+const qName = k => k === "ak" ? "Ayat al-Kursi" : `${k}. ${SURAHS[+k][1]}`;
+/* due: marked "Revise", or memorised and not revised for 30 days */
+const qDue = x => !!x && (x.lv === 3 || (x.lv === 2 && (Date.now() - new Date(x.r || x.d)) / 864e5 > 30));
+function renderQuran() {
+  const st = cur(); const q = st.quran; const view = ["due", "all"].includes(state.ui.qv) ? state.ui.qv : "j30";
+  const mem = QKEYS.filter(k => q.h[k]?.lv >= 2).length, due = QKEYS.filter(k => qDue(q.h[k])), learn = QKEYS.filter(k => q.h[k]?.lv === 1).length;
+  const goal = new Set(QURAN_CLASS[st.grade] || []);
+  const row = k => { const [ar, , ay] = qSurah(k); const x = q.h[k]; const lv = x?.lv || 0; const nm = qName(k);
+    return `<li class="row"><div class="crow"><div class="row-title"><span class="t" style="font-weight:600">${nm}</span> <bdi class="ar" lang="ar" dir="rtl">${ar}</bdi>
+        <span class="meta"><span class="muted" style="font-size:.85rem">${k === "ak" ? "al-Baqarah 2:255" : ay + " ayahs"}</span>${goal.has(k) ? `<span class="pill info">${GRADE_NAMES[st.grade]} goal</span>` : ""}${qDue(x) ? '<span class="pill warn">Due for revision</span>' : ""}${x?.r && lv >= 2 ? `<span class="muted" style="font-size:.8rem">revised ${esc(x.r)}</span>` : ""}</span></div>
+      <div class="qrow-act"><div class="levels" role="group" aria-label="Hifz of ${nm}">${QLV.map((L, n) => `<button data-q="${k}" data-lv="${n}" aria-pressed="${n === lv}">${L}</button>`).join("")}</div>
+        ${lv >= 2 ? `<button class="btn small" data-rev="${k}" aria-label="Revised ${nm} today">Revised today</button>` : ""}</div></div></li>`; };
+  let rows = "";
+  if (view === "j30") rows = ["ak", ...Array.from({ length: 37 }, (_, i) => String(114 - i))].map(row).join("");
+  else if (view === "due") rows = due.map(row).join("") || `<li class="empty">Nothing is due. Surahs show here when they are marked Revise, or 30 days after their last revision.</li>`;
+  else { let j = 0; rows = `<li class="strand label">Ayat al-Kursi</li>${row("ak")}` + QKEYS.slice(1).map(k => { const jz = SURAHS[+k][3]; const h = jz !== j ? `<li class="strand label">Juz ${jz}</li>` : ""; j = jz; return h + row(k); }).join(""); }
+  const readLbl = q.read === "q" ? "Qaida" : q.read ? "Para " + q.read : "Not set";
+  $("#view").innerHTML = `<div class="stack">${deenNav("quran")}
+    <div class="pace">
+      <div class="pbox"><div class="pbox-head"><strong>Hifz</strong><span class="pct">${mem}</span></div><span class="muted" style="font-size:.9rem">memorised${learn ? `, ${learn} being learnt` : ""}</span></div>
+      <div class="pbox"><div class="pbox-head"><strong>Revision</strong><span class="pct">${due.length}</span></div><span class="muted" style="font-size:.9rem">due for revision</span></div>
+      <div class="pbox"><div class="pbox-head"><strong>Reading</strong><span class="pct">${readLbl}</span></div><span class="muted" style="font-size:.9rem">${q.khatm} khatm${q.khatm === 1 ? "" : "s"} completed</span></div>
+    </div>
+    ${goal.size ? `<section class="ledger"><div class="group-head"><h3>${GRADE_NAMES[st.grade]} Islamiyat: surahs to memorise</h3></div>
+      <p class="strand hint" style="text-transform:none;letter-spacing:0">From the National Curriculum Islamiyat grid for ${GRADE_NAMES[st.grade]}. See Islamiyat on the Class goals tab.</p>
+      <ul class="rows">${[...goal].map(row).join("")}</ul></section>` : ""}
+    <section class="panel"><h2>Reading (nazra)</h2>
+      <div class="form-grid">
+        <div class="field"><label class="label" for="qRead">Reading now</label><select id="qRead"><option value="">Not set</option><option value="q" ${q.read === "q" ? "selected" : ""}>Qaida</option>${Array.from({ length: 30 }, (_, i) => `<option value="${i + 1}" ${q.read === String(i + 1) ? "selected" : ""}>Para ${i + 1}</option>`).join("")}</select></div>
+        <div class="field"><span class="label" id="khLbl">Khatms completed</span><div class="stepper" role="group" aria-labelledby="khLbl">
+          <button class="btn" id="khMinus" aria-label="One fewer khatm" ${q.khatm ? "" : "disabled"}>−</button><span class="pct" aria-live="polite">${q.khatm}</span><button class="btn" id="khPlus" aria-label="One more khatm">+</button></div></div>
+      </div></section>
+    <section class="ledger"><div class="group-head"><h3>Hifz</h3></div>
+      <div style="padding:10px 12px"><div class="seg" role="group" aria-label="Show">${[["j30", "Juz 30"], ["due", `Due (${due.length})`], ["all", "All 114"]].map(([k, l]) => `<button data-qv="${k}" aria-pressed="${k === view}">${l}</button>`).join("")}</div></div>
+      ${view === "j30" ? `<p class="strand hint" style="text-transform:none;letter-spacing:0">Ayat al-Kursi, then Juz 30 from Surah an-Nas, in the order children usually learn.</p>` : ""}
+      <ul class="rows">${rows}</ul></section>
+    <p class="hint" style="max-width:70ch">Mark a surah Memorised once it can be recited without help. Tap <b>Revised today</b> after each revision; a memorised surah not revised for 30 days shows as due. Surah names and ayah counts: Tanzil Quran Metadata (tanzil.net).</p>
+  </div>`;
+  bindDeenNav();
+  const v = $("#view");
+  v.querySelectorAll("[data-q]").forEach(b => b.addEventListener("click", () => { const k = b.dataset.q, lv = +b.dataset.lv;
+    const x = q.h[k]; if ((x?.lv || 0) === lv) return;
+    if (!lv) delete q.h[k]; else q.h[k] = { ...x, lv, d: today(), ...(lv === 2 && !x?.r ? { r: today() } : {}) };
+    st.example = false; save(); renderQuran(); document.querySelector(`[data-q="${k}"][data-lv="${lv}"]`)?.focus(); }));
+  v.querySelectorAll("[data-rev]").forEach(b => b.addEventListener("click", () => { const k = b.dataset.rev, x = q.h[k];
+    x.r = today(); if (x.lv === 3) x.lv = 2; save(); renderQuran(); toast(`${qName(k)}: revision noted`); document.querySelector(`[data-rev="${k}"]`)?.focus(); }));
+  v.querySelectorAll("[data-qv]").forEach(b => b.addEventListener("click", () => { state.ui.qv = b.dataset.qv; save(); renderQuran(); document.querySelector(`[data-qv="${b.dataset.qv}"]`)?.focus(); }));
+  $("#qRead").addEventListener("change", e => { q.read = e.target.value; save(); renderQuran(); $("#qRead").focus(); });
+  $("#khPlus").addEventListener("click", () => { q.khatm++; save(); renderQuran(); $("#khPlus").focus(); toast("Mashallah. Khatm added", () => { q.khatm--; save(); renderQuran(); }); });
+  $("#khMinus").addEventListener("click", () => { if (q.khatm) q.khatm--; save(); renderQuran(); ($("#khMinus").disabled ? $("#khPlus") : $("#khMinus")).focus(); });
+}
+
+/* ---------- Character & deen tab: Character ---------- */
 function renderChar() {
   const st = cur(); const items = charItems(st);
   const boxes = CHAR.map(sec => { const s = charScore(st, sec.k);
@@ -1584,13 +1779,13 @@ function renderChar() {
       <ul class="rows">${rows}</ul>
       <form class="add-own" data-addc="${sec.k}"><label class="label" for="adc-${sec.k}">Add</label><input id="adc-${sec.k}" maxlength="140" placeholder="Another quality to work on"><button class="btn primary">Add</button></form></section>`;
   }).join("");
-  $("#view").innerHTML = `<div class="stack">
+  $("#view").innerHTML = `<div class="stack">${deenNav("char")}
     <p class="credit">From <i>Things Every Child (4–12) Should Learn — Beyond Just Good Grades</i> by Abul Laith Muhammad Tahir Qadri. Habits grow slowly, so each quality has four levels instead of a tick. Review once a month and change only what you have actually seen; the app shows the direction since the last change.</p>
     <div class="pace">${boxes}</div>
     ${secs}
     <section class="panel"><h2>Further reading</h2><ol class="srclist">${HARVARD.map(h => `<li><a href="${h.u}" target="_blank" rel="noopener">${esc(h.t)}</a><div class="hint">${esc(h.d)} Center on the Developing Child, Harvard University.</div></li>`).join("")}</ol></section>
   </div>`;
-  const v = $("#view");
+  const v = $("#view"); bindDeenNav();
   bindCommon(v, st, renderChar);
   v.querySelectorAll("[data-cv]").forEach(b => b.addEventListener("click", () => { const id = b.dataset.cv, lv = +b.dataset.lv;
     const x = st.cv[id] || { lv: 0, h: [] }; if (x.lv === lv && x.d) return;
@@ -1612,14 +1807,14 @@ function renderCompare() {
     const ch = charScore(s);
     return `<tr><td><strong>${esc(s.name)}</strong>${s.example ? ' <span class="example-flag">Example</span>' : ""}<div class="muted" style="font-size:.85rem">${GRADE_NAMES[s.grade]}${s.age ? ", age " + s.age : ""} · ${esc(s.track || "")}</div></td>
       <td>${bk.all ? `${P(bk.pct)} <span class="muted">/ ${P(exp.frac)}</span>` : '<span class="muted">no chapters</span>'}</td><td><span class="pill ${ps.cls}">${ps.txt}</span></td>
-      <td>${ch.habits} of ${ch.n}</td>${cell(all)}<td>${behind ? behind + " units" : '<span class="muted">none</span>'}</td></tr>`;
+      <td>${ch.habits} of ${ch.n}</td><td>${QKEYS.filter(k => s.quran.h[k]?.lv >= 2).length}</td>${cell(all)}<td>${behind ? behind + " units" : '<span class="muted">none</span>'}</td></tr>`;
   }).join("");
   const ladder = GRADE_NAMES.map((n, g) => { const x = stats(st, g, "all");
     return `<div class="ladder-row ${g === st.grade ? "cur" : ""}"><span>${n}${g === st.grade ? " · now" : ""}</span><div class="bar"><i style="width:${P(x.pct)}"></i></div><span class="pct">${P(x.pct)}</span></div>`; }).join("");
   $("#moreBody").innerHTML = `<div class="stack">
     <section class="panel"><h2>Children this year</h2>
       <p class="hint">Each child is measured on the chapters of their own current class’s school books. “Expected” assumes a 10-month school year from the start month in the child’s details (Sindh Board sessions start in April; many O Level schools start in August).</p>
-      <div class="tablewrap"><table><thead><tr><th>Child</th><th>School books done / expected</th><th>Pace</th><th>Habits formed</th><th>Extra reading</th><th>Earlier extra reading not read</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <div class="tablewrap"><table><thead><tr><th>Child</th><th>School books done / expected</th><th>Pace</th><th>Habits formed</th><th>Surahs memorised</th><th>Extra reading</th><th>Earlier extra reading not read</th></tr></thead><tbody>${rows}</tbody></table></div>
     </section>
     <section class="panel"><h2>${esc(st.name)}: extra reading in every grade</h2>
       <p class="hint">Core Knowledge builds year on year. A child who starts it later can use this ladder to pick earlier units worth reading. Skipped units, and U.S. units while they are hidden, do not count.</p>
@@ -1641,6 +1836,8 @@ function renderSources() {
     <p class="hint">Language Arts Grades 4 and 5 follow the units the Foundation currently offers for free, which differ from its 2014 scope-and-sequence documents. Three of them are built around a novel or memoir you buy separately. Tags such as <b>U.S. focus</b> and <b>Read first</b> are this tracker’s guidance for Pakistani Muslim families, not the Foundation’s.</p></section>
     <section class="panel"><h2>School books</h2>
       <p style="max-width:65ch">The series list holds Oxford University Press Pakistan titles found on <a href="https://oup.com.pk/" target="_blank" rel="noopener">oup.com.pk</a> and on a Karachi school’s published book list. OUP does not publish chapter lists online, so chapters are typed from your own copy. Topic matches to Core Knowledge units are made by shared words in the titles and are suggestions only.</p></section>
+    <section class="panel"><h2>Qur’an</h2>
+      <p style="max-width:65ch">Surah names, ayah counts and juz: <a href="https://tanzil.net/" target="_blank" rel="noopener">Tanzil Quran Metadata</a> (Creative Commons Attribution 3.0), downloaded on 12 October 2026. The surahs marked as a class goal come from the National Curriculum Islamiyat grid.</p></section>
     <section class="panel"><h2>Character & deen</h2>
       <p style="max-width:65ch">From the article <i>Things Every Child (4–12) Should Learn — Beyond Just Good Grades</i> by Abul Laith Muhammad Tahir Qadri. Further reading from the Center on the Developing Child at Harvard University, links checked on 11 October 2026.</p></section></div>`;
 }
