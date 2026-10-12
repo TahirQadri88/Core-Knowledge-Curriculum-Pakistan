@@ -1646,6 +1646,10 @@ function renderHome() {
       <p class="muted">${GRADE_NAMES[st.grade]}${st.age ? ` · age ${st.age}` : ""} · ${esc(st.track || "")}${st.example ? ' <span class="example-flag">Sample</span>' : ""}</p>
       <div class="actions"><a class="btn small" href="#/more/child" data-go="more/child">Edit details</a><button class="btn small" id="addStudent" data-addchild>Add child</button>
         <button class="btn small primary" data-install hidden>Install app</button></div></section>
+    ${net.ok && !inFamily() && !state.ui.famLater ? `<section class="panel famcard" aria-labelledby="famCardT"><h2 id="famCardT">${net.me?.user ? "Finish family sync" : "Family sync"}</h2>
+      <p style="max-width:65ch">Parents and children see the same progress on every phone: ticks, Qur’an and routine. Free, and the app still works without internet.</p>
+      <div class="actions"><a class="btn primary" href="#/more/family" data-go="more/family">${net.me?.user ? "Choose or start a family" : "Set up family sync"}</a>
+        <a class="btn" href="#/more/family" data-go="more/family" data-joinfocus>I have a family code</a><button class="btn" id="famLater">Not now</button></div></section>` : ""}
     <div class="tiles">
       ${tile("goals", "Class goals", P(h.g.pct), `${h.g.done} of ${h.g.all} ticked`, h.g.pct, `Class goals ${P(h.g.pct)}`)}
       ${tile("books", "School books", h.b.all ? P(h.b.pct) : "–", h.b.all ? `${h.b.done} of ${h.b.total} chapters · <span class="pill ${h.pace.cls}">${h.pace.txt}</span>` : "Add the school’s books", h.b.all ? h.b.pct : 0, `School books ${P(h.b.pct)}`)}
@@ -1659,6 +1663,12 @@ function renderHome() {
       <div class="actions"><a class="btn primary" href="#/report" data-go="report">Open progress report</a></div></section>
   </div>`;
 }
+
+document.addEventListener("click", e => {
+  if (e.target.closest("[data-joinfocus]")) wantJoin = true;
+  if (e.target.closest("#famLater")) { state.ui.famLater = true; save(); render(); toast("Family sync is always under Family at the top of the screen"); }
+}, true);
+let wantJoin = false;
 
 /* ---------- Deen: Qur'an, Character and Routine ---------- */
 function renderDeen() {
@@ -1678,8 +1688,8 @@ function renderMoreScreen(sub) {
   const st = cur();
   $("#view").innerHTML = `<div class="stack">
     <ul class="navlist">
-      ${navRow("more/child", "Child details", `${esc(st.name)} · ${GRADE_NAMES[st.grade]}`)}
       ${navRow("more/family", "Family", inFamily() ? `${esc(famInfo()?.name || "")} · ${net.err ? "not synced" : "synced"}` : "Share progress between phones")}
+      ${navRow("more/child", "Child details", `${esc(st.name)} · ${GRADE_NAMES[st.grade]}`)}
       ${navRow("report", "Progress report", "Print or save as PDF")}
       ${navRow("more/compare", "Compare children", `${state.students.length} child${state.students.length === 1 ? "" : "ren"}`)}
       ${navRow("more/backup", "Backup", "Save or restore everything on this phone")}
@@ -2441,9 +2451,9 @@ function applyPull(res) {
 }
 function chip() {
   const c = $("#syncChip"); if (!c) return;
-  c.hidden = !inFamily();
-  c.textContent = net.busy ? "Syncing…" : !navigator.onLine ? "Offline" : net.err ? "Not synced" : sync.at ? "Synced" : "Sync";
-  c.setAttribute("aria-label", `Family sync: ${c.textContent}. Open Family`);
+  c.hidden = !net.ok;
+  c.textContent = !inFamily() ? "Family" : net.busy ? "Syncing…" : !navigator.onLine ? "Offline" : net.err ? "Not synced" : sync.at ? "Synced" : "Sync";
+  c.setAttribute("aria-label", inFamily() ? `Family sync: ${c.textContent}. Open Family` : "Family sync: not set up. Open Family");
   const n = $("#saveNote"); if (n) n.textContent = inFamily() ? "Progress is saved on this phone and in your family’s copy on the Ilm Track server." : "Progress is saved on this phone only; use More, then Backup, to keep a copy.";
 }
 async function syncNow() {
@@ -2488,7 +2498,7 @@ async function initSync() {
   if (m) { pendingCode = m[1]; history.replaceState({ d: 0 }, "", location.pathname + location.search + "#/more/family"); render(); }
   try { net.me = await api("me"); net.ok = true; } catch (e) { net.ok = false; net.err = e.status === 503 ? "Family sync is not switched on for this site yet." : ""; }
   if (net.ok) { try { net.google = (await api("config")).google; } catch (e) {} pickFamily(); syncNow(); }
-  chip(); if (route().join("/") === "more/family") renderFamily(); else if (route()[0] === "more" && !route()[1]) render();
+  chip(); if (route().join("/") === "more/family") renderFamily(); else if ((route()[0] === "more" && !route()[1]) || route()[0] === "home") render();
 }
 function loadGsi(done) {
   if (window.google?.accounts?.id) return done();
@@ -2545,6 +2555,7 @@ function renderFamily() {
         <p class="hint" id="famMsg">Leaving, signing out or deleting keeps everything on this phone.</p></section>`;
   }
   box.innerHTML = `<div class="stack">${body}</div>`;
+  if (wantJoin && $("#joinCode")) { wantJoin = false; setTimeout(() => { const j = $("#joinCode"); if (j) { j.scrollIntoView({ block: "center" }); j.focus(); } }, 60); }   // after render moves focus to the title
   const done = (msg) => { renderFamily(); chip(); if (msg) toast(msg); };
   const fail = e => toast(e.message || "Something went wrong");
   if ($("#gsi") && net.google) loadGsi(() => { const el = $("#gsi"); if (!el) return;

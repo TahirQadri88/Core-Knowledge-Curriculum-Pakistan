@@ -185,7 +185,7 @@ async def main():
               "The progress report covers goals, books, Qur'an, character and routine")
         check(await pg.locator("#printRep").is_visible(), "The report has a Print or save as PDF button")
 
-        # More: Compare, Family, Sources, Backup, Child details
+        # More: Family, Child details, Compare, Sources, Backup
         await pg.locator("#moreBtn").click(); await pg.wait_for_timeout(100)
         check(await pg.inner_text("#screenTitle") == "More" and await pg.locator("#backBtn").is_visible(), "More opens from the top bar")
         await pg.locator('[data-go="more/compare"]').click(); await pg.wait_for_timeout(100)

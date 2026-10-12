@@ -160,3 +160,10 @@ All checks were made on 11 October 2026 unless stated.
 - Developer credit, as the owner asked: "Developed by Abul Laith Muhammad Tahir Qadri, Karachi" in the footer (Home, More), an "About Ilm Track" panel at the top of More → About and sources (renamed from Sources), the progress report footer, the page's author meta tag, and the README.
 - Same day, at the owner's request ("why is backup showing code"): Backup no longer shows the raw backup text. Saving is a **Share backup** button (phones that can share files, e.g. to WhatsApp) and **Download backup file**, above a plain list of each child (class, ticks, books, surahs, routine days). Restoring is **Choose backup file**, which shows a preview card ("Backup from …", the children, what will be replaced) with **Restore** and **Cancel**. The text versions stay folded under "Copy as text instead" and "Paste backup text instead" for the artifact build and for pasting from a message.
 
+## Family sync easier to find (12 October 2026)
+- The owner found family setup buried (More, then Family). Now, on any site with the sync server:
+  - Home shows a **Family sync** card under the child's name until the family is set up: **Set up family sync**, **I have a family code** (opens Family with the code box focused, for a child's phone or a second parent) and **Not now** (`ui.famLater`).
+  - The header always shows a **Family** button; once in a family it becomes the sync status (Synced, Syncing…, Offline, Not synced).
+  - Family is the first row under More.
+- On the GitHub Pages address (no server) none of this shows; Family under More still explains where sync works.
+
