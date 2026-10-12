@@ -21,7 +21,7 @@ Owner: Tahir (Karachi). Users: Pakistani Muslim parents on phones, Sindh Board, 
 - GitHub Pages (source: GitHub Actions, `.github/workflows/pages.yml`) runs `build.py` and publishes `docs/` on every push to `main` or a `claude/**` branch. The last push is live; the owner tests it there and then merges into `main`.
 - Cloudflare Pages also publishes `main` at https://ilmtrack.pages.dev (build `python3 build.py`, output `docs`, Pillow from `requirements.txt`). Keep every path in the app relative so both addresses work.
 - `notes/`: background and decisions. Read `notes/decisions.md` before changing data or features.
-- `SETUP.md`: step-by-step setup for GitHub, GitHub Pages, Firebase and Claude Code prompts.
+- `SETUP.md`: step-by-step setup for GitHub, GitHub Pages, Cloudflare Pages, family sync and Claude Code prompts.
 
 ## Commands
 - Build: `python3 build.py` (needs Pillow: `pip install pillow`)
@@ -63,13 +63,13 @@ After any change: build, run the test, and run the link check if `src/data.js` c
 - `.claude/apple-design-context.md` tells those skills this is a web PWA for iPhone and Android. Follow it: apply HIG principles through web equivalents, and keep the existing tokens and fonts unless the owner asks for a restyle.
 - For any UI change, check it against the relevant hig-* skill (layout, controls, dialogs, accessibility, dark mode) before reporting it done.
 
-## Backend (Firebase Spark, free)
-- Plan: `notes/backend-plan.md`. Draft security rules: `firebase/firestore.rules`.
-- Offline-first: localStorage stays the main copy; Firestore sync is added on top and only when signed in. Signed-out use must keep working.
-- Write single fields with field paths (`"status.<id>"`) so devices do not overwrite each other.
-- Rules changes need emulator tests (`@firebase/rules-unit-testing`) covering every case listed in the plan, and must pass before anyone pastes them into the Firebase console.
-- The Firebase web config is public by design. Never commit service-account keys, tokens or `.env` files.
-- Firebase only loads in the GitHub Pages build (`docs/`); the claude.ai artifact build stays local-only.
+## Backend (Cloudflare Pages Functions + D1, free)
+- Plan and safety rules: `notes/backend-plan.md`. Code: `server/app.js`, `server/auth.js`, tables `server/schema.sql`, entry `functions/api/[[path]].js`.
+- Tests: `node --test server/test/api.test.js` (Node 22+, no installs; `server/test/d1.js` stands in for D1). Any server change must keep every test passing and add tests for new cases.
+- Offline-first: localStorage stays the main copy; sync is added on top and only when signed in. Signed-out use must keep working, and on the GitHub Pages address (no `/api`).
+- Every route that touches family data checks membership and role. Child phones may change only `s:`, `n:`, `r:` and `q:` marks. The owner cannot be removed. Use bound SQL parameters only.
+- One row per tick in `marks`, so phones never overwrite each other's different changes. Schema changes must be additive (new tables or columns), never dropping data; add the SQL to `server/schema.sql` and tell the owner to run it in the D1 console.
+- Bindings (`DB`, `GOOGLE_CLIENT_ID`) live in the Cloudflare dashboard, not in a `wrangler.toml`. The Google client ID is public; there are no secrets. Never commit API tokens, keys or `.env` files.
 
 ## Writing style for anything users read
 - Plain, direct English. Short sentences. No filler, no "worth noting", no em-dash asides, no emoji section markers.

@@ -5,7 +5,7 @@ Read by the hig-* skills before they ask questions.
 ## Product
 - What it does: an offline progressive web app where Karachi parents see what Pakistan's National Curriculum expects in each class, and track school textbook chapters, character and deen goals, and optional Core Knowledge reading for each child.
 - Category: education / family productivity.
-- Stage: shipped (version 2), now adding Firebase family sync.
+- Stage: being built and tested by the owner; adding family sync on Cloudflare (Pages Functions + D1).
 
 ## Platform
 - **Web app, not a native app.** Plain HTML, CSS and vanilla JavaScript in one file (`src/app.html`), installed to the home screen as a PWA. There is no SwiftUI, UIKit or Xcode project.

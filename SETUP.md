@@ -1,8 +1,8 @@
 # Ilm Track: setup with Claude Code
 
-How to put this project on GitHub, publish it free with GitHub Pages, add a free Firebase backend for family sync, and keep building it with Claude Code from a phone.
+How to put this project on GitHub, publish it free with GitHub Pages and Cloudflare Pages, add free family sync on Cloudflare, and keep building it with Claude Code from a phone.
 
-What you need: a GitHub account connected to Claude Code, a paid Claude plan that includes Claude Code, and a Google account for Firebase. No payment card is needed for GitHub Pages or Firebase.
+What you need: a GitHub account connected to Claude Code, a paid Claude plan that includes Claude Code, a free Cloudflare account, and a Google account (for the sign-in client ID). No payment card is needed for any of them.
 
 ---
 
@@ -37,7 +37,7 @@ The same app is also published at **https://ilmtrack.pages.dev** from `main`. Se
 3. Framework preset: **None**. Build command: `python3 build.py`. Build output directory: `docs`.
 4. **Save and Deploy**. Cloudflare installs Pillow from `requirements.txt`, runs the build and publishes `docs/`. Later pushes to `main` publish automatically; pushes to other branches get their own preview addresses.
 
-Saved progress belongs to the address it was made on. To move a child's progress from the GitHub Pages address: open the old address, **More → Backup → Copy backup**, then open ilmtrack.pages.dev, **More → Backup → paste → Restore from text**. When Firebase sign-in is added, also add `ilmtrack.pages.dev` under Authentication → Settings → Authorized domains.
+Saved progress belongs to the address it was made on. To move a child's progress from the GitHub Pages address: open the old address, **More → Backup → Copy backup**, then open ilmtrack.pages.dev, **More → Backup → paste → Restore from text**.
 
 ## 3. First Claude Code session
 
@@ -52,50 +52,50 @@ Report the state of the project and anything that fails. Do not change code yet.
 
 `CLAUDE.md` holds the project rules Claude Code follows in every session: verify every unit on coreknowledge.org, never renumber saved ids, keep the app offline-first, test before pushing, plain writing, and proper Islamic titles and salutations.
 
-## 4. Set up Firebase (free Spark plan)
+## 4. Set up family sync (Cloudflare D1 and Google sign-in)
 
-Why Firebase: no card, projects are not paused when unused, and Firestore has offline sync built in. Free limits (checked 12 October 2026): 1 GiB stored, 50,000 reads and 20,000 writes per day, 50,000 users per month. Phone-number sign-in and Cloud Functions are not on the free plan, so families sign in with Google and all access control lives in the security rules. If a daily limit is ever reached, syncing pauses until the next day; the app keeps working on the phone.
+Family sync lets every parent's and child's phone show the same progress. It runs only on **ilmtrack.pages.dev**; the GitHub Pages address stays a phone-only copy. Design and limits: `notes/backend-plan.md`. Free limits (checked 12 October 2026): 100,000 requests and 100,000 database writes a day, 5 GB stored. Nothing here needs a secret key or a payment card. Never paste a password, API token or private key into Claude Code or the repository.
 
-Open https://console.firebase.google.com in your phone browser. Switching the browser to **desktop site** makes the console easier to use.
+Dashboard names change from time to time; if a button is named slightly differently, pick the closest one.
 
-1. **Add project** → name `ck-ledger` → turn **off** Google Analytics → create. It starts on the free Spark plan.
-2. **Build → Authentication → Get started → Sign-in method → Google → Enable** → choose your support email → **Save**.
-3. **Authentication → Settings → Authorized domains → Add domain** → `<your-username>.github.io`.
-4. **Build → Firestore Database → Create database** → location **asia-south1 (Mumbai)** (closest to Karachi; it cannot be changed later) → **Start in production mode** → create.
-5. **Project settings (gear icon) → General → Your apps → Web (`</>`)** → nickname `ck-ledger` → leave Firebase Hosting unticked → **Register app** → copy the `firebaseConfig` block.
+**4.1 Create the two databases**
+1. Cloudflare dashboard → **Storage & Databases** → **D1 SQL Database** → **Create database**.
+2. Name `ilmtrack`. Location: **Asia-Pacific** if offered. Create.
+3. Repeat with the name `ilmtrack-preview` (used by test branches, so testing never touches real family data).
 
-The `firebaseConfig` block is public by design and safe to put in the code. Never paste a service-account key or any private key into Claude Code or the repository.
+**4.2 Create the tables**
+For each database: open it → **Console** → paste the whole of `server/schema.sql` from the repository → **Execute**. Running it again later is safe.
 
-## 5. Build the backend with Claude Code
+**4.3 Get a Google sign-in client ID** (free, about 5 minutes)
+1. Open https://console.cloud.google.com → project picker → **New project** → name `ilmtrack` → Create.
+2. **Google Auth Platform** (or **APIs & Services → OAuth consent screen**) → **Get started**. App name `Ilm Track`, your support email, audience **External**, your contact email → Create. Then **Audience → Publish app** so any family can sign in. Only the basic name and email are used, which needs no Google review.
+3. **Clients** (or **Credentials**) → **Create client** → type **Web application** → name `Ilm Track`.
+4. **Authorised JavaScript origins** → add `https://ilmtrack.pages.dev`. To test sign-in on a branch preview, also add that preview's address as Cloudflare shows it (for example `https://claude-ck-ledger-setup-gu.ilmtrack.pages.dev`).
+5. Create, and copy the **Client ID** (it ends in `.apps.googleusercontent.com`). It is public by design. There is no need to copy the client secret; the app never uses it.
 
-Send these one at a time. Wait for each to finish and check its report before sending the next.
+**4.4 Connect them to the Pages project**
+1. **Workers & Pages** → `ilmtrack` → **Settings** → **Bindings** → **Add** → **D1 database**. Variable name `DB`, database `ilmtrack`. Do this for **Production**, then switch to **Preview** and bind `DB` to `ilmtrack-preview`.
+2. **Settings** → **Variables and Secrets** → **Add**: name `GOOGLE_CLIENT_ID`, type Text, value = the Client ID. Add it for both Production and Preview.
+3. **Deployments** → latest deployment → **Retry deployment**, so the new settings are used.
+4. Check: open https://ilmtrack.pages.dev/api/me. It should show `{"user":null,"families":[]}`. If it says sync is not set up, the `DB` binding is missing.
 
-**5.1 Test the security rules first**
+## 5. Finish and test family sync with Claude Code
+
+The server, tables and their tests are in the repository (`server/`, `functions/api/`). Run the server tests any time with `node --test server/test/api.test.js`.
+
+**5.1 Connect the app** (Claude Code builds this part)
 ```
-Write emulator tests for firebase/firestore.rules using @firebase/rules-unit-testing,
-covering every case listed in notes/backend-plan.md. Run them in the Firestore emulator.
-Fix the rules until all tests pass, then commit and push. Show me the test results.
+Add family sync to the app as described in notes/backend-plan.md, step 2.
+The Google client ID is <paste it here>. Keep signed-out use working exactly as now.
+Run the server tests and the browser test, bump the cache, then commit and push.
 ```
 
-**5.2 Add family sync**
-```
-Implement Firebase sync as described in notes/backend-plan.md.
-Here is the web config:
-<paste the firebaseConfig block here>
-Keep signed-out use working exactly as now. Add Google sign-in, family creation,
-and invite links for parents and students. Write single fields with field paths.
-Rebuild docs/, bump the service worker cache, run the browser test, then commit and push.
-```
-
-**5.3 Publish the rules** (only after 5.1 passed)
-
-In the Firebase console: **Firestore Database → Rules** → replace everything with the contents of `firebase/firestore.rules` from the repository → **Publish**.
-
-**5.4 Test with two phones**
-1. Phone 1: open the app, sign in with Google, create the family, add a student.
-2. Copy the **parent invite link** and open it on phone 2. Sign in there.
-3. Tick a unit on phone 1 and check it appears on phone 2.
+**5.2 Test with two phones**
+1. Phone 1: open https://ilmtrack.pages.dev, sign in with Google, create the family, add a child.
+2. On phone 1, make a **child code**. On phone 2, open the invite link or type the code.
+3. Tick a goal on phone 2 and check it appears on phone 1.
 4. Turn mobile data off on phone 2, tick something, turn data on, and check it reaches phone 1.
+5. On an iPhone, install the app to the home screen and try Google sign-in there too.
 
 ## 6. Everyday work
 
@@ -176,11 +176,12 @@ Progress recorded in the earlier claude.ai version of the app lives only in that
 | `.github/workflows/pages.yml` | Publishes `main` and `claude/...` branches to GitHub Pages |
 | `scripts/test_app.py` | Browser smoke test |
 | `scripts/check_links.py` | Checks every unit link on coreknowledge.org |
-| `firebase/firestore.rules` | Draft security rules (test before publishing) |
-| `notes/backend-plan.md` | Firebase design: data model, sync, roles, joining |
+| `server/` | Family sync API (`app.js`, `auth.js`), D1 tables (`schema.sql`) and their tests |
+| `functions/api/[[path]].js` | Cloudflare Pages Function that sends `/api/...` requests to `server/app.js` |
+| `notes/backend-plan.md` | Family sync design: sign-in, roles, data, sync, safety, tests |
 | `notes/decisions.md` | What was verified, where, and when |
 | `notes/background.md` | How the project started and key facts used |
 | `.claude/skills/hig-*` | Apple HIG design skills (HIG Doctor, MIT) |
 | `.claude/apple-design-context.md` | Tells the HIG skills this is a web PWA and what to keep |
 
-Sources: Firebase pricing https://firebase.google.com/pricing · Supabase pricing https://supabase.com/pricing · Claude Code setup https://code.claude.com/docs/en/setup
+Sources: Cloudflare D1 pricing https://developers.cloudflare.com/d1/platform/pricing/ · Workers pricing https://developers.cloudflare.com/workers/platform/pricing/ · Claude Code setup https://code.claude.com/docs/en/setup
