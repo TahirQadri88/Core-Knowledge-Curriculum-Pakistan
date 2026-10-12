@@ -60,8 +60,8 @@ manifest = {
 json.dump(manifest, open(os.path.join(pwa, "manifest.json"), "w"), indent=2)
 
 sw = """/* Ilm Track service worker: cache the app shell for offline use. */
-const CACHE = "ckledger-v27";
-const SHELL = ["./", "./index.html", "./manifest.json", "./icons/icon-180.png", "./icons/icon-192.png", "./icons/icon-512.png"];
+const CACHE = "ckledger-v28";
+const SHELL = ["./", "./index.html", "./privacy.html", "./manifest.json", "./icons/icon-180.png", "./icons/icon-192.png", "./icons/icon-512.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener("fetch", e => {
@@ -81,6 +81,7 @@ self.addEventListener("fetch", e => {
 });
 """
 open(os.path.join(pwa, "sw.js"), "w").write(sw)
+shutil.copy(os.path.join(root, "src", "privacy.html"), os.path.join(pwa, "privacy.html"))  # linked from Google sign-in and About
 
 def icon(size, maskable=False):
     img = Image.new("RGB", (size, size), "#4338CA" if maskable else "#F4F4F1")

@@ -167,3 +167,9 @@ All checks were made on 11 October 2026 unless stated.
   - Family is the first row under More.
 - On the GitHub Pages address (no server) none of this shows; Family under More still explains where sync works.
 
+## Privacy and terms page (12 October 2026)
+- Google would not move the sign-in app from Testing to In production without a privacy policy and home page on the Branding page. Added `src/privacy.html`, copied to `docs/privacy.html` by `build.py` and cached by the service worker. It lists exactly what the server keeps (from `server/schema.sql` and `server/app.js`): name, email and Google account number; family and members; each child's details and progress; a hashed 60-day sign-in cookie; hashed 7-day invite codes; wrong-code attempts by network address, deleted after 24 hours. It names Cloudflare, Google sign-in and Google Fonts, says there are no ads or analytics, explains Sign out, Leave and Delete family, and gives the owner's support email (the same one shown on Google's consent screen) for removing a sign-in record. Terms of use are on the same page at `#terms`.
+- Linked from More, then About and sources, and from the sign-in panel on Family.
+- Google Branding values: home page `https://ilmtrack.pages.dev`, privacy policy `https://ilmtrack.pages.dev/privacy.html`, terms `https://ilmtrack.pages.dev/privacy.html#terms`.
+- Update this page whenever the server starts keeping anything new.
+

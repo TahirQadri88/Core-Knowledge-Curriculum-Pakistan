@@ -1227,7 +1227,8 @@ function renderSources() {
   const withPage = ITEMS.filter(i => i.page).length;
   $("#moreBody").innerHTML = `<div class="stack"><section class="panel"><h2>About Ilm Track</h2>
     <p style="max-width:65ch">Ilm Track: Core Knowledge Tracker for Pakistani Students. Developed by <b>Abul Laith Muhammad Tahir Qadri</b>, Karachi, for Pakistani Muslim families who want to follow their children’s learning, deen and character in one place.</p>
-    <p class="hint">Independent. Not affiliated with the National Curriculum Council, the Core Knowledge Foundation or Oxford University Press.</p></section>
+    <p class="hint">Independent. Not affiliated with the National Curriculum Council, the Core Knowledge Foundation or Oxford University Press.</p>
+    <p><a href="privacy.html">Privacy and terms</a>: what Ilm Track keeps, where, and how to remove it.</p></section>
     <section class="panel"><h2>Class goals: Pakistan’s National Curriculum</h2>
     <p style="max-width:65ch">The <b>Class goals</b> tab summarises, in plain words, the progression grids published by the National Curriculum Council of Pakistan on <a href="https://ncc.gov.pk/" target="_blank" rel="noopener">ncc.gov.pk</a>. Those in force are the National Curriculum of Pakistan 2020 (Early Childhood to Class 5) and 2022-23 (Classes 6 to 8). Each goal shows the grid’s own learning outcome codes. The summaries were written on 11 October 2026; read the original grid for the full detail.</p>
     <ol class="srclist">${Object.values(NCP_SUBJ).map(m => `<li><a href="${NCF + m.src}" target="_blank" rel="noopener">${esc(m.n)}: ${esc(m.st)}</a> <span class="muted">(PDF)</span></li>`).join("")}</ol>
@@ -1546,7 +1547,7 @@ function renderFamily() {
   else if (!me?.user) body = `<section class="panel"><h2>Share progress between phones</h2>
       <p style="max-width:65ch">Sign in once and every parent’s and child’s phone shows the same ticks, Qur’an and routine. The app keeps working without internet and catches up when you are back online.</p>
       <div id="gsi" style="min-height:var(--tap)">${net.google ? "" : '<p class="hint">Google sign-in is not set up on this site yet.</p>'}</div>
-      <p class="hint">Parents sign in with Google. We keep your name, email and your children’s progress, nothing else. No ads.</p></section>
+      <p class="hint">Parents sign in with Google. We keep your name, email and your children’s progress, nothing else. No ads. <a href="privacy.html">Privacy and terms</a></p></section>
     <section class="panel"><h2>Joining from a child’s phone?</h2><p class="hint">Ask a parent for a family code (More, then Family, then Add a phone). No Google account is needed.</p>${codeForm}</section>`;
   else if (!fam) body = `<section class="panel"><h2>Assalamu alaikum, ${esc(me.user.name)}</h2>
       ${(me.families || []).length > 1 ? `<p>Choose a family for this phone:</p><div class="actions">${me.families.map(f => `<button class="btn" data-pickfam="${f.id}">${esc(f.name)}</button>`).join("")}</div>` : ""}

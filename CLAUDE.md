@@ -74,6 +74,7 @@ After any change: build, run the test, and run the link check if `src/data.js` c
 - App side (in `src/app.html`, "Family sync"): changes are found by comparing each child with a snapshot of what was last synced (`ckledger.sync` in localStorage), so new fields need adding to `flat()` and `applyPull()` to sync. Every `save()` schedules a sync; sync's own writes use `localSave()`. The Google client ID comes from `/api/config`, never from the code.
 - Every route that touches family data checks membership and role. Child phones may change only `s:`, `n:`, `r:` and `q:` marks. The owner cannot be removed. Use bound SQL parameters only.
 - One row per tick in `marks`, so phones never overwrite each other's different changes. Schema changes must be additive (new tables or columns), never dropping data; add the SQL to `server/schema.sql` and tell the owner to run it in the D1 console.
+- `src/privacy.html` (published as `privacy.html`) is the privacy policy and terms that Google's sign-in setup links to. Update it whenever the server starts keeping new data.
 - Bindings (`DB`, `GOOGLE_CLIENT_ID`) live in the Cloudflare dashboard, not in a `wrangler.toml`. The Google client ID is public; there are no secrets. Never commit API tokens, keys or `.env` files.
 
 ## Writing style for anything users read

@@ -195,6 +195,12 @@ async def main():
               "Without the sync server, Family explains where sync works and no sync status shows")
         await pg.locator("#backBtn").click(); await pg.locator('[data-go="more/sources"]').click(); await pg.wait_for_timeout(100)
         check("Abul Laith Muhammad Tahir Qadri" in await pg.inner_text("#moreBody") and await pg.inner_text("#screenTitle") == "About and sources", "About and sources credits the developer")
+        check(await pg.locator('#moreBody a[href="privacy.html"]').count() == 1, "About links to the privacy page")
+        pp = await b.new_page(viewport={"width": 400, "height": 900}); await pp.goto(pg.url.split("#")[0].rsplit("/", 1)[0] + "/privacy.html")
+        ptxt = await pp.inner_text("main")
+        check("If you sign in for family sync" in ptxt and "Terms of use" in ptxt and await pp.evaluate("document.documentElement.scrollWidth <= innerWidth"),
+              "The privacy page explains what is kept, has terms, and fits a phone")
+        await pp.close()
         await pg.locator("#backBtn").click(); await pg.locator('[data-go="more/backup"]').click(); await pg.wait_for_timeout(100)
         check("ckledger" in await pg.input_value("#bk"), "More shows Backup and the backup text is produced")
         check(not await pg.locator("#bk").is_visible() and not await pg.locator("#imp").is_visible() and await pg.locator("#dlBk").is_visible(),
