@@ -3,7 +3,7 @@
 An offline progressive web app for Karachi families. Parents and students track:
 1. **Class goals**: what Pakistan's National Curriculum expects by the end of each class, KG to Class 8, in plain words.
 2. **School books**: Oxford University Press Pakistan or any other textbooks, chapter by chapter, with matching Core Knowledge units suggested as extra reading.
-3. **Character & deen**: Qur'an hifz, revision and reading for each child, and the qualities from the article *Things Every Child (4–12) Should Learn — Beyond Just Good Grades* by Abul Laith Muhammad Tahir Qadri, tracked on four levels (Not yet, Learning, Often, Habit).
+3. **Character & deen**: Qur'an hifz, revision and reading, a daily routine each family sets up per child around the five prayers, and the qualities from the article *Things Every Child (4–12) Should Learn — Beyond Just Good Grades* by Abul Laith Muhammad Tahir Qadri, tracked on four levels (Not yet, Learning, Often, Habit).
 4. **Extra reading**: optional Core Knowledge units, Kindergarten to Grade 8 (Language Arts CKLA, History & Geography CKHG, Science CKSci), by class.
 
 Owner: Tahir (Karachi). Users: Pakistani Muslim parents on phones, Sindh Board, O Level and homeschool families.
@@ -47,7 +47,7 @@ After any change: build, run the test, and run the link check if `src/data.js` c
 - Messages go through `toast()`, which also announces them to screen readers; pass an undo function for anything destructive.
 - First visit: a two-question setup (child's name and class) adds that class's `SCHOOL_LIST` books; `ui.welcome` controls it. **Add child** reuses the same form. Child details stay folded behind **Edit details**. Say "child", not "student", in anything parents read.
 - **Install app** button: uses Chrome's install prompt when offered, otherwise shows Safari or Chrome steps. Hidden when already installed or in the artifact build.
-- Tabs: Class goals (first and default), School books, Character & deen (sections: Qur'an, Character), Extra reading (Core Knowledge), More (Compare, Backup, Sources). Keep at most five.
+- Tabs: Class goals (first and default), School books, Character & deen (sections: Qur'an, Character, Routine), Extra reading (Core Knowledge), More (Compare, Backup, Sources). Keep at most five.
 - Qur'an: surah data comes only from `SURAHS` (Tanzil Quran Metadata). Never type Qur'anic text or surah data from memory. Progress is keyed by surah number (`quran.h`), so never renumber.
 - Class goals are a checklist. Ticks are saved as `ncp-<subject>-<class>-<n>` (Pakistan goals) and `intl-<s>-<class>-<n>` (international extras from `INTL`, compared with the Core Knowledge Sequence; see `notes/alignment.md`). Never reorder or reuse rows in `NCP` or `INTL`; add new ones at the end. Extras never include U.S.-only or sensitive topics (evolution, puberty and reproduction, Israel and Palestine, other faiths' religious texts), and link only to a hand-checked Core Knowledge unit.
 - Class goals come from `NCP` in `src/data.js`: plain-language summaries of Pakistan's National Curriculum progression grids (ncc.gov.pk), each point with the grid's SLO codes. Never add a goal from memory; summarise only what the grid says for that class, and record the source in `notes/decisions.md`. Update them when the draft 2026 national curriculum is final.

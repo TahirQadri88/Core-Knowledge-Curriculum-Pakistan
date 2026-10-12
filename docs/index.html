@@ -173,6 +173,10 @@ button{cursor:pointer}
 .ar{font-size:1.2rem;font-weight:600}
 .qrow-act{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:flex-end}
 .stepper{display:inline-flex;align-items:center;gap:8px}
+.rweek{grid-template-columns:repeat(auto-fit,minmax(2.9rem,1fr));gap:6px 4px}
+.rweek .grade{padding-inline:2px}
+.redit{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;padding-block:8px;padding-inline:var(--gut) 12px}
+.redit .search{width:100%}
 .stepper .btn{min-width:var(--tap)}
 .levels button+button{border-inline-start:1px solid var(--line)}
 .levels button[aria-pressed="true"][data-lv="0"]{background:var(--l0);color:var(--ink)}
@@ -1276,7 +1280,8 @@ function newStudent(name, age, grade, example) {
   return fix({ id: uid(), name, age, grade, start: 4, track: "Sindh Board", status: {}, notes: {}, custom: [], books: [], cv: {}, ccustom: [], example: !!example });
 }
 function fix(s) { s.status ||= {}; s.notes ||= {}; s.custom ||= []; s.books ||= []; s.cv ||= {}; s.ccustom ||= []; if (!s.start) s.start = 4;
-  s.quran ||= {}; s.quran.h ||= {}; s.quran.read ??= ""; s.quran.khatm ??= 0; return s; }
+  s.quran ||= {}; s.quran.h ||= {}; s.quran.read ??= ""; s.quran.khatm ??= 0;
+  s.routine ||= {}; s.routine.items ||= []; s.routine.days ||= {}; return s; }
 function sampleState() {
   const s = newStudent("Sample child", 9, 4, true);
   ["la-4-2","hg-4-1","hg-4-2","hg-4-3","sci-4-1","sci-4-2"].forEach((id, i) => s.status[id] = { st: "done", d: "2026-0" + (5 + Math.min(i, 4)) + "-1" + i });
@@ -1448,7 +1453,7 @@ function ageHint() {
   if (st.example) h += ` <span class="example-flag">This is a sample child to show how the app works.</span>`;
   $("#ageHint").innerHTML = h;
 }
-$("#studentSel").addEventListener("change", e => { state.active = e.target.value; viewGrade = bookClass = goalClass = null; openRows.clear(); save(); fillStudent(); render(); });
+$("#studentSel").addEventListener("change", e => { state.active = e.target.value; routineEdit = false; routineDay = 0; viewGrade = bookClass = goalClass = null; openRows.clear(); save(); fillStudent(); render(); });
 $("#addStudent").addEventListener("click", () => { state.ui.setup = true; save(); renderSetup(); $("#setup").scrollIntoView({ block: "start" }); });
 $("#fName").addEventListener("input", e => { const st = cur(); st.name = e.target.value || "Child"; st.example = false; save();
   const o = $("#studentSel").selectedOptions[0]; if (o) o.textContent = st.name; ageHint(); if (state.ui.tab === "more") render(); });
@@ -1473,7 +1478,7 @@ function render() {
   document.querySelectorAll(".tab").forEach(b => { const on = b.dataset.tab === state.ui.tab;
     b.setAttribute("aria-selected", String(on)); b.tabIndex = on ? 0 : -1; });
   $("#view").setAttribute("aria-labelledby", "tab-" + state.ui.tab);
-  ({ goals: renderGoals, track: renderTrack, books: renderBooks, char: () => (state.ui.deen === "char" ? renderChar : renderQuran)(), more: renderMore }[state.ui.tab])();
+  ({ goals: renderGoals, track: renderTrack, books: renderBooks, char: () => ({ char: renderChar, routine: renderRoutine }[state.ui.deen] || renderQuran)(), more: renderMore }[state.ui.tab])();
 }
 
 /* ---------- More tab: Compare, Backup and Sources ---------- */
@@ -1782,7 +1787,7 @@ function parseChapters(txt) {
 
 /* ---------- Character & deen tab: Qur'an and Character ---------- */
 function deenNav(sub) {
-  return `<div class="seg subnav" role="group" aria-label="Character and deen">${[["quran", "Qur’an"], ["char", "Character"]].map(([k, l]) =>
+  return `<div class="seg subnav" role="group" aria-label="Character and deen">${[["quran", "Qur’an"], ["char", "Character"], ["routine", "Routine"]].map(([k, l]) =>
     `<button data-deen="${k}" aria-pressed="${k === sub}">${l}</button>`).join("")}</div>`;
 }
 function bindDeenNav() {
@@ -1843,6 +1848,74 @@ function renderQuran() {
   $("#qRead").addEventListener("change", e => { q.read = e.target.value; save(); renderQuran(); $("#qRead").focus(); });
   $("#khPlus").addEventListener("click", () => { q.khatm++; save(); renderQuran(); $("#khPlus").focus(); toast("Mashallah. Khatm added", () => { q.khatm--; save(); renderQuran(); }); });
   $("#khMinus").addEventListener("click", () => { if (q.khatm) q.khatm--; save(); renderQuran(); ($("#khMinus").disabled ? $("#khPlus") : $("#khMinus")).focus(); });
+}
+
+/* ---------- Character & deen tab: daily routine, set up by each family for each child ---------- */
+const SLOTS = [["fajr", "After Fajr"], ["morning", "Morning"], ["zuhr", "After Zuhr"], ["asr", "After Asr"], ["maghrib", "After Maghrib"], ["isha", "After Isha"], ["any", "Any time"]];
+const SLOT_NAME = Object.fromEntries(SLOTS);
+/* a starting point only: parents rename, move or delete every item */
+const ROUTINE_START = [["fajr", "Pray Fajr"], ["fajr", "Qur’an reading"], ["morning", "School or lessons"], ["zuhr", "Pray Zuhr"],
+  ["asr", "Pray Asr"], ["asr", "Homework"], ["asr", "Revise one surah"], ["maghrib", "Pray Maghrib"], ["maghrib", "Reading time"],
+  ["isha", "Pray Isha"], ["isha", "Bed on time"]];
+const localDay = (back = 0) => { const d = new Date(); d.setDate(d.getDate() - back); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+let routineDay = 0, routineEdit = false;
+function renderRoutine() {
+  const st = cur(); const r = st.routine; const name = esc(st.name);
+  const day = localDay(routineDay); const done = new Set(r.days[day] || []);
+  const ids = new Set(r.items.map(i => i.id));
+  const dayPct = d => r.items.length ? (r.days[d] || []).filter(id => ids.has(id)).length / r.items.length : 0;
+  const week = Array.from({ length: 7 }, (_, n) => 6 - n).map(back => { const d = localDay(back); const pct = dayPct(d);
+    const lbl = back === 0 ? "Today" : new Date(d + "T12:00").toLocaleDateString("en-GB", { weekday: "short" });
+    return `<button class="grade" data-rday="${back}" aria-pressed="${back === routineDay}" aria-label="${lbl}: ${Math.round(pct * 100)}% done"><b style="font-size:.85rem">${lbl}</b><span>${new Date(d + "T12:00").getDate()}</span><span class="meter"><i style="width:${P(pct)}"></i></span></button>`; }).join("");
+  const full = Array.from({ length: 7 }, (_, n) => localDay(n)).filter(d => r.items.length && dayPct(d) >= 1).length;
+  const others = state.students.filter(x => x.id !== st.id && x.routine?.items?.length);
+  let body;
+  if (!r.items.length) body = `<section class="panel"><h2>Set up ${name}’s daily routine</h2>
+      <p style="max-width:65ch">List what ${name} does each day, grouped around the five prayers. Each child has their own routine. Tick items as they are done; the week strip shows how each day went.</p>
+      <div class="actions"><button class="btn primary" id="rStart">Start with a simple routine</button>
+        ${others.map(x => `<button class="btn" data-rcopy="${x.id}">Copy ${esc(x.name)}’s routine</button>`).join("")}
+        <button class="btn" id="rEmpty">Start empty</button></div>
+      <p class="hint">The simple routine is only a starting point: ${ROUTINE_START.length} items such as “Pray Fajr”, “Homework” and “Revise one surah”. You can change every one.</p></section>`;
+  else if (routineEdit) body = `<section class="ledger"><div class="group-head"><h3>Edit ${name}’s routine</h3><button class="btn small primary" id="rDone">Done</button></div>
+      <ul class="rows">${r.items.map((it, n) => `<li class="row"><div class="redit">
+        <label class="sr-only" for="rt-${it.id}">Item</label><input id="rt-${it.id}" class="search" data-rtext="${it.id}" value="${esc(it.t)}" maxlength="80">
+        <label class="sr-only" for="ra-${it.id}">When</label><select id="ra-${it.id}" class="btn" data-rat="${it.id}">${SLOTS.map(([k, l]) => `<option value="${k}" ${k === it.at ? "selected" : ""}>${l}</option>`).join("")}</select>
+        <div class="actions"><button class="btn small" data-rmove="${it.id}|-1" aria-label="Move ${esc(it.t)} up" ${n ? "" : "disabled"}>↑</button><button class="btn small" data-rmove="${it.id}|1" aria-label="Move ${esc(it.t)} down" ${n < r.items.length - 1 ? "" : "disabled"}>↓</button>
+          <button class="btn small danger" data-rdel="${it.id}" aria-label="Delete ${esc(it.t)}">Delete</button></div></div></li>`).join("")}</ul>
+      <form class="add-own" id="rAdd"><label class="label" for="rNew">Add</label><input id="rNew" maxlength="80" placeholder="e.g. Read one page of a book">
+        <label class="sr-only" for="rNewAt">When</label><select id="rNewAt" class="btn">${SLOTS.map(([k, l]) => `<option value="${k}" ${k === "asr" ? "selected" : ""}>${l}</option>`).join("")}</select><button class="btn primary">Add</button></form></section>`;
+  else { const n = r.items.filter(i => done.has(i.id)).length;
+    body = `<section class="ledger"><div class="group-head"><h3>${routineDay === 0 ? "Today" : routineDay === 1 ? "Yesterday" : new Date(day + "T12:00").toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })} · ${n} of ${r.items.length}</h3>
+        <button class="btn small" id="rEdit">Edit routine</button></div>
+      <ul class="rows">${SLOTS.map(([k, l]) => { const its = r.items.filter(i => i.at === k); if (!its.length) return "";
+        return `<li class="strand label">${l}</li>` + its.map(i => `<li class="row ${done.has(i.id) ? "done" : ""}"><div class="row-main" style="grid-template-columns:var(--tap) minmax(0,1fr)">
+          <label class="tick"><input type="checkbox" id="c-${i.id}" data-rtick="${i.id}" ${done.has(i.id) ? "checked" : ""}></label>
+          <label class="row-title" for="c-${i.id}"><span class="t" style="font-weight:600" dir="auto">${esc(i.t)}</span></label></div></li>`).join(""); }).join("")}</ul></section>`; }
+  $("#view").innerHTML = `<div class="stack">${deenNav("routine")}
+    ${r.items.length ? `<div class="stack-s"><div class="label">This week · ${full} full day${full === 1 ? "" : "s"}</div><div class="grades rweek">${week}</div></div>` : ""}
+    ${body}
+    <p class="hint" style="max-width:70ch">Times follow the prayers, so the routine fits any season. Ticks are kept for 60 days. Each child’s routine is separate; use <b>Child</b> at the top to switch.</p></div>`;
+  bindDeenNav();
+  const v = $("#view"); const redo = (focusSel) => { save(); renderRoutine(); if (focusSel) document.querySelector(focusSel)?.focus(); };
+  const prune = () => { const keep = localDay(60); for (const d of Object.keys(r.days)) if (d < keep) delete r.days[d]; };
+  v.querySelectorAll("[data-rday]").forEach(b => b.addEventListener("click", () => { routineDay = +b.dataset.rday; renderRoutine(); document.querySelector(`[data-rday="${routineDay}"]`)?.focus(); }));
+  v.querySelectorAll("[data-rtick]").forEach(c => c.addEventListener("change", () => { const id = c.dataset.rtick; const set = new Set(r.days[day] || []);
+    c.checked ? set.add(id) : set.delete(id); r.days[day] = [...set]; if (!r.days[day].length) delete r.days[day]; prune(); st.example = false;
+    const all = r.items.every(i => set.has(i.id)); redo(`#c-${id}`); if (c.checked && all) toast(`Mashallah. ${st.name} did everything ${routineDay === 0 ? "today" : "that day"}.`); }));
+  const startWith = list => { r.items = list.map(([at, t]) => ({ id: "r-" + uid(), t, at })); st.example = false; redo("#rEdit"); toast(`Routine ready. Tap Edit routine to change it.`); };
+  $("#rStart")?.addEventListener("click", () => startWith(ROUTINE_START));
+  v.querySelectorAll("[data-rcopy]").forEach(b => b.addEventListener("click", () => startWith(state.students.find(x => x.id === b.dataset.rcopy).routine.items.map(i => [i.at, i.t]))));
+  $("#rEmpty")?.addEventListener("click", () => { routineEdit = true; renderRoutine(); $("#rNew").focus(); });
+  $("#rEdit")?.addEventListener("click", () => { routineEdit = true; renderRoutine(); $("#rDone").focus(); });
+  $("#rDone")?.addEventListener("click", () => { routineEdit = false; renderRoutine(); $("#rEdit")?.focus(); });
+  v.querySelectorAll("[data-rtext]").forEach(inp => inp.addEventListener("change", () => { const it = r.items.find(i => i.id === inp.dataset.rtext); if (inp.value.trim()) { it.t = inp.value.trim(); save(); } else inp.value = it.t; }));
+  v.querySelectorAll("[data-rat]").forEach(sel => sel.addEventListener("change", () => { r.items.find(i => i.id === sel.dataset.rat).at = sel.value; save(); }));
+  v.querySelectorAll("[data-rmove]").forEach(b => b.addEventListener("click", () => { const [id, d] = b.dataset.rmove.split("|"); const i = r.items.findIndex(x => x.id === id), j = i + +d;
+    if (j < 0 || j >= r.items.length) return; [r.items[i], r.items[j]] = [r.items[j], r.items[i]]; redo(`[data-rmove="${id}|${d}"]:not([disabled])`) ; }));
+  v.querySelectorAll("[data-rdel]").forEach(b => b.addEventListener("click", () => { const id = b.dataset.rdel; const at = r.items.findIndex(x => x.id === id), it = r.items[at];
+    r.items.splice(at, 1); redo("#rNew"); toast(`Deleted “${it.t}”`, () => { r.items.splice(at, 0, it); redo(); }); }));
+  $("#rAdd")?.addEventListener("submit", e => { e.preventDefault(); const t = $("#rNew").value.trim(); if (!t) { $("#rNew").focus(); return; }
+    r.items.push({ id: "r-" + uid(), t, at: $("#rNewAt").value }); st.example = false; redo("#rNew"); toast("Added"); });
 }
 
 /* ---------- Character & deen tab: Character ---------- */

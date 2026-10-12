@@ -56,6 +56,13 @@ All checks were made on 11 October 2026 unless stated.
 - Core Knowledge is now "Extra reading". It has no expected-by-now marker, because it is optional. U.S.-flagged units are hidden by default (`ui.hideUS`, switched on once for existing users by `ui.v = 2`), and hidden units do not count in percentages unless already done. History & Geography units are grouped by region (`HG_REGIONS`, `HG_REGION`; this tracker's grouping): 30 of 73 are about the United States, and 1 (Ancient India) is about South Asia.
 - Tabs became Class goals (first and default; setup lands there), School books, Character & deen, Extra reading, More (Compare, Backup, Sources). Compare now measures each child on their school books.
 
+## Daily routine (12 October 2026)
+- The owner asked for the routine to be open for each family to set up for each child, rather than fixed from the daily plan document.
+- Character & deen has a third section, Routine. Each child has their own list (`routine.items` = `{ id, t, at }`, where `at` is one of fajr, morning, zuhr, asr, maghrib, isha, any). Ticks are kept per local date in `routine.days[YYYY-MM-DD]` and pruned after 60 days. `fix()` gives the defaults.
+- Set-up offers a simple starting routine (11 items, e.g. "Pray Fajr", "Homework", "Revise one surah"), a copy of another child's routine, or an empty list. Every item can be renamed, moved, re-timed or deleted (delete has Undo).
+- Times follow the prayers, not the clock, so the routine needs no location or prayer-time calculation.
+- A week strip shows the last 7 days; any of them can be opened and ticked.
+
 ## Class goals checklist and international extras (12 October 2026)
 - The owner asked whether the goals match Core Knowledge, so Karachi children keep up with international standards, and asked for a simple checklist parents can tick.
 - Comparison: Pakistan's goals against the Core Knowledge Sequence 2023 (https://www.coreknowledge.org/wp-content/uploads/2023/03/CK_Sequence2023_GK8_W3.pdf) for English, Mathematics, Science and History & Geography, KG to Class 8. Full results with page and code references: `notes/alignment.md`.
