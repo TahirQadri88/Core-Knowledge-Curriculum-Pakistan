@@ -56,6 +56,31 @@ All checks were made on 11 October 2026 unless stated.
 - Core Knowledge is now "Extra reading". It has no expected-by-now marker, because it is optional. U.S.-flagged units are hidden by default (`ui.hideUS`, switched on once for existing users by `ui.v = 2`), and hidden units do not count in percentages unless already done. History & Geography units are grouped by region (`HG_REGIONS`, `HG_REGION`; this tracker's grouping): 30 of 73 are about the United States, and 1 (Ancient India) is about South Asia.
 - Tabs became Class goals (first and default; setup lands there), School books, Character & deen, Extra reading, More (Compare, Backup, Sources). Compare now measures each child on their school books.
 
+## Screens, navigation and the progress report (12 October 2026)
+- The owner asked for "step by step screens with proper navigation and layout" and a progress dashboard that can be shared.
+- Owner's choices:
+  - A bottom tab bar with screens.
+  - The report as an A4 page only.
+  - Extra reading kept as its own tab.
+- Tabs are Home, Goals, Books, Deen and Reading; More moved to the ⋯ button in the top bar.
+- Screens:
+  - **Home dashboard:** six tiles (goals %, books % with pace, surahs memorised, habits, routine today, Core Knowledge read), a "Next up" list (next goals, next chapters, surahs due) and the report.
+  - **Goals:** class, then subjects, then one checklist screen per subject.
+  - **Books:** class list, then one screen per book with its chapters.
+  - **Deen:** hub, then Qur'an, Character and Routine.
+  - **More:** list, then Child details, Family, Compare, Backup and Sources.
+- Routes are kept in the address so Back, the phone's back button and reload all work.
+- **Progress report:** one child, current class. It covers:
+  - goals per subject and international extras
+  - school books with pace
+  - Qur'an: memorised, learning, due and reading
+  - character per section, with the habits formed
+  - the routine for the last 7 days
+  - sources and the independence statement
+- Printing uses A4 print styles, and the report sheet stays light even in dark mode.
+- Checked against the HIG tab bar guidance: navigation only, always visible, five tabs with icons and labels. At 200% zoom the tab bar wraps rather than hiding its labels.
+- Tests rewritten for the new screens (`scripts/test_app.py`, 83 checks; `scripts/test_sync.py` updated).
+
 ## Family sync in the app (12 October 2026)
 - More → Family:
   - Sign in with Google (parents), or join with a family code (children's phones, no account).

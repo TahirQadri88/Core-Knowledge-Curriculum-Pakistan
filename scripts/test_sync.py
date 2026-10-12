@@ -34,9 +34,12 @@ async def main():
                 pg.on("pageerror", lambda e: errors.append(f"{name}: {e}"))
                 return ctx, pg
 
+            async def nav(pg, path):
+                await pg.evaluate(f"history.replaceState({{d: 0}}, '', '#/{path}'); dispatchEvent(new PopStateEvent('popstate'))"); await pg.wait_for_timeout(200)
+
             async def family_tab(pg):
-                await pg.locator("#tab-more").click()
-                await pg.locator('[data-more="family"]').click(); await pg.wait_for_timeout(200)
+                await pg.locator("#moreBtn").click()
+                await pg.locator('[data-go="more/family"]').click(); await pg.wait_for_timeout(200)
 
             async def sync_now(pg):
                 await family_tab(pg)
@@ -45,9 +48,7 @@ async def main():
             async def goals(pg, cls=4):
                 await pg.locator("#tab-goals").click()
                 await pg.locator(f'[data-gc="{cls}"]').click()
-                if not await pg.locator('details.goal[data-goal="sci"]').get_attribute("open") is not None:
-                    pass
-                await pg.evaluate("document.querySelectorAll('details.goal').forEach(d => d.open = true)"); await pg.wait_for_timeout(150)
+                await pg.locator('[data-go="goals/sci"]').click(); await pg.wait_for_timeout(150)
 
             # mum: set up a child, sign in, create the family
             mctx, mum = await phone("mum")
@@ -78,20 +79,19 @@ async def main():
             check("child’s phone" in await kid.inner_text("#view"), "The child's phone knows its role")
             await goals(kid)
             check(await kid.locator('[data-tick="ncp-sci-4-1"]').is_checked(), "Mum's tick appears on the child's phone")
-            check(await kid.locator("#view .ledger").count() >= 1 or True, "Books come across too")
             await kid.locator("#tab-books").click(); await kid.wait_for_timeout(150)
-            check(await kid.locator("#view section.ledger").count() == 13, "All 13 Class 4 books come across with the child")
+            check(await kid.locator('a.navrow[data-go^="books/"]').count() == 13, "All 13 Class 4 books come across with the child")
 
             # child ticks; a character level stays on the child's phone without breaking sync
             await goals(kid)
             await kid.locator('[data-tick="ncp-sci-4-2"]').check(); await kid.wait_for_timeout(100)
-            await kid.locator("#tab-char").click(); await kid.locator('[data-deen="char"]').click()
+            await nav(kid, "deen/char")
             await kid.locator('[data-cv="ch-emo-2"][data-lv="3"]').click()
             await sync_now(kid)
             check("Synced" in await kid.inner_text("#syncChip") and "Could not" not in await kid.inner_text("#view"), "The child's phone syncs without errors")
             await sync_now(mum); await goals(mum)
             check(await mum.locator('[data-tick="ncp-sci-4-2"]').is_checked(), "The child's tick appears on mum's phone")
-            await mum.locator("#tab-char").click(); await mum.locator('[data-deen="char"]').click()
+            await nav(mum, "deen/char")
             check(await mum.get_attribute('[data-cv="ch-emo-2"][data-lv="3"]', "aria-pressed") != "true", "A character level set on the child's phone is not sent to the family")
 
             # offline: tick on the child's phone, come back online, it reaches mum

@@ -25,7 +25,7 @@ What you need: a GitHub account connected to Claude Code, a paid Claude plan tha
 2. Source: **GitHub Actions**. The workflow in `.github/workflows/pages.yml` does the rest.
 3. After a few minutes the app is live at `https://<your-username>.github.io/ck-ledger/`.
 4. On a phone, open that link and tap **Install app** at the top. On Android this opens Chrome's install prompt; on iPhone it shows the three Safari steps (Share, then **Add to Home Screen**). It works offline after the first visit.
-5. On the first visit the app asks two questions: the child's name and class. Tap **Start** and that class's school books are added. The app then opens **Class goals**: what Pakistan's National Curriculum expects by the end of that class. Use **Add child** for brothers and sisters.
+5. On the first visit the app asks two questions: the child's name and class. Tap **Start** and that class's school books are added. The app then opens **Home**, the child's progress dashboard. **Goals** shows what Pakistan's National Curriculum expects by the end of that class, and **More (⋯) → Progress report** prints a one-child report or saves it as a PDF. Use **Add child** for brothers and sisters.
 
 ### Testing a branch before it goes to main
 A push to `main` or to any `claude/...` branch publishes that branch at the same address within a few minutes. The last push is what is live. Test the new feature there, then merge the branch into `main` so `main` matches what is live.
@@ -83,7 +83,7 @@ For each database: open it → **Console** → paste the whole of `server/schema
 
 The server, tables and their tests are in the repository (`server/`, `functions/api/`). Run the server tests any time with `node --test server/test/api.test.js`.
 
-**5.1 The app side is built.** It reads the Google client ID from the `GOOGLE_CLIENT_ID` variable you set in 4.4, so nothing needs pasting into the code. Family sync appears under **More → Family** on ilmtrack.pages.dev. Tests: `node --test server/test/api.test.js` and `python3 scripts/test_sync.py`.
+**5.1 The app side is built.** It reads the Google client ID from the `GOOGLE_CLIENT_ID` variable you set in 4.4, so nothing needs pasting into the code. Family sync appears under **More (⋯) → Family** on ilmtrack.pages.dev. Tests: `node --test server/test/api.test.js` and `python3 scripts/test_sync.py`.
 
 **5.2 Test with two phones**
 1. Phone 1: open https://ilmtrack.pages.dev, set up a child, then **More → Family → Sign in with Google → Create family → Add to the family**.

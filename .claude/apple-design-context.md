@@ -31,7 +31,7 @@ Read by the hig-* skills before they ask questions.
   - Neutral notice background: `--tint`.
   - Character levels: `--l0` to `--l3`, each with its own `-ink` text colour.
 - Status badges are solid fills, not soft tints.
-- Tabs are a bar pinned to the top while scrolling; the current tab is filled with the main colour.
+- Navigation: a bottom tab bar (Home, Goals, Books, Deen, Reading) with icons and labels; the current tab is filled with the main colour. A top bar shows Back, the screen title, the child picker and ⋯ (More). Items open their own screens.
 - Every text/background pair passes WCAG AA (4.5:1) in both themes, and control borders pass 3:1. Recheck the contrast of any new pair before using it.
 - Type: Bricolage Grotesque (display), Source Sans 3 (body), JetBrains Mono (codes).
 - Visual idea: a ruled exercise copy with a saffron margin line.

@@ -68,7 +68,7 @@ button{cursor:pointer}
 .top{display:flex;flex-wrap:wrap;align-items:center;gap:12px;justify-content:space-between}
 .brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .brand small{color:var(--muted)}
-.btn{border:1px solid var(--control-line);background:var(--surface);border-radius:8px;padding:7px 12px;font-weight:600;min-height:var(--tap);display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn{text-decoration:none;color:inherit;border:1px solid var(--control-line);background:var(--surface);border-radius:8px;padding:7px 12px;font-weight:600;min-height:var(--tap);display:inline-flex;align-items:center;justify-content:center;gap:6px}
 .btn:hover{border-color:var(--accent)}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .btn.small{padding:4px 10px;font-size:.9rem}
@@ -88,10 +88,6 @@ button{cursor:pointer}
 .setup h2{font-size:1.25rem}
 .example-flag{background:var(--warn-fill);color:var(--on-warn);border-radius:6px;padding:2px 8px;font-size:.82rem;font-weight:700}
 
-.tabs{display:flex;flex-wrap:wrap;gap:4px;position:sticky;top:max(6px,env(safe-area-inset-top));z-index:5;background:var(--surface);border:1px solid var(--control-line);border-radius:14px;padding:4px;box-shadow:0 4px 14px -8px rgba(0,0,0,.45)}
-.tab{border:0;background:none;border-radius:10px;padding:6px 2px;font-weight:700;font-size:.875rem;line-height:1.2;color:var(--ink);min-height:var(--tap);text-align:center;flex:1 1 0;overflow-wrap:break-word}
-.tab:hover{background:var(--tint)}
-.tab[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
 
 .grades{display:grid;grid-template-columns:repeat(auto-fit,minmax(4rem,1fr));gap:8px 6px}
 .grade{border:1px solid var(--control-line);background:var(--surface);border-radius:8px;padding:6px 4px 7px;display:grid;gap:3px;justify-items:center;position:relative}
@@ -236,23 +232,110 @@ details[open] > summary.linkbtn::before{transform:rotate(45deg)}
 .credit{font-size:.9rem;color:var(--muted);max-width:70ch}
 footer{font-size:.85rem;color:var(--muted);max-width:70ch}
 @media (prefers-reduced-motion:no-preference){.bar>i,.grade .meter i,.mini i{transition:width .3s ease}}
+
+/* ---------- app frame: top bar, screens, bottom tab bar ---------- */
+body{padding-bottom:calc(68px + env(safe-area-inset-bottom))}
+.appbar{position:sticky;top:0;z-index:6;background:var(--surface);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
+.appbar-in{max-width:980px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:56px;padding-inline:max(8px,env(safe-area-inset-left)) max(8px,env(safe-area-inset-right))}
+.appbar h1{flex:1 1 auto;min-width:0;font-size:1.15rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-inline-start:8px}
+.appbar h1:focus{outline:none}
+.appbar-end{display:flex;align-items:center;gap:6px;flex:0 1 auto;min-width:0;margin-inline-start:auto}
+.appbar-btn{flex:none;display:inline-flex;align-items:center;gap:2px;min-height:var(--tap);min-width:var(--tap);padding:0 8px 0 4px;border:0;background:none;color:var(--accent);font-weight:700;border-radius:10px;text-decoration:none}
+.appbar-btn svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.appbar-btn.icon-only{justify-content:center;padding:0;color:var(--ink)}
+.appbar-btn.icon-only svg{fill:currentColor;stroke:none}
+.appbar-btn:hover{background:var(--tint)}
+.appbar-btn[aria-current="page"]{background:var(--accent);color:var(--accent-ink)}
+.child-sel{max-width:9.5rem;min-width:0;flex:0 1 auto;padding-block:4px;font-weight:700}
+[dir="rtl"] .appbar-btn:not(.icon-only) svg{transform:scaleX(-1)}
+.tabbar{position:fixed;inset-inline:0;bottom:0;z-index:6;display:flex;flex-wrap:wrap;background:var(--surface);border-top:1px solid var(--control-line);padding:4px max(4px,env(safe-area-inset-right)) calc(4px + env(safe-area-inset-bottom)) max(4px,env(safe-area-inset-left));box-shadow:0 -6px 16px -12px rgba(0,0,0,.5)}
+.tabbar-item{flex:1 1 44px;min-width:44px;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--ink);text-decoration:none;font-size:.75rem;font-weight:700;border-radius:12px;line-height:1.1;text-align:center}
+.tabbar-item svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tabbar-item span{overflow-wrap:anywhere}
+.tabbar-item:hover{background:var(--tint)}
+.tabbar-item[aria-current="page"]{color:var(--accent-ink);background:var(--accent)}
+@media (max-width:300px){.tabbar-item{flex-basis:60px;min-height:52px} body{padding-bottom:calc(110px + env(safe-area-inset-bottom))} .toast{bottom:calc(116px + env(safe-area-inset-bottom,0px))}}
+.toast{bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+.screen-head{display:grid;gap:4px}
+.screen-head p{max-width:65ch}
+/* list rows that open a screen */
+.navlist{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.navlist > li + li{border-top:1px solid var(--rule)}
+.navrow{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:4px 12px;width:100%;min-height:60px;padding:10px 12px 10px 16px;border:0;background:none;color:inherit;text-align:start;text-decoration:none;font:inherit;cursor:pointer}
+.navrow:hover{background:var(--tint)}
+.navrow .nr-t{font-weight:700;font-size:1.02rem}
+.navrow .nr-s{color:var(--muted);font-size:.9rem}
+.navrow .nr-end{display:flex;align-items:center;gap:8px;color:var(--muted)}
+.navrow .nr-end svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+[dir="rtl"] .navrow .nr-end svg{transform:scaleX(-1)}
+.navrow .meter{grid-column:1 / -1;height:6px;background:var(--rule);border-radius:3px;overflow:hidden;box-shadow:inset 0 0 0 1px var(--control-line)}
+.navrow .meter i{display:block;height:100%;background:var(--accent)}
+/* dashboard */
+.hero{display:grid;gap:6px}
+.hero .hi{color:var(--muted);font-weight:700;font-size:.9rem}
+.hero h2{font-size:1.6rem}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(10rem,100%),1fr));gap:10px}
+.tile{text-decoration:none;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:6px 10px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:inherit;text-align:start;font:inherit;cursor:pointer;min-height:var(--tap)}
+.tile:hover{border-color:var(--accent)}
+.tile .tl{font-weight:700;color:var(--muted);font-size:.85rem;grid-column:1 / -1}
+.tile .tv{font-family:var(--f-display);font-weight:800;font-size:1.5rem;line-height:1.1}
+.tile .ts{grid-column:1 / -1;color:var(--muted);font-size:.85rem}
+.ring{width:52px;height:52px}
+.ring circle{fill:none;stroke-width:6}
+.ring .rt{stroke:var(--rule)}
+.ring .rv{stroke:var(--accent);stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%}
+.ring .rs{stroke:var(--warn-fill)}
+.next{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.next .navrow{padding-inline-start:12px;min-height:52px}
+.next .tag2{font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+/* progress report: an A4 sheet, light on paper even in dark mode */
+.report{--paper:#F4F4F1; --surface:#FFFFFF; --ink:#121417; --muted:#565D66; --line:#E3E3DE; --rule:#ECECE8; --control-line:#868D96; --accent:#4338CA; --accent-ink:#FFFFFF; --warn:#8A5300; --warn-fill:#F4A100; --on-warn:#121417; --tint:#F0F0EC;
+  color-scheme:light;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:6px;box-shadow:0 10px 30px -18px rgba(0,0,0,.6);padding:clamp(16px,5vw,40px);max-width:820px;width:100%;margin:0 auto;display:grid;gap:18px}
+.report h2{font-size:1.15rem;border-bottom:2px solid var(--accent);padding-bottom:4px}
+.rp-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 16px;align-items:end}
+.rp-head .rp-brand{color:var(--accent);font-weight:800;letter-spacing:.06em;text-transform:uppercase;font-size:.8rem}
+.rp-head h1{font-size:1.8rem}
+.rp-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(7.5rem,100%),1fr));gap:8px}
+.rp-stat{border:1px solid var(--line);border-radius:8px;padding:8px 10px;display:grid;gap:2px}
+.rp-stat b{font-family:var(--f-display);font-size:1.4rem}
+.rp-stat span{font-size:.8rem;color:var(--muted)}
+.report table{min-width:0}
+.report td,.report th{padding:6px 8px}
+.report td:nth-child(n+2){white-space:nowrap}
+.report > *,.report section{min-width:0}
+.rp-table{overflow-x:auto}
+@media print{.rp-table{overflow:visible}}
+.rp-head .rp-date{text-align:end}
+@media (max-width:520px){.rp-head .rp-date{text-align:start}}
+.rp-bar{display:inline-block;width:5rem;height:8px;background:var(--rule);border-radius:4px;overflow:hidden;vertical-align:middle;box-shadow:inset 0 0 0 1px var(--control-line);margin-inline-end:6px}
+.rp-bar i{display:block;height:100%;background:var(--accent);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.rp-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;text-align:center;font-size:.8rem}
+.rp-days div{border:1px solid var(--line);border-radius:6px;padding:4px 2px}
+.rp-foot{font-size:.78rem;color:var(--muted);border-top:1px solid var(--line);padding-top:8px}
+.rp-actions{max-width:820px;margin:0 auto;width:100%}
+@media print{
+  @page{size:A4;margin:12mm}
+  body{background:#fff;padding:0}
+  .appbar,.tabbar,#appFooter,.toast,.rp-actions,#setup,#installHelp{display:none !important}
+  .wrap{padding:0;max-width:none}
+  .report{border:0;box-shadow:none;padding:0;max-width:none}
+  .report section{break-inside:avoid}
+  .report{font-size:10pt;gap:10px} .report h1{font-size:18pt} .report h2{font-size:11.5pt} .rp-stat b{font-size:14pt} .report td,.report th{padding:3px 6px}
+}
 </style>
 
-<div class="wrap">
-  <header class="top">
-    <div class="brand">
-      <h1>Ilm Track</h1>
-      <small>Core Knowledge Tracker for Pakistani Students</small>
-    </div>
-    <div class="actions">
-      <label class="label" for="studentSel">Child</label>
-      <select id="studentSel" class="btn"></select>
-      <button class="btn" id="addStudent">Add child</button>
-      <button class="btn primary" id="installBtn" hidden>Install app</button>
+<header class="appbar">
+  <div class="appbar-in">
+    <button class="appbar-btn" id="backBtn" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><span>Back</span></button>
+    <h1 id="screenTitle" tabindex="-1">Ilm Track</h1>
+    <div class="appbar-end">
       <button class="btn small sync-chip" id="syncChip" hidden>Sync</button>
+      <label class="sr-only" for="studentSel">Child</label><select id="studentSel" class="btn child-sel"></select>
+      <a class="appbar-btn icon-only" id="moreBtn" href="#/more" aria-label="More"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg></a>
     </div>
-  </header>
-
+  </div>
+</header>
+<div class="wrap">
   <section class="panel" id="installHelp" hidden aria-labelledby="installTitle">
     <h2 id="installTitle">Put the app on your home screen</h2>
     <ol class="srclist" id="installSteps"></ol>
@@ -262,9 +345,9 @@ footer{font-size:.85rem;color:var(--muted);max-width:70ch}
 
   <section class="panel setup" id="setup" hidden aria-labelledby="setupTitle"></section>
 
-  <section class="student" aria-label="Child details">
-    <div class="child-sum"><p id="childSum"></p><button class="btn small" id="editChild" aria-expanded="false" aria-controls="childFields">Edit details</button></div>
-    <div id="childFields" class="stack-s" hidden>
+  <section class="student" id="childCard" aria-label="Child details" hidden>
+    <p id="childSum"></p>
+    <div id="childFields" class="stack-s">
     <div class="student-row">
       <div class="field name"><label class="label" for="fName">Name</label><input id="fName" maxlength="40"></div>
       <div class="field num"><label class="label" for="fAge">Age</label><input id="fAge" type="number" min="3" max="16"></div>
@@ -277,18 +360,17 @@ footer{font-size:.85rem;color:var(--muted);max-width:70ch}
     </div>
   </section>
 
-  <nav class="tabs" role="tablist" aria-label="Sections">
-    <button class="tab" role="tab" data-tab="goals" id="tab-goals" aria-controls="view">Class goals</button>
-    <button class="tab" role="tab" data-tab="books" id="tab-books" aria-controls="view">School books</button>
-    <button class="tab" role="tab" data-tab="char" id="tab-char" aria-controls="view">Character &amp; deen</button>
-    <button class="tab" role="tab" data-tab="track" id="tab-track" aria-controls="view">Extra reading</button>
-    <button class="tab" role="tab" data-tab="more" id="tab-more" aria-controls="view">More</button>
-  </nav>
+  <main id="view" tabindex="-1" aria-labelledby="screenTitle"></main>
 
-  <main id="view" role="tabpanel" tabindex="-1"></main>
-
-  <footer>Class goals: summarised from Pakistan’s National Curriculum (National Curriculum Council, ncc.gov.pk). Extra reading: Core Knowledge Foundation unit pages, checked on coreknowledge.org on 11 October 2026. This tracker is independent and not affiliated with the National Curriculum Council, the Core Knowledge Foundation or Oxford University Press. Progress is saved on this device only; use More, then Backup, to move it.</footer>
+  <footer id="appFooter">Class goals: summarised from Pakistan’s National Curriculum (National Curriculum Council, ncc.gov.pk). Extra reading: Core Knowledge Foundation unit pages, checked on coreknowledge.org on 11 October 2026. This tracker is independent and not affiliated with the National Curriculum Council, the Core Knowledge Foundation or Oxford University Press. Progress is saved on this device only; use More, then Backup, to move it.</footer>
 </div>
+<nav class="tabbar" aria-label="Sections">
+  <a class="tabbar-item" id="tab-home" href="#/home" data-tab="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg><span>Home</span></a>
+  <a class="tabbar-item" id="tab-goals" href="#/goals" data-tab="goals"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12l3 3 5-6"/></svg><span>Goals</span></a>
+  <a class="tabbar-item" id="tab-books" href="#/books" data-tab="books"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5a2 2 0 0 1 2-2h12v15H7a2 2 0 0 0-2 2z"/><path d="M5 20a2 2 0 0 0 2 1h12v-3"/></svg><span>Books</span></a>
+  <a class="tabbar-item" id="tab-deen" href="#/deen" data-tab="deen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 4.5a7.5 7.5 0 1 0 4 12.5 6 6 0 0 1-4-12.5z"/></svg><span>Deen</span></a>
+  <a class="tabbar-item" id="tab-track" href="#/track" data-tab="track"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6c3-1.5 6-1.5 9 0v14c-3-1.5-6-1.5-9 0zM21 6c-3-1.5-6-1.5-9 0v14c3-1.5 6-1.5 9 0z"/></svg><span>Reading</span></a>
+</nav>
 <div class="toast" id="toast" hidden></div>
 <div class="sr-only" id="live" role="status" aria-live="polite"></div>
 
@@ -435,7 +517,10 @@ function fillStudent() {
 /* ---------- setup: two questions, then the child's school books are ready ---------- */
 function setupMode() { return state.ui.setup ? "add" : state.ui.welcome ? "welcome" : ""; }
 function renderSetup() {
-  const mode = setupMode(), box = $("#setup"); box.hidden = !mode; if (!mode) { box.innerHTML = ""; return; }
+  const mode = route()[0] === "home" ? setupMode() : "", box = $("#setup"); box.hidden = !mode;
+  if (!mode) { box.innerHTML = ""; box.dataset.mode = ""; return; }
+  if (box.dataset.mode === mode) return;   // already showing: keep what the parent is typing
+  box.dataset.mode = mode;
   box.innerHTML = `<h2 id="setupTitle">${mode === "welcome" ? "Assalamu alaikum. Let’s set up your child" : "Add a child"}</h2>
     ${mode === "welcome" ? `<p class="hint">Two questions. You can change them later, and add more children.</p>` : ""}
     <form id="setupForm" class="stack-s">
@@ -451,36 +536,35 @@ function renderSetup() {
     $("#sBooksLbl").textContent = n ? `Add the ${n} books on our school’s ${GRADE_NAMES[+g.value]} list` : "No school list for this class";
     $("#sBooks").disabled = !n; $("#sBooks").checked = !!n; };
   g.value = "5"; lbl(); g.addEventListener("change", lbl);
-  $("#setupSkip").addEventListener("click", () => { state.ui.welcome = state.ui.setup = false; save(); renderSetup(); });
+  $("#setupSkip").addEventListener("click", () => { state.ui.welcome = state.ui.setup = false; save(); renderSetup(); render(); });
   $("#setupForm").addEventListener("submit", e => { e.preventDefault();
     const name = $("#sName").value.trim(); if (!name) { $("#sName").focus(); return; }
     const grade = +g.value, s = newStudent(name, null, grade, false);
     const list = $("#sBooks").checked ? SCHOOL_LIST.classes[grade] || [] : [];
     s.books = list.map(([title, subj, pub, isbn]) => ({ id: "b-" + uid(), title, series: "", subj, pub, isbn, cls: grade, ch: chaptersFor(isbn) }));
     state.students = state.students.filter(x => !x.sample && !x.example).concat(s); state.active = s.id;
-    state.ui.setup = state.ui.welcome = false; state.ui.tab = "goals"; viewGrade = bookClass = goalClass = null; openRows.clear(); save(); fillStudent(); render();
+    state.ui.setup = state.ui.welcome = false; viewGrade = bookClass = goalClass = null; openRows.clear(); save(); fillStudent(); tabTo("home");
     const nch = s.books.reduce((a, b) => a + b.ch.length, 0);
     toast(list.length ? `${name} is ready, with ${list.length} school books${nch ? ` and ${nch} chapters` : ""}` : `${name} is ready`); $("#view").focus(); });
   if (mode === "add") $("#sName").focus();
 }
-$("#editChild").addEventListener("click", e => { const f = $("#childFields"); f.hidden = !f.hidden; e.currentTarget.setAttribute("aria-expanded", String(!f.hidden));
-  e.currentTarget.textContent = f.hidden ? "Edit details" : "Done"; if (!f.hidden) $("#fName").focus(); });
 
 /* ---------- install ---------- */
 let installEvt = null;
 const isStandalone = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
 const canInstall = () => !!document.querySelector('link[rel="manifest"]') && /^https?:$/.test(location.protocol) && !isStandalone();
-$("#installBtn").hidden = !canInstall();
-addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvt = e; $("#installBtn").hidden = !canInstall(); });
-addEventListener("appinstalled", () => { installEvt = null; $("#installBtn").hidden = true; $("#installHelp").hidden = true; toast("Installed. Open it from your home screen."); });
-$("#installBtn").addEventListener("click", async () => {
+const syncInstall = () => document.querySelectorAll("[data-install]").forEach(b => b.hidden = !canInstall());
+addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvt = e; syncInstall(); });
+addEventListener("appinstalled", () => { installEvt = null; syncInstall(); $("#installHelp").hidden = true; toast("Installed. Open it from your home screen."); });
+document.addEventListener("click", e => { if (e.target.closest("[data-install]")) install(); });
+async function install() {
   if (installEvt) { installEvt.prompt(); const r = await installEvt.userChoice.catch(() => null); if (r?.outcome === "accepted") installEvt = null; return; }
   const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   const steps = ios ? ["Open this page in Safari.", "Tap the Share button (a square with an arrow pointing up).", "Scroll down and tap <b>Add to Home Screen</b>, then tap <b>Add</b>."]
     : ["Open this page in Chrome.", "Tap the menu button (three dots) at the top right.", "Tap <b>Install app</b> or <b>Add to Home screen</b>, then confirm."];
-  $("#installSteps").innerHTML = steps.map(t => `<li>${t}</li>`).join(""); $("#installHelp").hidden = false; $("#installClose").focus();
-});
-$("#installClose").addEventListener("click", () => { $("#installHelp").hidden = true; $("#installBtn").focus(); });
+  $("#installSteps").innerHTML = steps.map(t => `<li>${t}</li>`).join(""); $("#installHelp").hidden = false; scrollTo({ top: 0 }); $("#installClose").focus();
+}
+$("#installClose").addEventListener("click", () => { $("#installHelp").hidden = true; $("[data-install]")?.focus(); });
 function ageHint() {
   const st = cur(); const a = parseInt(st.age, 10);
   let h = "";
@@ -494,9 +578,10 @@ function ageHint() {
   $("#ageHint").innerHTML = h;
 }
 $("#studentSel").addEventListener("change", e => { state.active = e.target.value; routineEdit = false; routineDay = 0; viewGrade = bookClass = goalClass = null; openRows.clear(); save(); fillStudent(); render(); });
-$("#addStudent").addEventListener("click", () => { state.ui.setup = true; save(); renderSetup(); $("#setup").scrollIntoView({ block: "start" }); });
+document.addEventListener("click", e => { if (!e.target.closest("[data-addchild]")) return;
+  state.ui.setup = true; save(); tabTo("home"); scrollTo({ top: 0 }); $("#sName")?.focus(); });
 $("#fName").addEventListener("input", e => { const st = cur(); st.name = e.target.value || "Child"; st.example = false; save();
-  const o = $("#studentSel").selectedOptions[0]; if (o) o.textContent = st.name; ageHint(); if (state.ui.tab === "more") render(); });
+  const o = $("#studentSel").selectedOptions[0]; if (o) o.textContent = st.name; ageHint(); });
 $("#fAge").addEventListener("change", e => { const st = cur(); st.age = parseInt(e.target.value, 10) || null;
   if (st.age >= 5 && st.age <= 13 && Object.keys(st.status).length === 0) { st.grade = Math.min(8, st.age - 5); viewGrade = bookClass = goalClass = null; fillStudent(); }
   save(); ageHint(); render(); });
@@ -504,35 +589,121 @@ $("#fGrade").addEventListener("change", e => { cur().grade = +e.target.value; vi
 $("#fStart").addEventListener("change", e => { cur().start = +e.target.value; save(); render(); });
 $("#fTrack").addEventListener("change", e => { cur().track = e.target.value; save(); });
 
-document.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => { state.ui.tab = b.dataset.tab; save(); render();
-  /* the tab bar stays on screen; when scrolled down, start the new tab at its top */
-  const t = $(".tabs"); if (t.getBoundingClientRect().top < 20 && scrollY > t.offsetTop) scrollTo({ top: t.offsetTop - 6 }); }));
-$(".tabs").addEventListener("keydown", e => {
-  const tabs = [...document.querySelectorAll(".tab")]; const i = tabs.indexOf(document.activeElement); if (i < 0) return;
-  const rtl = getComputedStyle(e.currentTarget).direction === "rtl";
-  const step = { ArrowRight: rtl ? -1 : 1, ArrowLeft: rtl ? 1 : -1 }[e.key];
-  const j = step ? (i + step + tabs.length) % tabs.length : e.key === "Home" ? 0 : e.key === "End" ? tabs.length - 1 : -1;
-  if (j < 0) return; e.preventDefault(); tabs[j].click(); tabs[j].focus();
+/* ---------- screens and navigation ----------
+   Routes live in the address (#/goals/sci) so the phone's back button and swipe-back work.
+   Tabs replace the current history entry; opening an item pushes one, and Back returns to the list. */
+const route = () => { const m = location.hash.match(/^#\/([a-z]+)(?:\/([A-Za-z0-9_-]+))?/); return m ? [m[1], m[2] || ""] : ["home", ""]; };
+const TABS = ["home", "goals", "books", "deen", "track"];
+const scrollMem = {};
+function go(path) { scrollMem[location.hash] = scrollY; history.pushState({ d: (history.state?.d || 0) + 1 }, "", "#/" + path); render(); scrollTo({ top: 0 }); $("#screenTitle").focus(); }
+function tabTo(path) { history.replaceState({ d: 0 }, "", "#/" + path); render(); scrollTo({ top: 0 }); }
+function back() { const [top, sub] = route();
+  if (history.state?.d > 0) history.back();
+  else { history.replaceState({ d: 0 }, "", "#/" + (sub ? top : "home")); render(); $("#screenTitle").focus(); } }
+addEventListener("popstate", () => { render(); requestAnimationFrame(() => scrollTo({ top: scrollMem[location.hash] || 0 })); });
+addEventListener("hashchange", () => { if (!/^#join=/.test(location.hash) && !history.state) { history.replaceState({ d: 0 }, "", location.hash); render(); } });
+$("#backBtn").addEventListener("click", back);
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-go], .tabbar-item, #moreBtn"); if (!t || e.defaultPrevented) return;
+  e.preventDefault();
+  if (t.dataset.go) go(t.dataset.go); else tabTo(t.getAttribute("href").slice(2));
 });
-
+const chev = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
+const navRow = (go, title, sub, end = "", pct = null) => `<li><a class="navrow" href="#/${go}" data-go="${go}"><span><span class="nr-t" dir="auto">${title}</span>${sub ? `<br><span class="nr-s">${sub}</span>` : ""}</span>
+  <span class="nr-end">${end}${chev}</span>${pct === null ? "" : `<span class="meter" aria-hidden="true"><i style="width:${P(pct)}"></i></span>`}</a></li>`;
+const ring = (pct, label) => { const c = 2 * Math.PI * 22;
+  return `<svg class="ring" viewBox="0 0 52 52" role="img" aria-label="${label}"><circle class="rt" cx="26" cy="26" r="22"/><circle class="rv" cx="26" cy="26" r="22" stroke-dasharray="${(c * Math.min(1, pct)).toFixed(1)} ${c.toFixed(1)}"/></svg>`; };
+const SCREENS = {
+  home: [() => "Ilm Track", () => renderHome()],
+  goals: [sub => sub ? NCP_SUBJ[sub]?.n || "Class goals" : "Class goals", sub => sub ? renderGoalSubject(sub) : renderGoals()],
+  books: [sub => sub ? "Book" : "School books", sub => sub ? renderBook(sub) : renderBooks()],
+  deen: [sub => ({ quran: "Qur’an", char: "Character", routine: "Daily routine" }[sub] || "Character & deen"), sub => ({ quran: renderQuran, char: renderChar, routine: renderRoutine }[sub] || renderDeen)()],
+  track: [() => "Extra reading", () => renderTrack()],
+  more: [sub => ({ family: "Family", compare: "Compare children", backup: "Backup", sources: "Sources", child: "Child details" }[sub] || "More"), sub => renderMoreScreen(sub)],
+  report: [() => "Progress report", () => renderReport()]
+};
 function render() {
-  if (!["goals", "track", "books", "char", "more"].includes(state.ui.tab)) state.ui.tab = "goals";
-  document.querySelectorAll(".tab").forEach(b => { const on = b.dataset.tab === state.ui.tab;
-    b.setAttribute("aria-selected", String(on)); b.tabIndex = on ? 0 : -1; });
-  $("#view").setAttribute("aria-labelledby", "tab-" + state.ui.tab);
-  ({ goals: renderGoals, track: renderTrack, books: renderBooks, char: () => ({ char: renderChar, routine: renderRoutine }[state.ui.deen] || renderQuran)(), more: renderMore }[state.ui.tab])();
+  let [top, sub] = route();
+  if (!SCREENS[top]) { history.replaceState({ d: 0 }, "", "#/home"); [top, sub] = ["home", ""]; }
+  document.querySelectorAll(".tabbar-item").forEach(a => { if (a.dataset.tab === top) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+  $("#moreBtn").toggleAttribute("aria-current", top === "more"); if (top === "more") $("#moreBtn").setAttribute("aria-current", "page");
+  const hasBack = !!sub || top === "more" || top === "report";
+  $("#backBtn").hidden = !hasBack;
+  $("#screenTitle").textContent = SCREENS[top][0](sub);
+  document.title = top === "home" ? "Ilm Track" : `${$("#screenTitle").textContent} · Ilm Track`;
+  $("#childCard").hidden = !(top === "more" && sub === "child");
+  $("#appFooter").hidden = !(top === "home" || (top === "more" && !sub));
+  renderSetup();
+  SCREENS[top][1](sub);
+  syncInstall();
 }
 
-/* ---------- More tab: Compare, Backup and Sources ---------- */
-function renderMore() {
-  const sub = ["family", "compare", "sources"].includes(state.ui.more) ? state.ui.more : "backup";
+/* ---------- Home: the child's progress at a glance ---------- */
+function homeStats(st) {
+  const g = goalStats(st, st.grade), b = bookStats(st, st.grade), exp = expected(st);
+  const q = QKEYS.filter(k => st.quran.h[k]?.lv >= 2).length, due = QKEYS.filter(k => qDue(st.quran.h[k])).length;
+  const ch = charScore(st), r = st.routine, today = new Set(r.days[localDay(0)] || []);
+  const rToday = r.items.filter(i => today.has(i.id)).length;
+  const fullDays = Array.from({ length: 7 }, (_, n) => localDay(n)).filter(d => r.items.length && r.items.every(i => (r.days[d] || []).includes(i.id))).length;
+  const ck = stats(st, st.grade, "all");
+  return { g, b, exp, q, due, ch, rToday, fullDays, ck, pace: paceStatus(b.pct, exp, b.total) };
+}
+function renderHome() {
+  const st = cur(), h = homeStats(st), name = esc(st.name);
+  const tile = (go, label, value, sub, pct, aria) => `<a class="tile" href="#/${go}" data-go="${go}"><span class="tl">${label}</span><span class="tv">${value}</span>${pct === null ? "" : ring(pct, aria)}<span class="ts">${sub}</span></a>`;
+  // next steps: the first unticked goals, the next chapter of the first books with chapters left, surahs due
+  const next = [];
+  for (const [k] of Object.entries(NCP[st.grade] || {})) { const ids = goalIds(st.grade, k), n = ids.findIndex(id => st.status[id]?.st !== "done");
+    if (n >= 0 && next.filter(x => x.kind === "Goal").length < 3) next.push({ kind: "Goal", t: NCP[st.grade][k][n][0], s: NCP_SUBJ[k].n, go: "goals/" + k }); }
+  for (const b of st.books.filter(b => b.cls === st.grade)) { const c = b.ch.find(c => st.status[c.id]?.st !== "done");
+    if (c && next.filter(x => x.kind === "Chapter").length < 2) next.push({ kind: "Chapter", t: c.t, s: b.title, go: "books/" + b.id }); }
+  QKEYS.filter(k => qDue(st.quran.h[k])).slice(0, 2).forEach(k => next.push({ kind: "Revise", t: qName(k), s: "Qur’an revision", go: "deen/quran" }));
   $("#view").innerHTML = `<div class="stack">
-    <div class="seg subnav" role="group" aria-label="More">${[["family", "Family"], ["compare", "Compare"], ["backup", "Backup"], ["sources", "Sources"]].map(([k, l]) =>
-      `<button data-more="${k}" aria-pressed="${k === sub}">${l}</button>`).join("")}</div>
-    <div id="moreBody"></div></div>`;
-  document.querySelectorAll("[data-more]").forEach(b => b.addEventListener("click", () => {
-    state.ui.more = b.dataset.more; save(); renderMore(); document.querySelector(`[data-more="${b.dataset.more}"]`).focus(); }));
-  ({ family: renderFamily, compare: renderCompare, sources: renderSources, backup: renderBackup }[sub])();
+    <section class="panel hero"><span class="hi">Assalamu alaikum</span><h2 dir="auto">${name}</h2>
+      <p class="muted">${GRADE_NAMES[st.grade]}${st.age ? ` · age ${st.age}` : ""} · ${esc(st.track || "")}${st.example ? ' <span class="example-flag">Sample</span>' : ""}</p>
+      <div class="actions"><a class="btn small" href="#/more/child" data-go="more/child">Edit details</a><button class="btn small" id="addStudent" data-addchild>Add child</button>
+        <button class="btn small primary" data-install hidden>Install app</button></div></section>
+    <div class="tiles">
+      ${tile("goals", "Class goals", P(h.g.pct), `${h.g.done} of ${h.g.all} ticked`, h.g.pct, `Class goals ${P(h.g.pct)}`)}
+      ${tile("books", "School books", h.b.all ? P(h.b.pct) : "–", h.b.all ? `${h.b.done} of ${h.b.total} chapters · <span class="pill ${h.pace.cls}">${h.pace.txt}</span>` : "Add the school’s books", h.b.all ? h.b.pct : 0, `School books ${P(h.b.pct)}`)}
+      ${tile("deen/quran", "Qur’an", String(h.q), `surahs memorised${h.due ? ` · ${h.due} due for revision` : ""}`, null)}
+      ${tile("deen/char", "Character", `${h.ch.habits}/${h.ch.n}`, "habits formed", h.ch.score, `Character ${P(h.ch.score)}`)}
+      ${tile("deen/routine", "Routine", st.routine.items.length ? `${h.rToday}/${st.routine.items.length}` : "–", st.routine.items.length ? `today · ${h.fullDays} full day${h.fullDays === 1 ? "" : "s"} this week` : "Set up a daily routine", st.routine.items.length ? h.rToday / st.routine.items.length : 0, "Routine today")}
+      ${tile("track", "Extra reading", String(h.ck.done), "Core Knowledge units read · optional", null)}
+    </div>
+    ${next.length ? `<section class="stack-s"><h2>Next up</h2><ul class="navlist next">${next.map(n => navRow(n.go, esc(n.t), `<span class="tag2">${n.kind}</span> · ${esc(n.s)}`)).join("")}</ul></section>` : ""}
+    <section class="panel"><h2>Progress report</h2><p style="max-width:65ch">A printable report of ${name}’s progress: class goals, school books, Qur’an, character and routine. Print it or save it as a PDF to share with family or school.</p>
+      <div class="actions"><a class="btn primary" href="#/report" data-go="report">Open progress report</a></div></section>
+  </div>`;
+}
+
+/* ---------- Deen: Qur'an, Character and Routine ---------- */
+function renderDeen() {
+  const st = cur(), h = homeStats(st);
+  $("#view").innerHTML = `<div class="stack"><p class="hint" style="max-width:65ch">Qur’an, good character and a daily routine around the five prayers, for ${esc(st.name)}.</p>
+    <ul class="navlist">
+      ${navRow("deen/quran", "Qur’an", `${h.q} surahs memorised${h.due ? ` · ${h.due} due for revision` : ""}${st.quran.read ? ` · reading ${st.quran.read === "q" ? "Qaida" : "Para " + st.quran.read}` : ""}`)}
+      ${navRow("deen/char", "Character", `${h.ch.habits} of ${h.ch.n} habits formed`, "", h.ch.score)}
+      ${navRow("deen/routine", "Daily routine", st.routine.items.length ? `${h.rToday} of ${st.routine.items.length} done today` : "Not set up yet", "", st.routine.items.length ? h.rToday / st.routine.items.length : null)}
+    </ul></div>`;
+}
+
+/* ---------- More ---------- */
+function renderMoreScreen(sub) {
+  if (sub === "child") { $("#view").innerHTML = `<div class="actions"><button class="btn" data-addchild>Add another child</button></div>`; return; }
+  if (sub) { $("#view").innerHTML = `<div id="moreBody"></div>`; ({ family: renderFamily, compare: renderCompare, backup: renderBackup, sources: renderSources }[sub] || renderBackup)(); return; }
+  const st = cur();
+  $("#view").innerHTML = `<div class="stack">
+    <ul class="navlist">
+      ${navRow("more/child", "Child details", `${esc(st.name)} · ${GRADE_NAMES[st.grade]}`)}
+      ${navRow("more/family", "Family", inFamily() ? `${esc(famInfo()?.name || "")} · ${net.err ? "not synced" : "synced"}` : "Share progress between phones")}
+      ${navRow("report", "Progress report", "Print or save as PDF")}
+      ${navRow("more/compare", "Compare children", `${state.students.length} child${state.students.length === 1 ? "" : "ren"}`)}
+      ${navRow("more/backup", "Backup", "Save or restore everything on this phone")}
+      ${navRow("more/sources", "Sources", "Where every goal, unit and list comes from")}
+    </ul>
+    <div class="actions"><button class="btn" data-addchild>Add child</button><button class="btn primary" data-install hidden>Install app</button></div>
+  </div>`;
 }
 
 function gradeStrip(sel, statFn, attr) {
@@ -543,73 +714,75 @@ function gradeStrip(sel, statFn, attr) {
 }
 
 /* ---------- Class goals tab: what the National Curriculum expects by the end of each class ---------- */
-const openGoals = new Set();
 /* checklist ids: ncp-<subject>-<class>-<n> for Pakistan goals, intl-<s>-<class>-<n> for international extras (n from 1, never renumbered) */
 const goalIds = (cls, k) => (NCP[cls]?.[k] || []).map((_, n) => `ncp-${k}-${cls}-${n + 1}`);
 const intlRows = (cls, k) => (INTL[cls]?.[k] || []).flatMap(gr => gr.x.map((x, n) => ({ id: `intl-${gr.s}-${cls}-${n + 1}`, gr, x })));
 const goalStats = (st, cls) => countList(st, Object.keys(NCP[cls] || {}).flatMap(k => goalIds(cls, k)));
-function renderGoals() {
-  const st = cur(); const cls = goalClass ?? st.grade; goalClass = cls;
-  const subs = NCP[cls] || {}; const name = esc(st.name); const left = !!state.ui.left;
+function goalParts(st, cls, k) {
+  const left = !!state.ui.left, pts = NCP[cls][k], m = NCP_SUBJ[k];
   const books = st.books.filter(b => b.cls === cls);
   const tickRow = (id, text, meta) => { const done = st.status[id]?.st === "done";
     if (left && done) return "";
     return `<li class="row ${done ? "done" : ""}"><div class="row-main" style="grid-template-columns:var(--tap) minmax(0,1fr)">
       <label class="tick"><input type="checkbox" id="c-${id}" data-tick="${id}" ${done ? "checked" : ""}></label>
       <label class="row-title" for="c-${id}"><span class="t" style="font-weight:400">${text}</span><span class="meta">${meta}</span></label></div></li>`; };
+  const gids = goalIds(cls, k), xs = intlRows(cls, k);
+  const gs = countList(st, gids), xsS = countList(st, xs.map(r => r.id));
+  const mine = k === "ece" ? books : books.filter(b => (NCP_BOOKS[k] || []).includes(b.subj));
+  const bs = countList(st, mine.flatMap(b => b.ch.map(c => c.id)));
+  const ck = k === "ece" ? "la" : NCP_CK[k];
+  const goalRows = pts.map(([t, c], n) => tickRow(gids[n], esc(t), `<span class="mono muted">${esc(c)}</span>`)).join("");
+  const groups = (INTL[cls]?.[k] || []).map(gr => {
+    const rows = xs.filter(r => r.gr === gr).map(({ id, x: [t, ref, pk, ckid] }) => {
+      const sg = ckid ? ITEMS.find(i => i.id === ckid) : null;
+      return tickRow(id, esc(t), `<span class="pill ${pk ? "info" : "warn"}">${pk ? "Pakistan: " + GRADE_NAMES[pk] : "Not in Pakistan’s curriculum"}</span><span class="mono muted">${esc(ref)}</span>${sg ? `<a href="${esc(sg.page || sg.guide)}" target="_blank" rel="noopener" class="sugg-a">Read: ${esc(sg.title)}</a>` : ""}`); }).join("");
+    return `${gr.x.length ? `<li class="strand label">International extras${(INTL[cls][k].length > 1) ? ": " + gr.n : ""}</li>${rows}` : ""}
+      ${gr.a.length ? `<li class="ahead hint">Pakistan teaches earlier${INTL[cls][k].length > 1 ? ` (${gr.n.toLowerCase()})` : ""}: ${gr.a.map(esc).join("; ")}.</li>` : ""}`; }).join("");
+  return { m, gs, xsS, mine, bs, ck, xs, list: `<ul class="rows"><li class="strand label">Pakistan’s goals</li>${goalRows || (left ? `<li class="empty">All done. Mashallah.</li>` : "")}${groups}</ul>` };
+}
+/* Goals: the class summary and its subjects; each subject opens its own checklist screen */
+function renderGoals() {
+  const st = cur(); const cls = goalClass ?? st.grade; goalClass = cls;
+  const subs = NCP[cls] || {}; const name = esc(st.name); const isCur = cls === st.grade;
   let allG = 0, doneG = 0, allX = 0, doneX = 0;
-  const cards = Object.entries(subs).map(([k, pts]) => {
-    const m = NCP_SUBJ[k]; const id = "g-" + k;
-    const gids = goalIds(cls, k), xs = intlRows(cls, k);
-    const gs = countList(st, gids), xsS = countList(st, xs.map(r => r.id));
-    allG += gs.all; doneG += gs.done; allX += xsS.all; doneX += xsS.done;
-    const mine = k === "ece" ? books : books.filter(b => (NCP_BOOKS[k] || []).includes(b.subj));
-    const bs = countList(st, mine.flatMap(b => b.ch.map(c => c.id)));
-    const ck = k === "ece" ? "la" : NCP_CK[k];
-    const goalRows = pts.map(([t, c], n) => tickRow(gids[n], esc(t), `<span class="mono muted">${esc(c)}</span>`)).join("");
-    const groups = (INTL[cls]?.[k] || []).map(gr => {
-      const rows = xs.filter(r => r.gr === gr).map(({ id, x: [t, ref, pk, ckid] }) => {
-        const sg = ckid ? ITEMS.find(i => i.id === ckid) : null;
-        return tickRow(id, esc(t), `<span class="pill ${pk ? "info" : "warn"}">${pk ? "Pakistan: " + GRADE_NAMES[pk] : "Not in Pakistan’s curriculum"}</span><span class="mono muted">${esc(ref)}</span>${sg ? `<a href="${esc(sg.page || sg.guide)}" target="_blank" rel="noopener" class="sugg-a">Read: ${esc(sg.title)}</a>` : ""}`); }).join("");
-      return `${gr.x.length ? `<li class="strand label">International extras${(INTL[cls][k].length > 1) ? ": " + gr.n : ""}</li>${rows}` : ""}
-        ${gr.a.length ? `<li class="ahead hint">Pakistan teaches earlier${INTL[cls][k].length > 1 ? ` (${gr.n.toLowerCase()})` : ""}: ${gr.a.map(esc).join("; ")}.</li>` : ""}`; }).join("");
-    const sum = `${gs.done} of ${gs.all}${xsS.all ? ` · extras ${xsS.done} of ${xsS.all}` : ""}`;
-    return `<details class="ledger goal" data-goal="${k}" ${openGoals.has(k) ? "open" : ""}>
-      <summary aria-describedby="${id}-s"><h3>${m.n}</h3><span class="gsum" id="${id}-s">${sum}</span>
-        <span class="meter" aria-hidden="true"><i style="width:${P(gs.pct)}"></i></span></summary>
-      <ul class="rows"><li class="strand label">Pakistan’s goals</li>${goalRows || (left ? `<li class="empty">All done. Mashallah.</li>` : "")}${groups}</ul>
-      <div class="gfoot">
-        ${mine.length ? `<p>${mine.map(b => `${esc(b.title)} <span class="muted">(${countList(st, b.ch.map(c => c.id)).done} of ${b.ch.length} chapters)</span>`).join("<br>")}</p>` : ""}
-        <div class="actions">${mine.length ? `<button class="btn small" data-gobooks>School books${bs.all ? " · " + P(bs.pct) : ""}</button>` : ""}
-          ${ck ? `<button class="btn small" data-gock="${ck}">Extra reading: ${SUBJECTS[ck].name}</button>` : ""}</div>
-        <p class="hint">Source: <a href="${NCF + m.src}" target="_blank" rel="noopener">National Curriculum of Pakistan, ${esc(m.st)} (PDF)</a>${xs.length ? ". Extras: Core Knowledge Sequence 2023 (page numbers shown)" : ""}.</p>
-      </div></details>`;
-  }).join("");
-  const isCur = cls === st.grade; const keys = Object.keys(subs);
-  const allOpen = () => keys.every(k => openGoals.has(k)); const allLabel = () => allOpen() ? "Close all subjects" : "Open all subjects";
+  const rows = Object.keys(subs).map(k => { const p = goalParts(st, cls, k);
+    allG += p.gs.all; doneG += p.gs.done; allX += p.xsS.all; doneX += p.xsS.done;
+    return navRow("goals/" + k, p.m.n, `${p.gs.done} of ${p.gs.all} goals${p.xsS.all ? ` · extras ${p.xsS.done} of ${p.xsS.all}` : ""}`, `<span class="pct">${P(p.gs.pct)}</span>`, p.gs.pct); }).join("");
   const bar = (lbl, d, a) => `<div class="ladder-row"><span>${lbl}</span><div class="bar" role="img" aria-label="${lbl}: ${d} of ${a}"><i style="width:${P(a ? d / a : 0)}"></i></div><span class="pct">${d}/${a}</span></div>`;
   $("#view").innerHTML = `<div class="stack">
     <div class="stack-s"><div class="label">Class · tap to view</div>${gradeStrip(cls, i => goalStats(st, i), "data-gc")}</div>
     <section class="panel">
       <h2>By the end of ${GRADE_NAMES[cls]}${isCur ? `, ${name} should be able to…` : ""}</h2>
-      <p style="max-width:65ch">${isCur ? "" : `${name} is in ${GRADE_NAMES[st.grade]}. `}A checklist of Pakistan’s National Curriculum goals for ${GRADE_NAMES[cls]}${cls === 0 ? " (Early Childhood, ages 4 to 5)" : ""}, plus <b>international extras</b>: what the Core Knowledge curriculum teaches by this age that Pakistan’s does not, or teaches later.</p>
+      <p style="max-width:65ch">${isCur ? "" : `${name} is in ${GRADE_NAMES[st.grade]}. `}Pakistan’s National Curriculum goals for ${GRADE_NAMES[cls]}${cls === 0 ? " (Early Childhood, ages 4 to 5)" : ""}, plus <b>international extras</b> from the Core Knowledge curriculum. Open a subject and tick each goal once ${name} can do it.</p>
       <div class="ladder goalbars">${bar("Pakistan’s goals", doneG, allG)}${allX ? bar("International extras", doneX, allX) : ""}</div>
-      <ol class="steps"><li>Open a subject and tick each goal once ${name} can do it.</li><li>Tick chapters in <b>School books</b> as they are finished.</li><li>Use the extras to keep up with the international standard.</li></ol>
-      <div class="actions"><button class="btn small" id="goalsAll">${allLabel()}</button>
-        <label class="check"><input type="checkbox" id="goalsLeft" ${left ? "checked" : ""}> Show only what’s left</label></div>
     </section>
-    ${cards}
+    <ul class="navlist">${rows}</ul>
     <p class="hint" style="max-width:70ch">Goals summarise the official progression grids: the National Curriculum of Pakistan 2020 for KG to Class 5 and 2022-23 for Classes 6 to 8, with the grid’s own codes. Extras come from a class-by-class comparison with the Core Knowledge Sequence (2023), which follows the U.S. Common Core and Next Generation Science Standards; U.S.-only topics are left out. Sindh Board and Cambridge schools may teach some topics a year earlier or later. A new national curriculum (2026) is in draft.</p>
   </div>`;
   const v = $("#view");
-  bindCommon(v, st, renderGoals);
   v.querySelectorAll("[data-gc]").forEach(b => b.addEventListener("click", () => { goalClass = +b.dataset.gc; renderGoals(); v.querySelector(`[data-gc="${goalClass}"]`)?.focus(); }));
-  v.querySelectorAll("details[data-goal]").forEach(d => d.addEventListener("toggle", () => { d.open ? openGoals.add(d.dataset.goal) : openGoals.delete(d.dataset.goal);
-    $("#goalsAll").textContent = allLabel(); }));
-  $("#goalsAll").addEventListener("click", () => { const all = allOpen(); keys.forEach(k => all ? openGoals.delete(k) : openGoals.add(k)); renderGoals(); $("#goalsAll").focus(); });
-  $("#goalsLeft").addEventListener("change", e => { state.ui.left = e.target.checked; save(); renderGoals(); $("#goalsLeft").focus(); });
-  v.querySelectorAll("[data-gobooks]").forEach(b => b.addEventListener("click", () => { bookClass = cls; state.ui.tab = "books"; save(); render(); $("#view").focus(); }));
-  v.querySelectorAll("[data-gock]").forEach(b => b.addEventListener("click", () => { viewGrade = cls; state.ui.subj = b.dataset.gock; state.ui.tab = "track"; save(); render(); $("#view").focus(); }));
+}
+function renderGoalSubject(k) {
+  const st = cur(); const cls = goalClass ?? st.grade; goalClass = cls;
+  if (!NCP[cls]?.[k]) { back(); return; }
+  const p = goalParts(st, cls, k), left = !!state.ui.left;
+  $("#view").innerHTML = `<div class="stack">
+    <section class="panel screen-head"><p class="label">${GRADE_NAMES[cls]} · ${esc(st.name)}</p>
+      <div class="ladder goalbars"><div class="ladder-row"><span>Pakistan’s goals</span><div class="bar" role="img" aria-label="${p.gs.done} of ${p.gs.all} goals"><i style="width:${P(p.gs.pct)}"></i></div><span class="pct">${p.gs.done}/${p.gs.all}</span></div>
+        ${p.xsS.all ? `<div class="ladder-row"><span>International extras</span><div class="bar" role="img" aria-label="${p.xsS.done} of ${p.xsS.all} extras"><i style="width:${P(p.xsS.all ? p.xsS.done / p.xsS.all : 0)}"></i></div><span class="pct">${p.xsS.done}/${p.xsS.all}</span></div>` : ""}</div>
+      <label class="check"><input type="checkbox" id="goalsLeft" ${left ? "checked" : ""}> Show only what’s left</label></section>
+    <section class="ledger goal">${p.list}</section>
+    <section class="panel">
+      ${p.mine.length ? `<p>${p.mine.map(b => `${esc(b.title)} <span class="muted">(${countList(st, b.ch.map(c => c.id)).done} of ${b.ch.length} chapters)</span>`).join("<br>")}</p>` : ""}
+      <div class="actions">${p.mine.length ? `<button class="btn small" data-gobooks>School books${p.bs.all ? " · " + P(p.bs.pct) : ""}</button>` : ""}
+        ${p.ck ? `<button class="btn small" data-gock="${p.ck}">Extra reading: ${SUBJECTS[p.ck].name}</button>` : ""}</div>
+      <p class="hint">Source: <a href="${NCF + p.m.src}" target="_blank" rel="noopener">National Curriculum of Pakistan, ${esc(p.m.st)} (PDF)</a>${p.xs.length ? ". Extras: Core Knowledge Sequence 2023 (page numbers shown)" : ""}.</p>
+    </section></div>`;
+  const v = $("#view");
+  bindCommon(v, st, () => renderGoalSubject(k));
+  $("#goalsLeft").addEventListener("change", e => { state.ui.left = e.target.checked; save(); renderGoalSubject(k); $("#goalsLeft").focus(); });
+  v.querySelectorAll("[data-gobooks]").forEach(b => b.addEventListener("click", () => { bookClass = cls; tabTo("books"); }));
+  v.querySelectorAll("[data-gock]").forEach(b => b.addEventListener("click", () => { viewGrade = cls; state.ui.subj = b.dataset.gock; save(); tabTo("track"); }));
 }
 
 /* ---------- Core Knowledge tab ---------- */
@@ -732,38 +905,16 @@ function bindTrack(st) {
 
 /* ---------- School books tab ---------- */
 const chaptersFor = isbn => (BOOK_CHAPTERS[isbn]?.ch || []).map(([n, t, pg, g]) => ({ id: "bc-" + uid(), t, n, ...(pg ? { pg } : {}), ...(g ? { g } : {}) }));
+function bookPace(st, b) {
+  const s = countList(st, b.ch.map(c => c.id));
+  return { s, ps: !b.ch.length ? { cls: "plain", txt: "No chapters yet" } : b.cls === st.grade ? paceStatus(s.pct, expected(st), s.total) : { cls: "plain", txt: GRADE_NAMES[b.cls] } };
+}
+/* Books: the class's books as a list; each book opens its own chapter screen */
 function renderBooks() {
   const st = cur(); const cls = bookClass ?? st.grade; bookClass = cls;
   const books = st.books.filter(b => b.cls === cls);
-  const exp = expected(st);
-  const cards = books.map(b => {
-    const s = countList(st, b.ch.map(c => c.id));
-    const ps = !b.ch.length ? { cls: "plain", txt: "No chapters yet" } : cls === st.grade ? paceStatus(s.pct, exp, s.total) : { cls: "plain", txt: GRADE_NAMES[cls] };
-    const rows = b.ch.map((c, n) => {
-      const head = c.g && c.g !== b.ch[n - 1]?.g ? `<li class="strand label">${esc(c.g)}</li>` : "";
-      const x = st.status[c.id]; const done = x?.st === "done"; // Oxford Discover story titles say little about the topic; its Big Question names it
-      const sg = suggest(/^Big Question/.test(c.g || "") ? c.g.replace(/^Big Question \d+ · /, "") : c.t, b.subj, b.cls); const open = openRows.has(c.id);
-      return `${head}<li class="row ${done ? "done" : ""}"><div class="row-main">
-        <label class="tick"><input type="checkbox" id="c-${c.id}" data-tick="${c.id}" ${done ? "checked" : ""}></label>
-        <label class="row-title" for="c-${c.id}"><span class="t" dir="auto">${esc(c.t)}</span>
-          <span class="meta"><span class="mono muted">${esc(c.n || "Ch. " + (n + 1))}${c.pg ? ` · p. ${c.pg}` : ""}</span>${done && x.d ? `<span class="muted" style="font-size:.8rem">done ${esc(x.d)}</span>` : ""}</span></label>
-        <button class="linkbtn" data-open="${c.id}" aria-expanded="${open}" aria-controls="d-${c.id}">${open ? "Hide" : "Edit"}</button></div>
-        ${sg.length ? `<div class="sugg"><span class="muted">Extra reading:</span>${sg.map(i => `<a href="${esc(i.page || i.guide)}" target="_blank" rel="noopener">${SUBJECTS[i.s].code} ${US_GRADE[i.g]} · ${esc(i.title)}</a>`).join("")}</div>` : ""}
-        ${open ? `<div class="details" id="d-${c.id}"><div><label class="label" for="ct-${c.id}">Chapter title</label><input id="ct-${c.id}" class="search" style="width:100%" data-chtitle="${b.id}|${c.id}" value="${esc(c.t)}"></div>
-          <div><label class="label" for="n-${c.id}">Note</label><textarea id="n-${c.id}" data-note="${c.id}" placeholder="Test marks, pages to revise">${esc(st.notes[c.id] || "")}</textarea></div>
-          <div class="actions"><button class="btn small danger" data-delch="${b.id}|${c.id}">Delete chapter</button></div></div>` : ""}
-      </li>`; }).join("") || (BOOK_CHAPTERS[b.isbn] ? `<li class="empty"><button class="btn primary" data-loadch="${b.id}">Load the ${BOOK_CHAPTERS[b.isbn].ch.length} chapters</button></li>`
-        : `<li class="empty">No chapters yet. Open the book at its Contents page and type or paste the chapter titles below.</li>`);
-    const bc = BOOK_CHAPTERS[b.isbn];
-    const srcNote = bc && b.ch.length ? `<p class="hint chsrc">${bc.u ? `Chapters from <a href="${esc(bc.u)}" target="_blank" rel="noopener">Oxford’s free Teaching Guide</a>${bc.ch[0]?.[2] ? ", checked against the printed book" : ""}.` : "Chapters from the printed book’s Contents page."}${bc.check ? ` <span class="pill warn">Please check them against your book’s Contents page</span>` : ""}</p>` : "";
-    return `<section class="ledger"><div class="group-head"><div><h3 dir="auto">${esc(b.title)}</h3><div class="muted" style="font-size:.9rem">${esc(b.subj)}${b.pub ? " · " + esc(b.pub) : b.series ? " · " + esc(b.series) : ""}${b.isbn ? ` · <span class="mono">ISBN ${esc(b.isbn)}</span>` : ""} · ${s.done} of ${s.total} chapters</div></div>
-      <div class="actions"><span class="pct">${P(s.pct)}</span><span class="pill ${ps.cls}">${ps.txt}</span></div></div>
-      ${srcNote}<ul class="rows">${rows}</ul>
-      <form class="add-own" data-addch="${b.id}"><label class="label" for="ac-${b.id}">Add chapters</label>
-        <textarea id="ac-${b.id}" class="paste" rows="2" placeholder="One chapter per line, as printed in the Contents page"></textarea>
-        <div class="actions"><button class="btn primary">Add</button><button type="button" class="btn small danger" data-delbook="${b.id}">Delete book</button></div></form>
-    </section>`;
-  }).join("");
+  const rows = books.map(b => { const { s, ps } = bookPace(st, b);
+    return navRow("books/" + b.id, esc(b.title), `${esc(b.subj)} · ${b.ch.length ? `${s.done} of ${s.total} chapters` : "no chapters yet"}`, `<span class="pill ${ps.cls}">${ps.txt}</span>`, b.ch.length ? s.pct : null); }).join("");
   const listed = SCHOOL_LIST.classes[cls] || [];
   const missing = listed.filter(([t]) => !books.some(b => b.title === t));
   const listPanel = missing.length ? `<section class="panel"><h2>${esc(SCHOOL_LIST.name)}: ${GRADE_NAMES[cls]}</h2>
@@ -772,9 +923,9 @@ function renderBooks() {
       <div class="actions"><button class="btn primary" id="addList">Add ${missing.length === listed.length ? "all " : ""}${missing.length} book${missing.length === 1 ? "" : "s"}</button></div></section>` : "";
   $("#view").innerHTML = `<div class="stack">
     <div class="stack-s"><div class="label">Class · tap to view</div>${gradeStrip(cls, i => bookStats(st, i), "data-bc")}</div>
-    <p class="hint" style="max-width:70ch">Track the books your child’s school uses, chapter by chapter. Where a chapter shares a topic with a Core Knowledge unit, the matching unit appears under it as free background reading.</p>
+    <p class="hint" style="max-width:70ch">The books ${esc(st.name)}’s school uses, chapter by chapter. Open a book to tick its chapters.</p>
     ${listPanel}
-    ${cards || `<div class="panel"><p class="muted">No books for ${GRADE_NAMES[cls]} yet. Add the first one below.</p></div>`}
+    ${rows ? `<ul class="navlist" id="bookList">${rows}</ul>` : `<div class="panel"><p class="muted">No books for ${GRADE_NAMES[cls]} yet. Add the first one below.</p></div>`}
     <section class="panel"><h2>Add a book for ${GRADE_NAMES[cls]}</h2>
       <form id="bookForm" class="stack-s">
         <div class="form-grid">
@@ -788,7 +939,6 @@ function renderBooks() {
       </form>
     </section></div>`;
   const v = $("#view");
-  bindCommon(v, st, renderBooks);
   v.querySelectorAll("[data-bc]").forEach(b => b.addEventListener("click", () => { bookClass = +b.dataset.bc; renderBooks(); }));
   $("#addList")?.addEventListener("click", () => {
     const added = missing.map(([title, subj, pub, isbn]) => ({ id: "b-" + uid(), title, series: "", subj, pub, isbn, cls, ch: chaptersFor(isbn) }));
@@ -802,25 +952,58 @@ function renderBooks() {
   $("#bookForm").addEventListener("submit", e => { e.preventDefault();
     const title = ttl.value.trim() || (BOOK_SERIES[ser.value] ? `${BOOK_SERIES[ser.value].n}, Book ${num.value || 1}` : "");
     if (!title) { ttl.focus(); toast("Give the book a title"); return; }
-    st.books.push({ id: "b-" + uid(), title, series: BOOK_SERIES[ser.value]?.n || "", subj: sub.value, cls, ch: parseChapters($("#bCh").value) });
-    st.example = false; save(); renderBooks(); toast("Book added"); });
-  v.querySelectorAll("[data-loadch]").forEach(btn => btn.addEventListener("click", () => { const b = st.books.find(x => x.id === btn.dataset.loadch);
-    b.ch = chaptersFor(b.isbn); save(); renderBooks(); toast(`Added ${b.ch.length} chapters`); }));
-  v.querySelectorAll("[data-addch]").forEach(f => f.addEventListener("submit", e => { e.preventDefault();
-    const b = st.books.find(x => x.id === f.dataset.addch); const ta = f.querySelector("textarea"); const add = parseChapters(ta.value);
-    if (!add.length) return; b.ch.push(...add); save(); renderBooks(); toast(`Added ${add.length} chapter${add.length === 1 ? "" : "s"}`); }));
-  v.querySelectorAll("[data-delch]").forEach(btn => btn.addEventListener("click", () => { const [bid, cid] = btn.dataset.delch.split("|");
-    const b = st.books.find(x => x.id === bid); const at = b.ch.findIndex(c => c.id === cid), ch = b.ch[at], stat = st.status[cid], note = st.notes[cid];
-    b.ch = b.ch.filter(c => c.id !== cid); delete st.status[cid]; delete st.notes[cid]; openRows.delete(cid); save(); renderBooks();
-    toast("Chapter deleted", () => { b.ch.splice(at, 0, ch); if (stat) st.status[cid] = stat; if (note) st.notes[cid] = note; save(); renderBooks(); }); }));
-  v.querySelectorAll("[data-chtitle]").forEach(inp => inp.addEventListener("change", () => { const [bid, cid] = inp.dataset.chtitle.split("|");
-    const c = st.books.find(x => x.id === bid)?.ch.find(x => x.id === cid); if (c && inp.value.trim()) { c.t = inp.value.trim(); save(); renderBooks(); } }));
-  v.querySelectorAll("[data-delbook]").forEach(btn => btn.addEventListener("click", () => { const id = btn.dataset.delbook;
-    const at = st.books.findIndex(x => x.id === id), b = st.books[at];
+    const nb = { id: "b-" + uid(), title, series: BOOK_SERIES[ser.value]?.n || "", subj: sub.value, cls, ch: parseChapters($("#bCh").value) };
+    st.books.push(nb); st.example = false; save(); toast("Book added"); go("books/" + nb.id); });
+}
+function renderBook(id) {
+  const st = cur(); const b = st.books.find(x => x.id === id);
+  if (!b) { back(); return; }
+  $("#screenTitle").textContent = b.title;
+  const { s, ps } = bookPace(st, b);
+  const rows = b.ch.map((c, n) => {
+    const head = c.g && c.g !== b.ch[n - 1]?.g ? `<li class="strand label">${esc(c.g)}</li>` : "";
+    const x = st.status[c.id]; const done = x?.st === "done"; // Oxford Discover story titles say little about the topic; its Big Question names it
+    const sg = suggest(/^Big Question/.test(c.g || "") ? c.g.replace(/^Big Question \d+ · /, "") : c.t, b.subj, b.cls); const open = openRows.has(c.id);
+    return `${head}<li class="row ${done ? "done" : ""}"><div class="row-main">
+      <label class="tick"><input type="checkbox" id="c-${c.id}" data-tick="${c.id}" ${done ? "checked" : ""}></label>
+      <label class="row-title" for="c-${c.id}"><span class="t" dir="auto">${esc(c.t)}</span>
+        <span class="meta"><span class="mono muted">${esc(c.n || "Ch. " + (n + 1))}${c.pg ? ` · p. ${c.pg}` : ""}</span>${done && x.d ? `<span class="muted" style="font-size:.8rem">done ${esc(x.d)}</span>` : ""}</span></label>
+      <button class="linkbtn" data-open="${c.id}" aria-expanded="${open}" aria-controls="d-${c.id}">${open ? "Hide" : "Edit"}</button></div>
+      ${sg.length ? `<div class="sugg"><span class="muted">Extra reading:</span>${sg.map(i => `<a href="${esc(i.page || i.guide)}" target="_blank" rel="noopener">${SUBJECTS[i.s].code} ${US_GRADE[i.g]} · ${esc(i.title)}</a>`).join("")}</div>` : ""}
+      ${open ? `<div class="details" id="d-${c.id}"><div><label class="label" for="ct-${c.id}">Chapter title</label><input id="ct-${c.id}" class="search" style="width:100%" data-chtitle="${c.id}" value="${esc(c.t)}"></div>
+        <div><label class="label" for="n-${c.id}">Note</label><textarea id="n-${c.id}" data-note="${c.id}" placeholder="Test marks, pages to revise">${esc(st.notes[c.id] || "")}</textarea></div>
+        <div class="actions"><button class="btn small danger" data-delch="${c.id}">Delete chapter</button></div></div>` : ""}
+    </li>`; }).join("") || (BOOK_CHAPTERS[b.isbn] ? `<li class="empty"><button class="btn primary" data-loadch>Load the ${BOOK_CHAPTERS[b.isbn].ch.length} chapters</button></li>`
+      : `<li class="empty">No chapters yet. Open the book at its Contents page and type or paste the chapter titles below.</li>`);
+  const bc = BOOK_CHAPTERS[b.isbn];
+  const srcNote = bc && b.ch.length ? `<p class="hint chsrc">${bc.u ? `Chapters from <a href="${esc(bc.u)}" target="_blank" rel="noopener">Oxford’s free Teaching Guide</a>${bc.ch[0]?.[2] ? ", checked against the printed book" : ""}.` : "Chapters from the printed book’s Contents page."}${bc.check ? ` <span class="pill warn">Please check them against your book’s Contents page</span>` : ""}</p>` : "";
+  $("#view").innerHTML = `<div class="stack">
+    <section class="panel screen-head"><h2 dir="auto">${esc(b.title)}</h2>
+      <p class="muted" style="font-size:.9rem">${esc(b.subj)} · ${GRADE_NAMES[b.cls]}${b.pub ? " · " + esc(b.pub) : b.series ? " · " + esc(b.series) : ""}${b.isbn ? ` · <span class="mono">ISBN ${esc(b.isbn)}</span>` : ""}</p>
+      ${b.ch.length ? `<div class="ladder goalbars"><div class="ladder-row"><span>${s.done} of ${s.total} chapters</span><div class="bar" role="img" aria-label="${P(s.pct)} done"><i style="width:${P(s.pct)}"></i></div><span class="pct">${P(s.pct)}</span></div></div>
+      <div><span class="pill ${ps.cls}">${ps.txt}</span></div>` : ""}</section>
+    <section class="ledger">${srcNote}<ul class="rows">${rows}</ul>
+      <form class="add-own" id="addCh"><label class="label" for="ac-${b.id}">Add chapters</label>
+        <textarea id="ac-${b.id}" class="paste" rows="2" placeholder="One chapter per line, as printed in the Contents page"></textarea>
+        <div class="actions"><button class="btn primary">Add</button></div></form></section>
+    <div class="actions"><button class="btn danger" id="delBook">Delete this book</button></div></div>`;
+  const v = $("#view"); const again = () => renderBook(id);
+  bindCommon(v, st, again);
+  v.querySelector("[data-loadch]")?.addEventListener("click", () => { b.ch = chaptersFor(b.isbn); save(); again(); toast(`Added ${b.ch.length} chapters`); });
+  $("#addCh").addEventListener("submit", e => { e.preventDefault(); const add = parseChapters($("#ac-" + b.id).value);
+    if (!add.length) return; b.ch.push(...add); save(); again(); toast(`Added ${add.length} chapter${add.length === 1 ? "" : "s"}`); });
+  v.querySelectorAll("[data-delch]").forEach(btn => btn.addEventListener("click", () => { const cid = btn.dataset.delch;
+    const at = b.ch.findIndex(c => c.id === cid), ch = b.ch[at], stat = st.status[cid], note = st.notes[cid];
+    b.ch = b.ch.filter(c => c.id !== cid); delete st.status[cid]; delete st.notes[cid]; openRows.delete(cid); save(); again();
+    toast("Chapter deleted", () => { b.ch.splice(at, 0, ch); if (stat) st.status[cid] = stat; if (note) st.notes[cid] = note; save(); again(); }); }));
+  v.querySelectorAll("[data-chtitle]").forEach(inp => inp.addEventListener("change", () => { const c = b.ch.find(x => x.id === inp.dataset.chtitle);
+    if (c && inp.value.trim()) { c.t = inp.value.trim(); save(); again(); } }));
+  $("#delBook").addEventListener("click", () => {
+    const at = st.books.findIndex(x => x.id === id);
     const kept = b.ch.map(c => [c.id, st.status[c.id], st.notes[c.id]]);
     b.ch.forEach(c => { delete st.status[c.id]; delete st.notes[c.id]; });
-    st.books = st.books.filter(x => x.id !== id); save(); renderBooks();
-    toast("Book deleted", () => { st.books.splice(at, 0, b); kept.forEach(([cid, x, n]) => { if (x) st.status[cid] = x; if (n) st.notes[cid] = n; }); save(); renderBooks(); }); }));
+    st.books = st.books.filter(x => x.id !== id); save(); back();
+    toast("Book deleted", () => { st.books.splice(at, 0, b); kept.forEach(([cid, x, n]) => { if (x) st.status[cid] = x; if (n) st.notes[cid] = n; }); save(); render(); }); });
 }
 function parseChapters(txt) {
   return String(txt).split(/\r?\n/).map(l => l.replace(/^\s*(chapter|unit|lesson|ch\.?)?\s*\d+\s*[.:)\-–]?\s*/i, "").replace(/\s+\.{2,}\s*\d+\s*$/, "").trim())
@@ -828,14 +1011,9 @@ function parseChapters(txt) {
 }
 
 /* ---------- Character & deen tab: Qur'an and Character ---------- */
-function deenNav(sub) {
-  return `<div class="seg subnav" role="group" aria-label="Character and deen">${[["quran", "Qur’an"], ["char", "Character"], ["routine", "Routine"]].map(([k, l]) =>
-    `<button data-deen="${k}" aria-pressed="${k === sub}">${l}</button>`).join("")}</div>`;
-}
-function bindDeenNav() {
-  document.querySelectorAll("[data-deen]").forEach(b => b.addEventListener("click", () => {
-    state.ui.deen = b.dataset.deen; save(); render(); document.querySelector(`[data-deen="${b.dataset.deen}"]`)?.focus(); }));
-}
+/* Qur'an, Character and Routine are separate screens under Deen (see renderDeen) */
+const deenNav = () => "";
+const bindDeenNav = () => {};
 
 const QLV = ["Not started", "Learning", "Memorised", "Revise"];
 const QKEYS = ["ak", ...Array.from({ length: 114 }, (_, i) => String(i + 1))];
@@ -1047,6 +1225,55 @@ function renderSources() {
       <p style="max-width:65ch">From the article <i>Things Every Child (4–12) Should Learn — Beyond Just Good Grades</i> by Abul Laith Muhammad Tahir Qadri. Further reading from the Center on the Developing Child at Harvard University, links checked on 11 October 2026.</p></section></div>`;
 }
 
+
+/* ---------- Progress report: one A4 page to print or save as PDF ---------- */
+function renderReport() {
+  const st = cur(), h = homeStats(st), cls = st.grade, today = new Date();
+  const fmt = d => d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+  const bar = pct => `<span class="rp-bar" aria-hidden="true"><i style="width:${P(pct)}"></i></span>`;
+  const subjRows = Object.keys(NCP[cls] || {}).map(k => { const gs = countList(st, goalIds(cls, k)), xs = countList(st, intlRows(cls, k).map(r => r.id));
+    return `<tr><td>${NCP_SUBJ[k].n}</td><td>${bar(gs.pct)}${gs.done} of ${gs.all}</td><td>${xs.all ? `${xs.done} of ${xs.all}` : "–"}</td></tr>`; }).join("");
+  const books = st.books.filter(b => b.cls === cls && b.ch.length);
+  const bookRows = books.map(b => { const s = countList(st, b.ch.map(c => c.id));
+    return `<tr><td dir="auto">${esc(b.title)}</td><td>${esc(b.subj)}</td><td>${bar(s.pct)}${s.done} of ${s.total}</td></tr>`; }).join("");
+  const mem = QKEYS.filter(k => st.quran.h[k]?.lv >= 2), learning = QKEYS.filter(k => st.quran.h[k]?.lv === 1), due = QKEYS.filter(k => qDue(st.quran.h[k]));
+  const qn = k => k === "ak" ? "Ayat al-Kursi" : SURAHS[+k][1];
+  const charRows = CHAR.map(sec => { const sc = charScore(st, sec.k);
+    return `<tr><td>${sec.name}</td><td>${bar(sc.score)}${sc.habits} of ${sc.n} habits</td></tr>`; }).join("");
+  const habits = charItems(st).filter(i => st.cv[i.id]?.lv === 3).map(i => esc(i.t));
+  const days = Array.from({ length: 7 }, (_, n) => 6 - n).map(back => { const d = localDay(back), n = st.routine.items.filter(i => (st.routine.days[d] || []).includes(i.id)).length;
+    return `<div><b>${new Date(d + "T12:00").toLocaleDateString("en-GB", { weekday: "short" })}</b><br>${st.routine.items.length ? `${n}/${st.routine.items.length}` : "–"}</div>`; }).join("");
+  const stat = (v, l) => `<div class="rp-stat"><b>${v}</b><span>${l}</span></div>`;
+  $("#view").innerHTML = `<div class="stack">
+    <div class="rp-actions actions"><button class="btn primary" id="printRep">Print or save as PDF</button>
+      <span class="hint">Choose “Save as PDF” in the print screen to keep or share it.</span></div>
+    <article class="report" aria-label="Progress report">
+      <header class="rp-head"><div><div class="rp-brand">Ilm Track · Progress report</div><h1 dir="auto">${esc(st.name)}</h1>
+        <div>${GRADE_NAMES[cls]}${st.age ? ` · age ${st.age}` : ""} · ${esc(st.track || "")}</div></div>
+        <div class="muted rp-date">${fmt(today)}<br>School year from ${MONTHS[st.start - 1]}</div></header>
+      <div class="rp-stats">
+        ${stat(P(h.g.pct), "Class goals ticked")}${stat(h.b.all ? P(h.b.pct) : "–", "School book chapters")}${stat(mem.length, "Surahs memorised")}
+        ${stat(`${h.ch.habits}/${h.ch.n}`, "Habits formed")}${stat(st.routine.items.length ? `${h.fullDays}/7` : "–", "Full routine days")}</div>
+      <section><h2>Class goals: Pakistan’s National Curriculum</h2>
+        ${subjRows ? `<div class="rp-table"><table><thead><tr><th>Subject</th><th>Goals</th><th>International extras</th></tr></thead><tbody>${subjRows}</tbody></table></div>` : `<p class="muted">No goals for this class.</p>`}</section>
+      <section><h2>School books</h2>
+        ${bookRows ? `<div class="rp-table"><table><thead><tr><th>Book</th><th>Subject</th><th>Chapters</th></tr></thead><tbody>${bookRows}</tbody></table></div>
+          <p class="muted" style="font-size:.85rem">Pace: ${h.pace.txt}. Expected by now: ${P(h.exp.frac)} of the year.</p>` : `<p class="muted">No chapters recorded yet.</p>`}</section>
+      <section><h2>Qur’an</h2>
+        <p><b>Memorised (${mem.length}):</b> ${mem.length ? mem.map(qn).join(", ") : "none recorded yet"}.</p>
+        ${learning.length ? `<p><b>Learning now:</b> ${learning.map(qn).join(", ")}.</p>` : ""}
+        ${due.length ? `<p><b>Due for revision:</b> ${due.map(qn).join(", ")}.</p>` : ""}
+        <p><b>Reading:</b> ${st.quran.read === "q" ? "Qaida" : st.quran.read ? "Para " + st.quran.read : "not set"}${st.quran.khatm ? ` · ${st.quran.khatm} khatm${st.quran.khatm === 1 ? "" : "s"} completed` : ""}.</p></section>
+      <section><h2>Character &amp; deen</h2>
+        <div class="rp-table"><table><tbody>${charRows}</tbody></table></div>
+        ${habits.length ? `<p><b>Habits formed:</b> ${habits.join("; ")}.</p>` : ""}
+        <p class="muted" style="font-size:.85rem">Qualities from <i>Things Every Child (4–12) Should Learn — Beyond Just Good Grades</i> by Abul Laith Muhammad Tahir Qadri.</p></section>
+      <section><h2>Daily routine, last 7 days</h2>${st.routine.items.length ? `<div class="rp-days">${days}</div>` : `<p class="muted">No routine set up yet.</p>`}</section>
+      <footer class="rp-foot">Recorded by the family in Ilm Track, an independent tracker. Class goals are summarised from Pakistan’s National Curriculum (ncc.gov.pk); international extras are compared with the Core Knowledge Sequence (2023). Not affiliated with the National Curriculum Council, the Core Knowledge Foundation or Oxford University Press.</footer>
+    </article></div>`;
+  $("#printRep").addEventListener("click", () => window.print());
+}
+
 /* ---------- Backup tab ---------- */
 function renderBackup() {
   const json = JSON.stringify({ app: "ckledger", v: 2, exported: today(), students: state.students }, null, 1);
@@ -1074,7 +1301,7 @@ function renderBackup() {
     a.download = "ilmtrack-backup-" + today() + ".json"; document.body.appendChild(a); a.click(); a.remove(); toast("Download started"); } catch (e) { toast("Download not available here; use Copy"); } });
   const restore = txt => { try { const d = JSON.parse(txt); const s = { students: d.students };
       if (!valid(s)) throw new Error("shape"); s.students.forEach(fix);
-      state.students = s.students; state.active = s.students[0].id; viewGrade = bookClass = goalClass = null; save(); fillStudent(); state.ui.tab = "books"; render(); toast(`Restored ${s.students.length} ${s.students.length === 1 ? "child" : "children"}`); }
+      state.students = s.students; state.active = s.students[0].id; viewGrade = bookClass = goalClass = null; save(); fillStudent(); tabTo("home"); toast(`Restored ${s.students.length} ${s.students.length === 1 ? "child" : "children"}`); }
     catch (e) { $("#impMsg").textContent = "That text is not an Ilm Track backup. Copy the whole backup, from the first { to the last }."; } };
   $("#doImp").addEventListener("click", () => restore($("#imp").value));
   $("#impFile").addEventListener("change", e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => restore(r.result); r.readAsText(f); });
@@ -1191,7 +1418,7 @@ async function syncNow() {
   } finally { net.busy = false; chip(); }
   const typing = document.activeElement?.matches?.("#view input:not([type=checkbox]), #view textarea, #view select");
   if (pulled) fillStudent();   // the child list in the header is safe to refresh even while typing
-  if (!typing) { if (pulled) render(); else if (state.ui.tab === "more" && state.ui.more === "family") renderFamily(); }
+  if (!typing) { if (pulled) render(); else if (route().join("/") === "more/family") renderFamily(); }
   if (again) return syncNow();
 }
 function attach(familyId) {
@@ -1209,10 +1436,10 @@ function pickFamily() {
 async function initSync() {
   if (!/^https?:$/.test(location.protocol)) { net.ok = false; return; }
   const m = location.hash.match(/^#join=([A-Za-z0-9-]{5,20})$/);
-  if (m) { pendingCode = m[1]; history.replaceState(null, "", location.pathname + location.search); state.ui.tab = "more"; state.ui.more = "family"; render(); }
+  if (m) { pendingCode = m[1]; history.replaceState({ d: 0 }, "", location.pathname + location.search + "#/more/family"); render(); }
   try { net.me = await api("me"); net.ok = true; } catch (e) { net.ok = false; net.err = e.status === 503 ? "Family sync is not switched on for this site yet." : ""; }
   if (net.ok) { try { net.google = (await api("config")).google; } catch (e) {} pickFamily(); syncNow(); }
-  chip(); if (state.ui.tab === "more" && state.ui.more === "family") renderFamily();
+  chip(); if (route().join("/") === "more/family") renderFamily(); else if (route()[0] === "more" && !route()[1]) render();
 }
 function loadGsi(done) {
   if (window.google?.accounts?.id) return done();
@@ -1303,8 +1530,9 @@ function renderFamily() {
 addEventListener("online", () => syncNow());
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") syncNow(); });
 setInterval(() => { if (document.visibilityState === "visible") syncNow(); }, 180e3);
-$("#syncChip").addEventListener("click", () => { state.ui.tab = "more"; state.ui.more = "family"; save(); render(); $("#view").focus(); });
+$("#syncChip").addEventListener("click", () => go("more/family"));
 
+if (!history.state && !/^#join=/.test(location.hash)) history.replaceState({ d: 0 }, "", route()[0] && SCREENS[route()[0]] && location.hash ? location.hash : "#/home");
 fillStudent(); render(); initSync();
 if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol) && document.querySelector('link[rel="manifest"]')) {
   navigator.serviceWorker.register("sw.js").catch(() => {});
