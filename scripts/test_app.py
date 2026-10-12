@@ -42,8 +42,18 @@ async def main():
         check(await pg.locator("details.goal").count() == 6, "Class 4 has goals for 6 National Curriculum subjects")
         await pg.locator("#goalsAll").click(); await pg.wait_for_timeout(100)
         g4 = await pg.inner_text("#view")
-        check(await pg.locator("details.goal[open]").count() == 6 and "water cycle" in g4 and "SCI-04-C-01" in g4 and "ncc.gov.pk" in await pg.locator("details.goal a").first.get_attribute("href"),
+        check(await pg.locator("details.goal[open]").count() == 6 and "water cycle" in g4 and "SCI-04-C-01" in g4 and await pg.locator('details.goal a[href*="ncc.gov.pk"]').count() == 6,
               "Open all shows each goal with its code and the ncc.gov.pk source")
+        check("SCI-04-C-01" in g4 and "International extras" in g4 and "CK Seq p." in g4 and "Not in Pakistan’s curriculum" in g4,
+              "Class 4 subjects list international extras with their Core Knowledge page")
+        await pg.locator('[data-tick="ncp-sci-4-1"]').check(); await pg.wait_for_timeout(100)
+        check(await pg.locator('[data-tick="ncp-sci-4-1"]').is_checked() and "1 of 7" in await pg.inner_text('details.goal[data-goal="sci"] summary'),
+              "Ticking a goal saves and updates the subject count")
+        await pg.locator("#goalsLeft").check(); await pg.wait_for_timeout(100)
+        check(await pg.locator('[data-tick="ncp-sci-4-1"]').count() == 0 and await pg.locator('[data-tick="ncp-sci-4-2"]').count() == 1, "Show only what's left hides ticked goals")
+        await pg.locator("#goalsLeft").uncheck(); await pg.wait_for_timeout(100)
+        small = await pg.evaluate("""[...document.querySelectorAll('#view .tick, #view summary, #view .btn, #view .check, #view .sugg-a')].filter(e => e.offsetParent).map(e => e.getBoundingClientRect()).filter(r => r.height < 43.5).length""")
+        check(small == 0, f"Class goals controls are at least 44px tall ({small} too small)")
         await pg.locator('[data-gc="0"]').click(); await pg.wait_for_timeout(100)
         await pg.locator("#goalsAll").click(); await pg.wait_for_timeout(100)
         check("first Kalimah" in await pg.inner_text("#view"), "KG goals come from the Early Childhood curriculum")

@@ -201,7 +201,13 @@ th{font-size:.85rem;color:var(--muted)}
 .goal .gpts li{padding-block:8px;padding-inline:var(--gut) 14px;border-bottom:1px solid var(--rule);display:grid;gap:2px}
 .goal .gpts li p{max-width:65ch}
 .goal .gfoot{padding-block:10px 12px;padding-inline:var(--gut) 14px;display:grid;gap:8px;font-size:.95rem}
-.gsum{font-size:.9rem;color:var(--muted)}
+.gsum{font-size:.9rem;color:var(--muted);margin-inline-start:auto}
+.goal > summary .meter{flex:1 1 100%;height:5px;background:var(--rule);border-radius:3px;overflow:hidden;box-shadow:inset 0 0 0 1px var(--control-line)}
+.goal > summary .meter i{display:block;height:100%;background:var(--accent)}
+.goal .ahead{padding-block:8px;padding-inline:var(--gut) 14px;border-bottom:1px solid var(--rule);list-style:none}
+.sugg-a{display:inline-flex;align-items:center;min-height:var(--tap);font-size:.9rem}
+.goalbars .ladder-row{grid-template-columns:minmax(0,10rem) minmax(0,1fr) 3.5rem}
+@media (max-width:480px){.goalbars .ladder-row{grid-template-columns:minmax(0,1fr) 3.5rem}.goalbars .ladder-row .bar{grid-column:1 / -1;grid-row:2}}
 summary.linkbtn{white-space:normal;text-align:start;cursor:pointer;list-style:none}
 summary.linkbtn::-webkit-details-marker{display:none}
 summary.linkbtn::before{content:"";flex:none;width:.5em;height:.5em;border-inline-end:2px solid currentColor;border-block-end:2px solid currentColor;transform:rotate(-45deg);margin-inline-end:.6em}
@@ -515,44 +521,70 @@ function gradeStrip(sel, statFn, attr) {
 
 /* ---------- Class goals tab: what the National Curriculum expects by the end of each class ---------- */
 const openGoals = new Set();
+/* checklist ids: ncp-<subject>-<class>-<n> for Pakistan goals, intl-<s>-<class>-<n> for international extras (n from 1, never renumbered) */
+const goalIds = (cls, k) => (NCP[cls]?.[k] || []).map((_, n) => `ncp-${k}-${cls}-${n + 1}`);
+const intlRows = (cls, k) => (INTL[cls]?.[k] || []).flatMap(gr => gr.x.map((x, n) => ({ id: `intl-${gr.s}-${cls}-${n + 1}`, gr, x })));
+const goalStats = (st, cls) => countList(st, Object.keys(NCP[cls] || {}).flatMap(k => goalIds(cls, k)));
 function renderGoals() {
   const st = cur(); const cls = goalClass ?? st.grade; goalClass = cls;
-  const subs = NCP[cls] || {}; const name = esc(st.name);
+  const subs = NCP[cls] || {}; const name = esc(st.name); const left = !!state.ui.left;
   const books = st.books.filter(b => b.cls === cls);
+  const tickRow = (id, text, meta) => { const done = st.status[id]?.st === "done";
+    if (left && done) return "";
+    return `<li class="row ${done ? "done" : ""}"><div class="row-main" style="grid-template-columns:var(--tap) minmax(0,1fr)">
+      <label class="tick"><input type="checkbox" id="c-${id}" data-tick="${id}" ${done ? "checked" : ""}></label>
+      <label class="row-title" for="c-${id}"><span class="t" style="font-weight:400">${text}</span><span class="meta">${meta}</span></label></div></li>`; };
+  let allG = 0, doneG = 0, allX = 0, doneX = 0;
   const cards = Object.entries(subs).map(([k, pts]) => {
     const m = NCP_SUBJ[k]; const id = "g-" + k;
+    const gids = goalIds(cls, k), xs = intlRows(cls, k);
+    const gs = countList(st, gids), xsS = countList(st, xs.map(r => r.id));
+    allG += gs.all; doneG += gs.done; allX += xsS.all; doneX += xsS.done;
     const mine = k === "ece" ? books : books.filter(b => (NCP_BOOKS[k] || []).includes(b.subj));
     const bs = countList(st, mine.flatMap(b => b.ch.map(c => c.id)));
-    const sum = mine.length ? (bs.all ? `School books ${P(bs.pct)} done` : `${mine.length} school book${mine.length === 1 ? "" : "s"}`) : "";
     const ck = k === "ece" ? "la" : NCP_CK[k];
+    const goalRows = pts.map(([t, c], n) => tickRow(gids[n], esc(t), `<span class="mono muted">${esc(c)}</span>`)).join("");
+    const groups = (INTL[cls]?.[k] || []).map(gr => {
+      const rows = xs.filter(r => r.gr === gr).map(({ id, x: [t, ref, pk, ckid] }) => {
+        const sg = ckid ? ITEMS.find(i => i.id === ckid) : null;
+        return tickRow(id, esc(t), `<span class="pill ${pk ? "info" : "warn"}">${pk ? "Pakistan: " + GRADE_NAMES[pk] : "Not in Pakistan’s curriculum"}</span><span class="mono muted">${esc(ref)}</span>${sg ? `<a href="${esc(sg.page || sg.guide)}" target="_blank" rel="noopener" class="sugg-a">Read: ${esc(sg.title)}</a>` : ""}`); }).join("");
+      return `${gr.x.length ? `<li class="strand label">International extras${(INTL[cls][k].length > 1) ? ": " + gr.n : ""}</li>${rows}` : ""}
+        ${gr.a.length ? `<li class="ahead hint">Pakistan teaches earlier${INTL[cls][k].length > 1 ? ` (${gr.n.toLowerCase()})` : ""}: ${gr.a.map(esc).join("; ")}.</li>` : ""}`; }).join("");
+    const sum = `${gs.done} of ${gs.all}${xsS.all ? ` · extras ${xsS.done} of ${xsS.all}` : ""}`;
     return `<details class="ledger goal" data-goal="${k}" ${openGoals.has(k) ? "open" : ""}>
-      <summary aria-describedby="${id}-s"><h3>${m.n}</h3><span class="gsum" id="${id}-s">${pts.length} goals${sum ? " · " + sum : ""}</span></summary>
-      <ul class="gpts">${pts.map(([t, c]) => `<li><p>${esc(t)}</p><span class="mono muted">${esc(c)}</span></li>`).join("")}</ul>
+      <summary aria-describedby="${id}-s"><h3>${m.n}</h3><span class="gsum" id="${id}-s">${sum}</span>
+        <span class="meter" aria-hidden="true"><i style="width:${P(gs.pct)}"></i></span></summary>
+      <ul class="rows"><li class="strand label">Pakistan’s goals</li>${goalRows || (left ? `<li class="empty">All done. Mashallah.</li>` : "")}${groups}</ul>
       <div class="gfoot">
         ${mine.length ? `<p>${mine.map(b => `${esc(b.title)} <span class="muted">(${countList(st, b.ch.map(c => c.id)).done} of ${b.ch.length} chapters)</span>`).join("<br>")}</p>` : ""}
-        <div class="actions">${mine.length ? `<button class="btn small" data-gobooks>Tick chapters in School books</button>` : ""}
+        <div class="actions">${mine.length ? `<button class="btn small" data-gobooks>School books${bs.all ? " · " + P(bs.pct) : ""}</button>` : ""}
           ${ck ? `<button class="btn small" data-gock="${ck}">Extra reading: ${SUBJECTS[ck].name}</button>` : ""}</div>
-        <p class="hint">Source: <a href="${NCF + m.src}" target="_blank" rel="noopener">National Curriculum of Pakistan, ${esc(m.st)} (PDF)</a></p>
+        <p class="hint">Source: <a href="${NCF + m.src}" target="_blank" rel="noopener">National Curriculum of Pakistan, ${esc(m.st)} (PDF)</a>${xs.length ? ". Extras: Core Knowledge Sequence 2023 (page numbers shown)" : ""}.</p>
       </div></details>`;
   }).join("");
   const isCur = cls === st.grade; const keys = Object.keys(subs);
   const allOpen = () => keys.every(k => openGoals.has(k)); const allLabel = () => allOpen() ? "Close all subjects" : "Open all subjects";
+  const bar = (lbl, d, a) => `<div class="ladder-row"><span>${lbl}</span><div class="bar" role="img" aria-label="${lbl}: ${d} of ${a}"><i style="width:${P(a ? d / a : 0)}"></i></div><span class="pct">${d}/${a}</span></div>`;
   $("#view").innerHTML = `<div class="stack">
-    <div class="stack-s"><div class="label">Class · tap to view</div>${gradeStrip(cls, i => bookStats(st, i), "data-gc")}</div>
+    <div class="stack-s"><div class="label">Class · tap to view</div>${gradeStrip(cls, i => goalStats(st, i), "data-gc")}</div>
     <section class="panel">
       <h2>By the end of ${GRADE_NAMES[cls]}${isCur ? `, ${name} should be able to…` : ""}</h2>
-      <p style="max-width:65ch">${isCur ? "" : `${name} is in ${GRADE_NAMES[st.grade]}. `}These are the main goals of Pakistan’s National Curriculum for ${GRADE_NAMES[cls]}${cls === 0 ? " (the Early Childhood curriculum, ages 4 to 5)" : ""}, in plain words. Schools use different books, but they aim at these goals.</p>
-      <ol class="steps"><li>Open a subject below to see its goals.</li><li>Tick chapters in <b>School books</b> as ${name} finishes them.</li><li>For a topic ${name} enjoys, use <b>Extra reading</b> for free books that go further.</li></ol>
-      <div class="actions"><button class="btn small" id="goalsAll">${allLabel()}</button></div>
+      <p style="max-width:65ch">${isCur ? "" : `${name} is in ${GRADE_NAMES[st.grade]}. `}A checklist of Pakistan’s National Curriculum goals for ${GRADE_NAMES[cls]}${cls === 0 ? " (Early Childhood, ages 4 to 5)" : ""}, plus <b>international extras</b>: what the Core Knowledge curriculum teaches by this age that Pakistan’s does not, or teaches later.</p>
+      <div class="ladder goalbars">${bar("Pakistan’s goals", doneG, allG)}${allX ? bar("International extras", doneX, allX) : ""}</div>
+      <ol class="steps"><li>Open a subject and tick each goal once ${name} can do it.</li><li>Tick chapters in <b>School books</b> as they are finished.</li><li>Use the extras to keep up with the international standard.</li></ol>
+      <div class="actions"><button class="btn small" id="goalsAll">${allLabel()}</button>
+        <label class="check"><input type="checkbox" id="goalsLeft" ${left ? "checked" : ""}> Show only what’s left</label></div>
     </section>
     ${cards}
-    <p class="hint" style="max-width:70ch">Summaries of the official progression grids: the National Curriculum of Pakistan 2020 for KG to Class 5 and 2022-23 for Classes 6 to 8. The codes are the grid’s own learning outcome numbers, so a teacher can look them up. Sindh Board and Cambridge schools may teach some topics a year earlier or later. A new national curriculum (2026) is in draft; these goals will be updated when it is final.</p>
+    <p class="hint" style="max-width:70ch">Goals summarise the official progression grids: the National Curriculum of Pakistan 2020 for KG to Class 5 and 2022-23 for Classes 6 to 8, with the grid’s own codes. Extras come from a class-by-class comparison with the Core Knowledge Sequence (2023), which follows the U.S. Common Core and Next Generation Science Standards; U.S.-only topics are left out. Sindh Board and Cambridge schools may teach some topics a year earlier or later. A new national curriculum (2026) is in draft.</p>
   </div>`;
   const v = $("#view");
+  bindCommon(v, st, renderGoals);
   v.querySelectorAll("[data-gc]").forEach(b => b.addEventListener("click", () => { goalClass = +b.dataset.gc; renderGoals(); v.querySelector(`[data-gc="${goalClass}"]`)?.focus(); }));
   v.querySelectorAll("details[data-goal]").forEach(d => d.addEventListener("toggle", () => { d.open ? openGoals.add(d.dataset.goal) : openGoals.delete(d.dataset.goal);
     $("#goalsAll").textContent = allLabel(); }));
   $("#goalsAll").addEventListener("click", () => { const all = allOpen(); keys.forEach(k => all ? openGoals.delete(k) : openGoals.add(k)); renderGoals(); $("#goalsAll").focus(); });
+  $("#goalsLeft").addEventListener("change", e => { state.ui.left = e.target.checked; save(); renderGoals(); $("#goalsLeft").focus(); });
   v.querySelectorAll("[data-gobooks]").forEach(b => b.addEventListener("click", () => { bookClass = cls; state.ui.tab = "books"; save(); render(); $("#view").focus(); }));
   v.querySelectorAll("[data-gock]").forEach(b => b.addEventListener("click", () => { viewGrade = cls; state.ui.subj = b.dataset.gock; state.ui.tab = "track"; save(); render(); $("#view").focus(); }));
 }
@@ -885,8 +917,9 @@ function renderCompare() {
     const exp = expected(s); const all = stats(s, s.grade, "all"); const bk = bookStats(s, s.grade); const ps = paceStatus(bk.pct, exp, bk.total);
     let behind = 0; for (let g = 0; g < s.grade; g++) { const x = stats(s, g, "all"); behind += x.total - x.done; }
     const ch = charScore(s);
+    const gl = goalStats(s, s.grade);
     return `<tr><td><strong>${esc(s.name)}</strong>${s.example ? ' <span class="example-flag">Example</span>' : ""}<div class="muted" style="font-size:.85rem">${GRADE_NAMES[s.grade]}${s.age ? ", age " + s.age : ""} · ${esc(s.track || "")}</div></td>
-      <td>${bk.all ? `${P(bk.pct)} <span class="muted">/ ${P(exp.frac)}</span>` : '<span class="muted">no chapters</span>'}</td><td><span class="pill ${ps.cls}">${ps.txt}</span></td>
+      <td>${gl.done} of ${gl.all}</td><td>${bk.all ? `${P(bk.pct)} <span class="muted">/ ${P(exp.frac)}</span>` : '<span class="muted">no chapters</span>'}</td><td><span class="pill ${ps.cls}">${ps.txt}</span></td>
       <td>${ch.habits} of ${ch.n}</td><td>${QKEYS.filter(k => s.quran.h[k]?.lv >= 2).length}</td>${cell(all)}<td>${behind ? behind + " units" : '<span class="muted">none</span>'}</td></tr>`;
   }).join("");
   const ladder = GRADE_NAMES.map((n, g) => { const x = stats(st, g, "all");
@@ -894,7 +927,7 @@ function renderCompare() {
   $("#moreBody").innerHTML = `<div class="stack">
     <section class="panel"><h2>Children this year</h2>
       <p class="hint">Each child is measured on the chapters of their own current class’s school books. “Expected” assumes a 10-month school year from the start month in the child’s details (Sindh Board sessions start in April; many O Level schools start in August).</p>
-      <div class="tablewrap"><table><thead><tr><th>Child</th><th>School books done / expected</th><th>Pace</th><th>Habits formed</th><th>Surahs memorised</th><th>Extra reading</th><th>Earlier extra reading not read</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <div class="tablewrap"><table><thead><tr><th>Child</th><th>Class goals ticked</th><th>School books done / expected</th><th>Pace</th><th>Habits formed</th><th>Surahs memorised</th><th>Extra reading</th><th>Earlier extra reading not read</th></tr></thead><tbody>${rows}</tbody></table></div>
     </section>
     <section class="panel"><h2>${esc(st.name)}: extra reading in every grade</h2>
       <p class="hint">Core Knowledge builds year on year. A child who starts it later can use this ladder to pick earlier units worth reading. Skipped units, and U.S. units while they are hidden, do not count.</p>
@@ -909,6 +942,7 @@ function renderSources() {
   $("#moreBody").innerHTML = `<div class="stack"><section class="panel"><h2>Class goals: Pakistan’s National Curriculum</h2>
     <p style="max-width:65ch">The <b>Class goals</b> tab summarises, in plain words, the progression grids published by the National Curriculum Council of Pakistan on <a href="https://ncc.gov.pk/" target="_blank" rel="noopener">ncc.gov.pk</a>. Those in force are the National Curriculum of Pakistan 2020 (Early Childhood to Class 5) and 2022-23 (Classes 6 to 8). Each goal shows the grid’s own learning outcome codes. The summaries were written on 11 October 2026; read the original grid for the full detail.</p>
     <ol class="srclist">${Object.values(NCP_SUBJ).map(m => `<li><a href="${NCF + m.src}" target="_blank" rel="noopener">${esc(m.n)}: ${esc(m.st)}</a> <span class="muted">(PDF)</span></li>`).join("")}</ol>
+    <p style="max-width:65ch"><b>International extras</b> come from a class-by-class comparison with the <a href="https://www.coreknowledge.org/free-resource/core-knowledge-sequence/" target="_blank" rel="noopener">Core Knowledge Sequence</a> (2023 edition) for English, Mathematics, Science and History and Geography, made on 12 October 2026. Each extra shows its page in the Sequence. U.S.-only topics are not included, and neither are a few topics families may prefer to handle at home.</p>
     <p class="hint">Classes 1 to 3 study Science and Social Studies inside General Knowledge. A new national curriculum (2026) is in draft and is not used here yet.</p></section>
     <section class="panel"><h2>Where every Core Knowledge unit comes from</h2>
     <p style="max-width:65ch">The ledger holds ${ITEMS.length} Core Knowledge units for Kindergarten to Grade 8. ${withPage} of them link to their own free download page on coreknowledge.org; every one of those addresses was matched against the Foundation’s own index of unit pages on 11 October 2026. The other ${ITEMS.length - withPage} have no separate page and link to their Online Resources guide instead.</p>

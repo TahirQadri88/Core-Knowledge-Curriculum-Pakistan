@@ -56,6 +56,17 @@ All checks were made on 11 October 2026 unless stated.
 - Core Knowledge is now "Extra reading". It has no expected-by-now marker, because it is optional. U.S.-flagged units are hidden by default (`ui.hideUS`, switched on once for existing users by `ui.v = 2`), and hidden units do not count in percentages unless already done. History & Geography units are grouped by region (`HG_REGIONS`, `HG_REGION`; this tracker's grouping): 30 of 73 are about the United States, and 1 (Ancient India) is about South Asia.
 - Tabs became Class goals (first and default; setup lands there), School books, Character & deen, Extra reading, More (Compare, Backup, Sources). Compare now measures each child on their school books.
 
+## Class goals checklist and international extras (12 October 2026)
+- The owner asked whether the goals match Core Knowledge, so Karachi children keep up with international standards, and asked for a simple checklist parents can tick.
+- Comparison: Pakistan's goals against the Core Knowledge Sequence 2023 (https://www.coreknowledge.org/wp-content/uploads/2023/03/CK_Sequence2023_GK8_W3.pdf) for English, Mathematics, Science and History & Geography, KG to Class 8. Full results with page and code references: `notes/alignment.md`.
+- Findings in short: maths is closely matched and Pakistan is often ahead on arithmetic, but behind on statistics and some Class 8 topics. Science covers similar ground but often 1 to 4 years later, with some topics missing. In English the skills match, but Pakistan names no literature and has no research skills. History & Geography reaches world history later, and some regions never.
+- Owner's choices: extras can be ticked but are counted separately from Pakistan's goals; sensitive topics (evolution, puberty and reproduction, Israel and Palestine, other faiths' religious texts) are left out; a simple tick, not levels.
+- `INTL` in `src/data.js`: up to 5 extras per subject per class (2 in KG). Topics Pakistan does not teach by Class 8 come first, then topics Pakistan teaches two or more years later.
+  - U.S.-only topics are excluded.
+  - Hand edits: Ashoka and the Byzantine Empire were dropped (Pakistani textbooks probably mention them), and so were Judaism, Darwin and "compare with religious sources". Low-value picks such as "Modern Mexico" and "Canada" were swapped for earlier-taught world history.
+- Each extra links to a Core Knowledge unit only where one was checked by hand to fit (73 of 142). Automatic word matching was tried and rejected: it linked "Modern Japan" to Mount Rushmore and "Glands and hormones" to the reproduction unit.
+- Ticks are saved in `status` as `ncp-<subject>-<class>-<n>` and `intl-<s>-<class>-<n>`. Never reorder or reuse NCP or INTL rows; add new ones at the end.
+
 ## Qur'an tracker (12 October 2026)
 - The owner chose: inside Character & deen (sections Qur'an and Character, Qur'an first), four hifz levels, and this order: Qur'an, then the daily routine, then Urdu.
 - Surah names, ayah counts and the juz each surah starts in: Tanzil Quran Metadata 1.0, https://tanzil.net/res/text/metadata/quran-data.js (Creative Commons Attribution 3.0), downloaded 12 October 2026, generated into `SURAHS`. Ayat al-Kursi (2:255) is tracked as its own item, id "ak".
