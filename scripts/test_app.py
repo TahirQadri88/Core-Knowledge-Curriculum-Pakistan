@@ -39,16 +39,18 @@ async def main():
         await pg.wait_for_timeout(500)
 
         check(await pg.get_attribute("#tab-goals", "aria-selected") == "true", "Class goals is the first tab shown")
-        check(await pg.locator("details.goal").count() == 5, "Class 4 has goals for 5 National Curriculum subjects")
+        check(await pg.locator("details.goal").count() == 6, "Class 4 has goals for 6 National Curriculum subjects")
         await pg.locator("#goalsAll").click(); await pg.wait_for_timeout(100)
         g4 = await pg.inner_text("#view")
-        check(await pg.locator("details.goal[open]").count() == 5 and "water cycle" in g4 and "SCI-04-C-01" in g4 and "ncc.gov.pk" in await pg.locator("details.goal a").first.get_attribute("href"),
+        check(await pg.locator("details.goal[open]").count() == 6 and "water cycle" in g4 and "SCI-04-C-01" in g4 and "ncc.gov.pk" in await pg.locator("details.goal a").first.get_attribute("href"),
               "Open all shows each goal with its code and the ncc.gov.pk source")
         await pg.locator('[data-gc="0"]').click(); await pg.wait_for_timeout(100)
         await pg.locator("#goalsAll").click(); await pg.wait_for_timeout(100)
         check("first Kalimah" in await pg.inner_text("#view"), "KG goals come from the Early Childhood curriculum")
+        await pg.locator('[data-gc="1"]').click(); await pg.wait_for_timeout(100)
+        check("Surah al-Fatihah and Surah al-Ikhlas" in await pg.locator('details.goal[data-goal="isl"]').text_content(), "Class 1 Islamiyat goals list the surahs to memorise")
         await pg.locator('[data-gc="7"]').click(); await pg.wait_for_timeout(100)
-        check(await pg.locator("details.goal").count() == 7, "Class 7 has goals for 7 subjects")
+        check(await pg.locator("details.goal").count() == 8, "Class 7 has goals for 8 subjects, Islamiyat included")
         await pg.locator('[data-gc="4"]').click(); await pg.wait_for_timeout(100)
         await pg.locator('details.goal[data-goal="sci"] [data-gock]').click(); await pg.wait_for_timeout(150)
         check(await pg.get_attribute("#tab-track", "aria-selected") == "true" and await pg.get_attribute('[data-subj="sci"]', "aria-pressed") == "true",

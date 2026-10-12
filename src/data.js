@@ -401,6 +401,14 @@ const NCP = {
       ["Counts in 2s, 5s and 10s; first ideas of multiplication and sharing; halves and quarters.", "M-01-A-14 to A-21"],
       ["Compares length, mass and capacity; tells time to the hour; days of the week and months of the solar and Islamic year.", "M-01-C-01 to C-10"],
       ["Flat and solid shapes; position and direction; reading pictographs and tally charts.", "M-01-D-01 to E-02"]],
+    isl: [
+      ["Reads the Qaida with correct letter sounds, vowel marks and basic tajweed (qalqalah, ghunnah), and shows good manners while reciting.", "I-01-A-01 to A-06"],
+      ["Has memorised Surah al-Fatihah and Surah al-Ikhlas with correct pronunciation, and knows the Kalimah Tayyibah with its meaning.", "I-01-A-07 to A-14"],
+      ["Knows one short hadith and the dua for more knowledge, and the names of Allah ar-Rahman, ar-Rahim and al-Malik with meanings.", "I-01-A-15 to A-22"],
+      ["Knows Allah is the one Creator and Owner of everything, thanks Him for His blessings, and believes the Prophet ﷺ is the last Prophet.", "I-01-B-01 to B-08"],
+      ["Knows the names of the pillars of Islam, the five daily prayers, that the masjid is for prayer and the adhan is the call to prayer, and that prayer needs cleanliness.", "I-01-B-09 to B-20"],
+      ["Knows basic facts of the Prophet's ﷺ birth and family (parents, grandfather, uncle, foster mother) and that he was truthful and trustworthy.", "I-01-C-01 to C-08"],
+      ["Learns good manners and greets others with salam, and knows Prophets عليهم السلام were sent to guide people, from Sayyidunā Adam عليه السلام to the Prophet ﷺ.", "I-01-D-01 to D-06; I-01-E-01 to E-04"]],
     gk: [
       ["Talks about themselves, their family and the people at school, and respects family and friends.", "GK-01-A-01 to A-08"],
       ["Good manners: greeting with Assalamu alaikum, speaking politely, honesty, not wasting food, eating with clean hands.", "GK-01-B-01 to B-04"],
@@ -431,6 +439,14 @@ const NCP = {
       ["Tables of 2, 3, 4, 5 and 10; multiplying and dividing; simple fractions and tenths.", "M-02-A-15 to A-33"],
       ["Metres, kilograms and litres; temperature; time to five minutes; the solar and Islamic calendars.", "M-02-C-01 to C-16"],
       ["2-D and 3-D shapes, straight and curved lines, quarter turns; bar graphs and tally charts.", "M-02-D-01 to E-02"]],
+    isl: [
+      ["Reads Para 1 and Para 30 with tajweed and the stop signs, and has memorised Surah al-Falaq and Surah an-Nas to recite before sleeping.", "I-02-A-01 to A-09"],
+      ["Knows ta'awwudh, tasbih and a short durood with meanings, uses Bismillah, Alhamdulillah, Yarhamukallah and JazakAllah, and says durood on hearing the Prophet's ﷺ name.", "I-02-A-10 to A-13"],
+      ["Knows two short hadith, the dua for parents, and the names of Allah al-Quddus, as-Salam and al-Mu'min with meanings.", "I-02-A-14 to A-20"],
+      ["Knows the articles of faith, the four great angels, the four revealed books and their Prophets, that the Quran is the last book, and the meaning of the Hereafter.", "I-02-B-01 to B-10"],
+      ["Knows fasting is a pillar of Islam, about Ramadan, sehri and iftar, and when Eid al-Fitr and Eid al-Adha come.", "I-02-B-11 to B-18"],
+      ["Knows the Prophet's ﷺ family and childhood, why we love and obey him, and his gentleness, mercy, promise-keeping and forgiveness.", "I-02-C-01 to C-08"],
+      ["Follows manners of eating, drinking and speaking, respects parents, teachers and elders, is kind to animals, and knows the stories of Sayyidunā Adam and Sayyidunā Nuh عليهما السلام.", "I-02-D-01 to D-07; I-02-E-01 to E-04"]],
     gk: [
       ["Life in villages, towns, cities and kachi abadis; common jobs in Pakistan.", "GK-02-A-01 to A-04, E-01 to E-04"],
       ["Sharing, taking turns, fair and unfair behaviour, saying sorry and forgiving.", "GK-02-B-01 to B-10"],
@@ -462,6 +478,14 @@ const NCP = {
       ["Proper and improper fractions, equivalent fractions, adding fractions; tenths and hundredths.", "M-03-A-20 to A-26"],
       ["Kilometres to millimetres, kilograms and grams, litres; time with a.m. and p.m.; dates on the calendar; area and perimeter.", "M-03-C-01 to C-13"],
       ["Polygons, prisms and pyramids; lines, rays and the parts of a circle; turns and symmetry; Carroll diagrams.", "M-03-D-01 to E-02"]],
+    isl: [
+      ["Reads Paras 2 to 8 with tajweed, and has memorised Surah al-Kawthar, Surah an-Nasr and Surah al-Lahab.", "I-03-A-01 to A-08"],
+      ["Knows Durood Ibrahimi, Thana and the meaning of Surah al-Fatihah, four short hadith, the duas before and after eating, and six names of Allah with meanings.", "I-03-A-09 to A-21"],
+      ["Understands tawhid, Allah's attributes, prophethood and the finality of prophethood, and knows the Kalimah Shahadah with meaning.", "I-03-B-01 to B-15"],
+      ["Knows the virtues and manners of the adhan and wudu, the times and rak'ahs of the five prayers, and the Qiblah (including the first Qiblah) and manners of the masjid.", "I-03-B-16 to B-28"],
+      ["Learns tolerance and patience from the Seerah of the Prophet ﷺ, and values truthfulness and gentle speech, avoiding lies, backbiting and bad names.", "I-03-C-11 to C-13; I-03-D-01 to D-07"],
+      ["Knows the rights of parents, teachers, siblings, relatives and neighbours, and learns from Sayyidunā Ibrahim, Ismail and Ishaq عليهم السلام and Sayyidunā Abu Bakr Siddiq رضي الله عنه.", "I-03-E-01 to E-04; I-03-F-01 to F-08"],
+      ["Knows the importance of cleanliness from the Quran and Sunnah and practises it.", "I-03-G-01 to G-02"]],
     gk: [
       ["How life today differs from the past; staying safe at home, with strangers, and in natural disasters.", "GK-03-A-01 to A-05"],
       ["Why disagreements happen and how to settle them by talking.", "GK-03-B-01 to B-04"],
@@ -493,6 +517,14 @@ const NCP = {
       ["Fractions of all kinds; decimals to three places; order of operations; first look at percent.", "M-04-A-19 to A-37"],
       ["Converting units of length, mass, capacity and time; 12-hour and 24-hour clocks; perimeter and area.", "M-04-C-01 to C-13"],
       ["Parallel lines, the circle, measuring angles with a protractor, lines of symmetry; bar graphs.", "M-04-D-01 to E-01"]],
+    isl: [
+      ["Reads Paras 9 to 18 with tajweed, and has memorised Surah al-Ma'un and Surah al-Kafirun.", "I-04-A-01 to A-05"],
+      ["Knows the meanings of the tasbihat of ruku, sujud and tashahhud, the meaning of Surah al-Kawthar, five hadith, and the duas for entering and leaving the toilet.", "I-04-A-06 to A-17"],
+      ["Knows about belief in angels, the meaning and virtues of fasting, i'tikaf and Laylat al-Qadr, and the rights of Allah and the value of dua.", "I-04-B-01 to B-21"],
+      ["Knows the hardships of early Makkah, the migration to Abyssinia and Sayyidunā Ja'far's رضي الله عنه speech to the Negus, the boycott in Shi'b Abi Talib, and the Year of Sorrow.", "I-04-C-08 to C-20"],
+      ["Practises simplicity, manners of gatherings and punctuality.", "I-04-D-01 to D-14"],
+      ["Learns to serve others and love the homeland as a responsible citizen of Pakistan.", "I-04-E-09 to E-18"],
+      ["Knows the life of Sayyidunā Musa عليه السلام, Sayyidunā Umar Faruq and Sayyidunā Uthman Ghani رضي الله عنهما, and the importance of cleanliness and saving water.", "I-04-F-08 to F-19; I-04-G-01 to G-08"]],
     sci: [
       ["What living things need; flowering and non-flowering plants; parts of a plant and flower; how water moves in a plant; seeds and germination.", "SCI-04-A-01 to A-13"],
       ["Animals with and without backbones; the skeleton; the human digestive system, teeth and tooth care; the first aid box.", "SCI-04-A-14 to A-21"],
@@ -531,6 +563,14 @@ const NCP = {
       ["Fractions, decimals to three places and percentages, and converting between them; the unitary method; square and cube numbers.", "M-05-A-16 to A-34"],
       ["Converting units and time; area and perimeter of squares, rectangles and triangles.", "M-05-C-01 to C-10"],
       ["Quadrilaterals, nets of prisms and pyramids, angles on a line and at a point, triangles; bar and line graphs, pie charts, averages and chance.", "M-05-D-01 to E-04"]],
+    isl: [
+      ["Reads Paras 19 to 29 with tajweed, and has memorised Ayat al-Kursi, Surah al-Fil and Surah Quraysh.", "I-05-A-01 to A-09"],
+      ["Knows Durood Ibrahimi, Dua-e-Qunut and chosen Quranic duas, nine names of Allah with meanings, selected hadith, and the duas for entering and leaving home.", "I-05-A-10 to A-21"],
+      ["Understands belief in the Hereafter, the finality of prophethood and following the Sunnah of the Prophet ﷺ.", "I-05-B-01 to B-14"],
+      ["Knows the rules of zakat (and how it differs from ushr and sadaqah), the virtues and rules of Jumu'ah, and the two Eids, fitrah and qurbani.", "I-05-B-15 to B-32"],
+      ["Knows the Mi'raj, the pledges of Aqabah, the Hijrah to Madinah, the brotherhood of Madinah, Masjid an-Nabawi, the Charter of Madinah, and an introduction to the battles of Badr, Uhud and Khandaq.", "I-05-C-01 to C-32"],
+      ["Practises tolerance, keeping promises and Islamic brotherhood, and avoids tale-bearing.", "Akhlaq & Adab, printed p. 85; I-05-E-01 to E-14"],
+      ["Knows the life of Sayyidunā Isa عليه السلام and Sayyidunā Ali رضي الله عنه, the Sufis Shaykh Abdul Qadir Jilani, Ali bin Uthman Hujwiri and Maulana Rumi رحمهم الله, and road safety.", "I-05-F-01 to F-16; I-05-G-1 to G-4"]],
     sci: [
       ["Body systems: senses, breathing (respiratory system) and blood circulation; dressing a wound with a first aid box.", "SCI-05-A-01 to A-07"],
       ["Microorganisms (bacteria, viruses, fungi): diseases, how infections spread and how to prevent them, and useful microbes.", "SCI-05-A-08 to A-15"],
@@ -569,6 +609,14 @@ const NCP = {
       ["Number patterns; algebra as letters standing for numbers; solving simple linear equations.", "M-06-B-01 to B-10"],
       ["Area of paths around rectangles; surface area and volume of cubes and cuboids.", "M-06-C-01 to C-04"],
       ["Reflection and rotational symmetry; parallel lines and angles; constructing angles with a compass; mean, median, mode and probability.", "M-06-D-01 to E-04"]],
+    isl: [
+      ["Understands the translation of Surah al-Fatihah, surahs on Prophets Adam, Nuh, Hud, Salih, Lut and Shu'ayb عليهم السلام, and Surah al-Fil to Surah an-Nas.", "I-06-A-01 to A-04"],
+      ["Has memorised Surah az-Zalzalah, al-Adiyat, al-Qari'ah, at-Takathur, al-Asr and al-Humazah, plus Quranic duas such as Sayyidunā Adam's عليه السلام dua.", "I-06-A-05 to A-14"],
+      ["Understands tawhid and how it differs from shirk, the meaning of worship from Hadith Jibril (ikhlas, ihsan), purity (wudu, ghusl, tayammum) and the conditions of salah.", "I-06-B-01 to B-31"],
+      ["Knows the society of Madinah: Masjid an-Nabawi, Ashab as-Suffah, the brotherhood, the Charter, the change of Qiblah, and the battles of Badr and Uhud.", "I-06-C-01 to C-30"],
+      ["Learns love and obedience of the Prophet ﷺ, his kindness to children and orphans, and his keeping of promises.", "I-06-C-31 to C-48"],
+      ["Practises consultation, patience and good manners on roads, in travel and public places, and avoids theft, taking by force and cheating.", "I-06-D-01 to D-24"],
+      ["Knows the rights of parents and relatives, justice, ihsan and public welfare, and the lives of Sayyidah Khadijah, Aishah, Sawdah and Fatimah رضي الله عنهن, the Prophet's ﷺ children and the Ashara Mubashshara رضي الله عنهم.", "I-06-E-01 to E-18; I-06-F-01 to F-17; Mashahir-e-Islam, printed p. 109"]],
     sci: [
       ["Cells: plant and animal cells, and how cells build tissues and organs.", "SCI-06-A-02 to A-06"],
       ["Reproduction in plants, including growing plants from cuttings.", "SCI-06-A-07 to A-10"],
@@ -616,6 +664,14 @@ const NCP = {
       ["Algebra: Al-Khwarizmi as its founder; polynomials, identities and factorising; linear equations and their graphs.", "M-07-B-01 to B-21"],
       ["Time, speed and journeys; area and volume of 3-D shapes.", "M-07-C-01 to C-11"],
       ["Quadrilaterals, circles and angles in polygons; constructing triangles; graphs, averages, frequency tables and probability.", "M-07-D-01 to E-05"]],
+    isl: [
+      ["Understands the translation of selected surahs about Sayyidunā Ibrahim and Musa عليهما السلام, and has memorised Surah at-Tin, al-Alaq, al-Qadr and al-Bayyinah.", "I-07-A-01 to A-06"],
+      ["Knows the duas of Sayyidunā Musa and Nuh عليهما السلام, seven hadith, duas for protection and looking in a mirror, and 12 names of Allah with meanings.", "I-07-A-07 to A-20"],
+      ["Understands the finality of prophethood, belief in angels and the revealed books, fasting and taqwa, the funeral prayer and other prayers (tahajjud, ishraq, eclipse), and dua.", "I-07-B-01 to B-38"],
+      ["Knows the problems of Madinah from hypocrites and some Jewish tribes, the battles of Khandaq and Banu Qurayzah, and the Prophet's ﷺ patience, gratitude, simplicity and manner of speech.", "I-07-C-01 to C-52"],
+      ["Learns manners of seeking knowledge and respect for teachers, avoids showing off, earns halal, avoids interest, bribery and gambling, and looks after public property.", "I-07-D-16 to D-30; I-07-E-18 to E-29"],
+      ["Knows Mothers of the Believers Sayyidah Hafsah, Zaynab bint Khuzaymah, Umm Salamah and Zaynab bint Jahsh, Sayyidunā Hasan, Sayyidah Zaynab bint Ali, and Ibn Abbas, Ubayy bin Ka'b, Zayd bin Thabit, Abu Hurayrah and Ibn Umar رضي الله عنهم.", "I-07-F-01 to F-21"],
+      ["Knows the Sufis Bahauddin Naqshband and Shihabuddin Suhrawardi, the Imams Bukhari, Shafi'i and Ahmad bin Hanbal رحمهم الله, the conquerors Musa bin Nusayr and Tariq bin Ziyad, and Islam's teaching on knowledge, science and peace.", "I-07-F-22 to F-38; I-07-G-01 to G-16"]],
     sci: [
       ["Plants: roots and shoots, xylem and phloem, photosynthesis and respiration.", "SCI-07-A-01 to A-10"],
       ["The human respiratory and circulatory systems: lungs, heart, blood vessels and blood.", "SCI-07-A-11 to A-19"],
@@ -663,6 +719,14 @@ const NCP = {
       ["Arithmetic and geometric sequences; polynomials and identities; simultaneous equations; laws of indices; inequalities; straight-line graphs.", "M-08-B-01 to B-25"],
       ["Pythagoras' theorem; surface area and volume of pyramids, spheres and cones.", "M-08-C-01 to C-05"],
       ["Rotation, parts of a circle, constructing triangles, congruent and similar shapes; range, variance and standard deviation; histograms and probability.", "M-08-D-01 to E-06"]],
+    isl: [
+      ["Understands the translation of Surah Yusuf and other selected surahs, and has memorised Surah al-Balad, ash-Shams, al-Layl, ad-Duha and al-Inshirah.", "I-08-A-01 to A-06"],
+      ["Knows Quranic duas (al-Baqarah 286, Sayyidunā Musa's عليه السلام dua in Surah Ta-Ha), Hasbunallahu wa ni'mal wakil, the dua of Sayyidunā Yunus عليه السلام, eight hadith, daily duas and 12 names of Allah with meanings.", "I-08-A-07 to A-18"],
+      ["Understands divine decree (taqdir), trust in Allah and the Hereafter, and knows zakat in detail (nisab, who receives it, ushr) and how Hajj and Umrah differ.", "I-08-B-01 to B-42"],
+      ["Knows the Prophet's ﷺ letters to kings, the battle of Khaybar, the battle of Mu'tah, his noble appearance and character, and his social teachings on hijab, modesty and asking permission.", "I-08-C-01 to C-31"],
+      ["Practises equality, Islamic brotherhood and unity of the Ummah, avoids suspicion and greed, cares for the sick, disabled and orphans, and deals honestly in buying and selling.", "I-08-D-01 to D-25; I-08-E-01 to E-11"],
+      ["Knows Mothers of the Believers Sayyidah Juwayriyah, Safiyyah, Umm Habibah, Maymunah and Mariyah رضي الله عنهن, Sayyidunā Imam Husayn and Karbala, Ibn Mas'ud, Mu'adh bin Jabal, Abu Dharr and Salman Farsi رضي الله عنهم, Khwaja Mu'inuddin Chishti, Mujaddid Alf Thani, Baba Farid, Imam Ghazali, Shah Waliullah and Shaykh Abdul Haq Muhaddith Dehlvi رحمهم الله, and the conquerors Nuruddin Zangi, Salahuddin Ayyubi and Sultan Muhammad Fatih.", "I-08-F-01 to F-35"],
+      ["Understands enjoining good and forbidding evil, and using media responsibly by checking news before sharing it.", "I-08-G-01 to G-14"]],
     sci: [
       ["Variation and adaptation; genes, chromosomes and DNA; cell division (mitosis and meiosis).", "SCI-08-A-01 to A-10"],
       ["The nervous system and the brain, and how messages travel through the body.", "SCI-08-A-11 to A-25"],
