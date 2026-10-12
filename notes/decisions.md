@@ -58,7 +58,7 @@ All checks were made on 11 October 2026 unless stated.
 
 ## Three-colour palette (12 October 2026)
 - The owner asked for a modern three-colour palette, not "AI standard pastel", with text readable in light and dark mode.
-- The palette is emerald (main), saffron (highlight) and ink (neutrals). Badges, the selected class tile and character levels became solid fills instead of soft tints. Errors and Delete use a burnt-orange shade of saffron.
+- The palette is indigo (main), saffron (highlight) and ink (neutrals). Emerald was tried first; the owner asked to try another main colour, and also asked for visible, coloured tabs. The tab bar now stays pinned at the top while scrolling, with the current tab filled indigo. Badges, the selected class tile and character levels became solid fills instead of soft tints. Errors and Delete use a burnt-orange shade of saffron.
 - Contrast was checked for every text and background pair in both themes: all are at least 4.5:1, and control borders at least 3:1. The icon and theme colour were updated to match.
 
 ## Family sync on Cloudflare instead of Firebase (12 October 2026)

@@ -5,14 +5,14 @@
 <style>
 /* Layout: a ruled exercise-copy ledger. Student card, tabs, then ruled rows with a red margin line. */
 :root{
-  /* Three colours: emerald (main), saffron (highlight) and ink (neutrals). Every text pair passes WCAG AA in both themes. */
+  /* Three colours: indigo (main), saffron (highlight) and ink (neutrals). Every text pair passes WCAG AA in both themes. */
   --paper:#F4F4F1; --surface:#FFFFFF; --ink:#121417; --muted:#565D66; --line:#E3E3DE; --rule:#ECECE8; --control-line:#868D96;
-  --accent:#0A7A4B; --accent-ink:#FFFFFF; --margin:#F4A100;
-  --good:#0A7A4B; --good-fill:#0A7A4B; --on-good:#FFFFFF;
+  --accent:#4338CA; --accent-ink:#FFFFFF; --margin:#F4A100;
+  --good:#4338CA; --good-fill:#4338CA; --on-good:#FFFFFF;
   --warn:#8A5300; --warn-fill:#F4A100; --on-warn:#121417;
   --bad:#B03A0A; --bad-fill:#C2410C; --on-bad:#FFFFFF;
   --info:#3E4751; --info-fill:#E3E3DE; --on-info:#121417; --tint:#F0F0EC;
-  --l0:#E3E3DE; --l0-ink:#121417; --l1:#F4A100; --l1-ink:#121417; --l2:#3DBE7E; --l2-ink:#121417; --l3:#0A7A4B; --l3-ink:#FFFFFF;
+  --l0:#E3E3DE; --l0-ink:#121417; --l1:#F4A100; --l1-ink:#121417; --l2:#6E73F2; --l2-ink:#121417; --l3:#4338CA; --l3-ink:#FFFFFF;
   --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
   --f-body:"Source Sans 3", "Segoe UI", system-ui, -apple-system, sans-serif;
   --f-mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
@@ -21,20 +21,20 @@
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
   --paper:#0E1012; --surface:#171A1E; --ink:#EEEEEA; --muted:#A4ABB3; --line:#2A2F35; --rule:#1F2328; --control-line:#6F7882;
-  --accent:#34D399; --accent-ink:#06150E; --margin:#F4A100;
-  --good:#34D399; --good-fill:#34D399; --on-good:#06150E;
+  --accent:#8E94FF; --accent-ink:#0B0D2A; --margin:#F4A100;
+  --good:#8E94FF; --good-fill:#8E94FF; --on-good:#0B0D2A;
   --warn:#FFC24A; --warn-fill:#F4A100; --on-warn:#121417;
   --bad:#FF8A5C; --bad-fill:#FF7A45; --on-bad:#121417;
   --info:#C3C9D0; --info-fill:#2A2F35; --on-info:#EEEEEA; --tint:#1C2024;
-  --l0:#2A2F35; --l0-ink:#EEEEEA; --l1:#F4A100; --l1-ink:#121417; --l2:#2BB673; --l2-ink:#06150E; --l3:#34D399; --l3-ink:#06150E; color-scheme:dark } }
+  --l0:#2A2F35; --l0-ink:#EEEEEA; --l1:#F4A100; --l1-ink:#121417; --l2:#5B61E8; --l2-ink:#FFFFFF; --l3:#8E94FF; --l3-ink:#0B0D2A; color-scheme:dark } }
 :root[data-theme="dark"]{
   --paper:#0E1012; --surface:#171A1E; --ink:#EEEEEA; --muted:#A4ABB3; --line:#2A2F35; --rule:#1F2328; --control-line:#6F7882;
-  --accent:#34D399; --accent-ink:#06150E; --margin:#F4A100;
-  --good:#34D399; --good-fill:#34D399; --on-good:#06150E;
+  --accent:#8E94FF; --accent-ink:#0B0D2A; --margin:#F4A100;
+  --good:#8E94FF; --good-fill:#8E94FF; --on-good:#0B0D2A;
   --warn:#FFC24A; --warn-fill:#F4A100; --on-warn:#121417;
   --bad:#FF8A5C; --bad-fill:#FF7A45; --on-bad:#121417;
   --info:#C3C9D0; --info-fill:#2A2F35; --on-info:#EEEEEA; --tint:#1C2024;
-  --l0:#2A2F35; --l0-ink:#EEEEEA; --l1:#F4A100; --l1-ink:#121417; --l2:#2BB673; --l2-ink:#06150E; --l3:#34D399; --l3-ink:#06150E; color-scheme:dark }
+  --l0:#2A2F35; --l0-ink:#EEEEEA; --l1:#F4A100; --l1-ink:#121417; --l2:#5B61E8; --l2-ink:#FFFFFF; --l3:#8E94FF; --l3-ink:#0B0D2A; color-scheme:dark }
 /* Increase Contrast / prefers-contrast: stronger text, borders and dividers */
 @media (prefers-contrast: more){
   :root{ --muted:#3B4048; --line:#868D96; --rule:#C9C9C3; --control-line:#4B5159 }
@@ -88,9 +88,10 @@ button{cursor:pointer}
 .setup h2{font-size:1.25rem}
 .example-flag{background:var(--warn-fill);color:var(--on-warn);border-radius:6px;padding:2px 8px;font-size:.82rem;font-weight:700}
 
-.tabs{display:flex;flex-wrap:wrap;gap:2px;border-bottom:1px solid var(--line)}
-.tab{border:0;background:none;padding:6px 2px;font-weight:700;font-size:.875rem;line-height:1.2;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-1px;min-height:var(--tap);text-align:center;flex:1 1 0;overflow-wrap:break-word}
-.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tabs{display:flex;flex-wrap:wrap;gap:4px;position:sticky;top:max(6px,env(safe-area-inset-top));z-index:5;background:var(--surface);border:1px solid var(--control-line);border-radius:14px;padding:4px;box-shadow:0 4px 14px -8px rgba(0,0,0,.45)}
+.tab{border:0;background:none;border-radius:10px;padding:6px 2px;font-weight:700;font-size:.875rem;line-height:1.2;color:var(--ink);min-height:var(--tap);text-align:center;flex:1 1 0;overflow-wrap:break-word}
+.tab:hover{background:var(--tint)}
+.tab[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
 
 .grades{display:grid;grid-template-columns:repeat(auto-fit,minmax(4rem,1fr));gap:8px 6px}
 .grade{border:1px solid var(--control-line);background:var(--surface);border-radius:8px;padding:6px 4px 7px;display:grid;gap:3px;justify-items:center;position:relative}
@@ -499,7 +500,9 @@ $("#fGrade").addEventListener("change", e => { cur().grade = +e.target.value; vi
 $("#fStart").addEventListener("change", e => { cur().start = +e.target.value; save(); render(); });
 $("#fTrack").addEventListener("change", e => { cur().track = e.target.value; save(); });
 
-document.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => { state.ui.tab = b.dataset.tab; save(); render(); }));
+document.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => { state.ui.tab = b.dataset.tab; save(); render();
+  /* the tab bar stays on screen; when scrolled down, start the new tab at its top */
+  const t = $(".tabs"); if (t.getBoundingClientRect().top < 20 && scrollY > t.offsetTop) scrollTo({ top: t.offsetTop - 6 }); }));
 $(".tabs").addEventListener("keydown", e => {
   const tabs = [...document.querySelectorAll(".tab")]; const i = tabs.indexOf(document.activeElement); if (i < 0) return;
   const rtl = getComputedStyle(e.currentTarget).direction === "rtl";
