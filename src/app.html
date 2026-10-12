@@ -279,6 +279,17 @@ body{padding-bottom:calc(68px + env(safe-area-inset-bottom))}
 .navrow .meter i{display:block;height:100%;background:var(--accent)}
 /* dashboard */
 .hero{display:grid;gap:6px}
+.first-run .tabbar,.first-run #studentSel,.first-run #syncChip,.first-run #moreBtn{display:none !important}
+.welcome .intro{display:grid;gap:8px}
+.welcome .intro .hi{color:var(--muted);font-weight:700;font-size:.9rem}
+.welcome .intro h2{font-size:2rem;line-height:1.1;color:var(--accent)}
+.welcome .intro .sub{margin:0;font-weight:600}
+.feat{list-style:none;margin:4px 0;padding:0;display:grid;gap:12px}
+.feat li{display:grid;grid-template-columns:2.2rem minmax(0,1fr);gap:10px;align-items:start}
+.feat svg{width:2.2rem;height:2.2rem;padding:.4rem;border-radius:10px;background:var(--tint);fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.feat b{display:block}
+.feat span{color:var(--muted)}
+.feat b{color:var(--ink)}
 .hero .hi{color:var(--muted);font-weight:700;font-size:.9rem}
 .hero h2{font-size:1.6rem}
 .tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(10rem,100%),1fr));gap:10px}
@@ -522,28 +533,25 @@ function fillStudent() {
 }
 
 /* ---------- setup: two questions, then the child's school books are ready ---------- */
-function setupMode() { return state.ui.setup ? "add" : state.ui.welcome ? "welcome" : ""; }
-function renderSetup() {
-  const mode = route()[0] === "home" ? setupMode() : "", box = $("#setup"); box.hidden = !mode;
-  if (!mode) { box.innerHTML = ""; box.dataset.mode = ""; return; }
-  if (box.dataset.mode === mode) return;   // already showing: keep what the parent is typing
-  box.dataset.mode = mode;
-  box.innerHTML = `<h2 id="setupTitle">${mode === "welcome" ? "Assalamu alaikum. Let’s set up your child" : "Add a child"}</h2>
-    ${mode === "welcome" ? `<p class="hint">Two questions. You can change them later, and add more children.</p>` : ""}
-    <form id="setupForm" class="stack-s">
+function setupMode() { return state.ui.setup ? "add" : ""; }
+/* the two-question form, shared by the first-run Welcome screen and Add child on Home */
+function setupFormHTML(mode) {
+  return `<form id="setupForm" class="stack-s">
       <div class="form-grid">
         <div class="field"><label class="label" for="sName">Child’s name</label><input id="sName" maxlength="40" autocomplete="off" required></div>
         <div class="field"><label class="label" for="sGrade">Class this year</label><select id="sGrade">${GRADE_NAMES.map((n, g) => `<option value="${g}">${n}</option>`).join("")}</select></div>
       </div>
       <label class="check"><input type="checkbox" id="sBooks" checked> <span id="sBooksLbl"></span></label>
-      <div class="actions"><button class="btn primary">Start</button>
-        <button type="button" class="btn" id="setupSkip">${mode === "welcome" ? "Look around first" : "Cancel"}</button></div>
+      <div class="actions"><button class="btn primary">${mode === "welcome" ? "Start" : "Add child"}</button>
+        ${mode === "welcome" ? "" : '<button type="button" class="btn" id="setupSkip">Cancel</button>'}</div>
     </form>`;
+}
+function bindSetup(mode) {
   const g = $("#sGrade"), lbl = () => { const n = (SCHOOL_LIST.classes[+g.value] || []).length;
     $("#sBooksLbl").textContent = n ? `Add the ${n} books on our school’s ${GRADE_NAMES[+g.value]} list` : "No school list for this class";
     $("#sBooks").disabled = !n; $("#sBooks").checked = !!n; };
   g.value = "5"; lbl(); g.addEventListener("change", lbl);
-  $("#setupSkip").addEventListener("click", () => { state.ui.welcome = state.ui.setup = false; save(); renderSetup(); render(); });
+  $("#setupSkip")?.addEventListener("click", () => { state.ui.welcome = state.ui.setup = false; save(); renderSetup(); tabTo("home"); });
   $("#setupForm").addEventListener("submit", e => { e.preventDefault();
     const name = $("#sName").value.trim(); if (!name) { $("#sName").focus(); return; }
     const grade = +g.value, s = newStudent(name, null, grade, false);
@@ -554,6 +562,52 @@ function renderSetup() {
     const nch = s.books.reduce((a, b) => a + b.ch.length, 0);
     toast(list.length ? `${name} is ready, with ${list.length} school books${nch ? ` and ${nch} chapters` : ""}` : `${name} is ready`); $("#view").focus(); });
   if (mode === "add") $("#sName").focus();
+}
+function renderSetup() {
+  const mode = route()[0] === "home" ? setupMode() : "", box = $("#setup"); box.hidden = !mode;
+  if (!mode) { box.innerHTML = ""; box.dataset.mode = ""; return; }
+  if (box.dataset.mode === mode) return;   // already showing: keep what the parent is typing
+  box.dataset.mode = mode;
+  box.innerHTML = `<h2 id="setupTitle">Add a child</h2>${setupFormHTML(mode)}`;
+  bindSetup(mode);
+}
+
+/* ---------- Welcome: the first screen on a new phone. What Ilm Track is, then the two questions ---------- */
+const WICON = {
+  goals: '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12l3 3 5-6"/>',
+  books: '<path d="M5 5a2 2 0 0 1 2-2h12v15H7a2 2 0 0 0-2 2z"/><path d="M5 20a2 2 0 0 0 2 1h12v-3"/>',
+  deen: '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',
+  read: '<path d="M3 5h6a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H3z"/><path d="M21 5h-6a3 3 0 0 0-3 3v12a2 2 0 0 1 2-2h7z"/>',
+  report: '<path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 16h5"/>'
+};
+function renderWelcome() {
+  const f = (ic, t, d) => `<li><svg viewBox="0 0 24 24" aria-hidden="true">${WICON[ic]}</svg><span><b>${t}</b>${d}</span></li>`;
+  $("#view").innerHTML = `<div class="stack welcome">
+    <section class="panel intro">
+      <span class="hi">Assalamu alaikum</span>
+      <h2>Ilm Track</h2>
+      <p class="sub">Core Knowledge Tracker for Pakistani Students</p>
+      <p style="max-width:60ch">Follow your child’s learning, deen and character in one place, from KG to Class 8. A few minutes a week is enough.</p>
+      <ul class="feat">
+        ${f("goals", "Class goals", "What Pakistan’s National Curriculum expects this year, in plain words, with international extras.")}
+        ${f("books", "School books", "Every chapter of every book. Many Oxford Pakistan books come ready.")}
+        ${f("deen", "Qur’an and character", "Hifz and revision, a daily routine around the five prayers, and good habits.")}
+        ${f("read", "Extra reading", "Free Core Knowledge units, if you want more.")}
+        ${f("report", "Progress report", "One page to print or share as a PDF.")}
+      </ul>
+      <p class="hint">Free. No ads. Works without internet.${net.ok ? " Mother and father can share progress on their phones." : ""}</p>
+    </section>
+    <section class="panel" aria-labelledby="setupTitle"><h2 id="setupTitle">Set up your child</h2>
+      <p class="hint">Two questions. You can change them later and add more children.</p>
+      ${setupFormHTML("welcome")}</section>
+    <section class="panel"><h2>Other ways to start</h2>
+      <ul class="navlist">
+        ${net.ok ? navRow("more/family", "Join my family", "Already set up on another parent’s phone? Sign in, or use a family code.") : ""}
+        ${navRow("more/backup", "Restore a backup", "Bring back progress saved on another phone.")}
+      </ul>
+      <div class="actions"><button type="button" class="btn" id="setupSkip">Look around with a sample child</button></div></section>
+  </div>`;
+  bindSetup("welcome");
 }
 
 /* ---------- install ---------- */
@@ -622,6 +676,7 @@ const ring = (pct, label) => { const c = 2 * Math.PI * 22;
   return `<svg class="ring" viewBox="0 0 52 52" role="img" aria-label="${label}"><circle class="rt" cx="26" cy="26" r="22"/><circle class="rv" cx="26" cy="26" r="22" stroke-dasharray="${(c * Math.min(1, pct)).toFixed(1)} ${c.toFixed(1)}"/></svg>`; };
 const SCREENS = {
   home: [() => "Ilm Track", () => renderHome()],
+  welcome: [() => "Welcome", () => renderWelcome()],
   goals: [sub => sub ? NCP_SUBJ[sub]?.n || "Class goals" : "Class goals", sub => sub ? renderGoalSubject(sub) : renderGoals()],
   books: [sub => sub ? "Book" : "School books", sub => sub ? renderBook(sub) : renderBooks()],
   deen: [sub => ({ quran: "Qur’an", char: "Character", routine: "Daily routine" }[sub] || "Character & deen"), sub => ({ quran: renderQuran, char: renderChar, routine: renderRoutine }[sub] || renderDeen)()],
@@ -632,14 +687,18 @@ const SCREENS = {
 function render() {
   let [top, sub] = route();
   if (!SCREENS[top]) { history.replaceState({ d: 0 }, "", "#/home"); [top, sub] = ["home", ""]; }
+  // first run: the Welcome screen comes first; Family, Backup and About stay reachable from it
+  if (state.ui.welcome && top !== "welcome" && top !== "more" && !/^#join=/.test(location.hash)) { history.replaceState({ d: 0 }, "", "#/welcome"); [top, sub] = ["welcome", ""]; }   // a join link goes to Family first
+  if (!state.ui.welcome && top === "welcome") { history.replaceState({ d: 0 }, "", "#/home"); [top, sub] = ["home", ""]; }
+  document.documentElement.classList.toggle("first-run", top === "welcome");
   document.querySelectorAll(".tabbar-item").forEach(a => { if (a.dataset.tab === top) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
   $("#moreBtn").toggleAttribute("aria-current", top === "more"); if (top === "more") $("#moreBtn").setAttribute("aria-current", "page");
   const hasBack = !!sub || top === "more" || top === "report";
   $("#backBtn").hidden = !hasBack;
   $("#screenTitle").textContent = SCREENS[top][0](sub);
-  document.title = top === "home" ? "Ilm Track" : `${$("#screenTitle").textContent} · Ilm Track`;
+  document.title = top === "home" || top === "welcome" ? "Ilm Track" : `${$("#screenTitle").textContent} · Ilm Track`;
   $("#childCard").hidden = !(top === "more" && sub === "child");
-  $("#appFooter").hidden = !(top === "home" || (top === "more" && !sub));
+  $("#appFooter").hidden = !(top === "home" || top === "welcome" || (top === "more" && !sub));
   renderSetup();
   SCREENS[top][1](sub);
   syncInstall();
@@ -1369,7 +1428,7 @@ function renderBackup() {
       // restored children belong to this family now, even if the backup came from a phone that kept them local
       if (inFamily()) s.students.forEach(st => { delete st.nosync; st.sample = st.example = false; });
       const before = state.students, was = state.active;
-      state.students = s.students; state.active = s.students[0].id; viewGrade = bookClass = goalClass = null; save(); fillStudent(); tabTo("home");
+      state.students = s.students; state.active = s.students[0].id; state.ui.welcome = false; viewGrade = bookClass = goalClass = null; save(); fillStudent(); tabTo("home");
       toast(`Restored ${s.students.length} ${s.students.length === 1 ? "child" : "children"}${inFamily() ? " for the whole family" : ""}`, () => putBack(before, was)); };
   $("#doImp")?.addEventListener("click", () => check($("#imp").value));
   $("#impPick")?.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("#impFile").click(); } });
@@ -1469,7 +1528,7 @@ function applyPull(res) {
     remember({ children: [{ id: c.id, doc: JSON.parse(flat(st).doc) }], marks: [] });
   }
   for (const m of res.marks) { const st = state.students.find(s => s.id === m.c); if (!st) continue; setMark(st, m.k, m.v); remember({ children: [], marks: [m] }); n++; }
-  if (n && state.students.some(s => !s.sample && !s.example)) state.students = state.students.filter(s => !s.sample && !s.example);
+  if (n && state.students.some(s => !s.sample && !s.example)) { state.students = state.students.filter(s => !s.sample && !s.example); state.ui.welcome = false; }
   if (!state.students.length) state.students.push(newStudent("Child 1", null, 2, false));
   if (!state.students.some(s => s.id === state.active)) state.active = state.students[0].id;
   return n;
@@ -1523,7 +1582,7 @@ async function initSync() {
   if (m) { pendingCode = m[1]; history.replaceState({ d: 0 }, "", location.pathname + location.search + "#/more/family"); render(); }
   try { net.me = await api("me"); net.ok = true; } catch (e) { net.ok = false; net.err = e.status === 503 ? "Family sync is not switched on for this site yet." : ""; }
   if (net.ok) { try { net.google = (await api("config")).google; } catch (e) {} pickFamily(); syncNow(); }
-  chip(); if (route().join("/") === "more/family") renderFamily(); else if ((route()[0] === "more" && !route()[1]) || route()[0] === "home") render();
+  chip(); if (route().join("/") === "more/family") renderFamily(); else if ((route()[0] === "more" && !route()[1]) || route()[0] === "home" || route()[0] === "welcome") render();
 }
 function loadGsi(done) {
   if (window.google?.accounts?.id) return done();

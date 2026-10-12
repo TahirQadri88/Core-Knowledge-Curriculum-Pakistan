@@ -54,9 +54,21 @@ async def main():
             t = await pg.inner_text("#view"); return t
 
         # Home and navigation
-        check(await pg.evaluate("location.hash") == "#/home" and await pg.get_attribute("#tab-home", "aria-current") == "page", "The app opens on Home")
-        check(await pg.locator("#setupForm").is_visible(), "First visit shows the two-question setup on Home")
+        check(await pg.evaluate("location.hash") == "#/welcome" and await pg.locator(".tabbar").is_hidden() and await pg.locator("#moreBtn").is_hidden(),
+              "A new phone opens on a Welcome screen without the tab bar")
+        wt = await pg.inner_text("#view")
+        check(all(w in wt for w in ["Core Knowledge Tracker for Pakistani Students", "Class goals", "School books", "Qur’an and character", "Set up your child"])
+              and await pg.locator("#setupForm").is_visible(), "Welcome explains the app, then asks the two setup questions")
+        check("Developed by Abul Laith Muhammad Tahir Qadri" in await pg.inner_text("#appFooter") and await pg.locator("#appFooter").is_visible(), "Welcome shows the developer credit")
+        await pg.locator('[data-go="more/backup"]').click(); await pg.wait_for_timeout(150)
+        check(await pg.evaluate("location.hash") == "#/more/backup" and await pg.locator("#backBtn").is_visible(), "Restore a backup opens from Welcome")
+        await pg.locator("#backBtn").click(); await pg.wait_for_timeout(150)
+        check(await pg.evaluate("location.hash") == "#/welcome", "Back returns to Welcome")
+        await pg.evaluate("history.replaceState({d: 0}, '', '#/goals'); dispatchEvent(new PopStateEvent('popstate'))"); await pg.wait_for_timeout(150)
+        check(await pg.evaluate("location.hash") == "#/welcome", "Until setup is done, other screens lead back to Welcome")
         await pg.locator("#setupSkip").click(); await pg.wait_for_timeout(150)
+        check(await pg.evaluate("location.hash") == "#/home" and await pg.get_attribute("#tab-home", "aria-current") == "page" and await pg.locator(".tabbar").is_visible(),
+              "Look around opens Home with the tab bar")
         check(await pg.locator(".tile").count() == 6 and "Class goals" in await pg.inner_text("#view") and "Next up" in await pg.inner_text("#view"),
               "Home shows six progress tiles and what to do next")
         check(await pg.locator("#backBtn").is_hidden(), "No Back button on a main tab")

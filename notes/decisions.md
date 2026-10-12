@@ -174,3 +174,8 @@ All checks were made on 11 October 2026 unless stated.
 - Update this page whenever the server starts keeping anything new.
 - Cloudflare Pages answers `/privacy.html` with a 308 redirect to `/privacy` (and `/index.html` to `/`). A cached redirected response cannot answer a page load, so the service worker no longer caches or serves redirected responses, and `privacy.html` and `index.html` were taken out of its install list. Checked with a local server that redirects the same way: the privacy page opens on repeat visits and offline. Give Google the address `https://ilmtrack.pages.dev/privacy`.
 
+## Welcome screen (12 October 2026)
+- At the owner's request, setting up the first child is now its own first screen (`#/welcome`) instead of a panel on Home. It opens on a new phone while `ui.welcome` is set, without the tab bar, child picker or More button. It shows what Ilm Track is (five short rows: Class goals, School books, Qur'an and character, Extra reading, Progress report), then the two questions, then "Other ways to start": Join my family (where the sync server exists), Restore a backup, and Look around with a sample child.
+- Until setup is done, other screens lead back to Welcome, except More (Family, Backup, About) and a `#join=` invite link. Joining a family, a sync that brings children, or a restore also ends the welcome.
+- Add child on Home keeps the same form (`setupFormHTML`, `bindSetup`).
+

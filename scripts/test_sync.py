@@ -46,7 +46,8 @@ async def main():
                 await pg.evaluate(f"history.replaceState({{d: 0}}, '', '#/{path}'); dispatchEvent(new PopStateEvent('popstate'))"); await pg.wait_for_timeout(200)
 
             async def family_tab(pg):
-                await pg.locator("#moreBtn").click()
+                # on a new phone the Welcome screen links to Family itself; elsewhere it is under More
+                if await pg.locator("#moreBtn").is_visible(): await pg.locator("#moreBtn").click()
                 await pg.locator('[data-go="more/family"]').click(); await pg.wait_for_timeout(200)
 
             async def sync_now(pg):
