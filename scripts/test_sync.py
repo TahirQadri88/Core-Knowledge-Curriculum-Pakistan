@@ -136,7 +136,9 @@ async def main():
             await goals(mum); await mum.locator('[data-tick="ncp-sci-4-5"]').check(); await sync_now(mum)
             await sync_now(dad); await goals(dad)
             check(await dad.locator('[data-tick="ncp-sci-4-5"]').is_checked(), "Mum's new tick reaches dad before the restore")
-            await backup(mum); await mum.fill("#imp", saved); await mum.locator("#doImp").click(); await mum.wait_for_timeout(300)
+            await backup(mum); await mum.set_input_files("#impFile", files=[{"name": "ilmtrack-backup.json", "mimeType": "application/json", "buffer": saved.encode()}]); await mum.wait_for_timeout(300)
+            check("Aisha" in await mum.inner_text("#impPreview") and "on every phone" in await mum.inner_text("#impPreview"), "Choosing a file shows what will change before restoring")
+            await mum.locator("#doRestore").click(); await mum.wait_for_timeout(300)
             check("whole family" in await mum.inner_text("#toast") and "Undo" in await mum.inner_text("#toast"), "Restoring in a family says so and offers Undo")
             await mum.wait_for_timeout(800); await sync_now(mum); await sync_now(dad); await goals(dad)
             check(not await dad.locator('[data-tick="ncp-sci-4-5"]').is_checked() and await dad.locator('[data-tick="ncp-sci-4-2"]').is_checked(),

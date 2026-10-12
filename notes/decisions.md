@@ -158,4 +158,5 @@ All checks were made on 11 October 2026 unless stated.
 - Removing a child can now be undone.
 - The footer's last line now changes: "this phone only" when signed out, "this phone and your family's copy on the Ilm Track server" in a family.
 - Developer credit, as the owner asked: "Developed by Abul Laith Muhammad Tahir Qadri, Karachi" in the footer (Home, More), an "About Ilm Track" panel at the top of More → About and sources (renamed from Sources), the progress report footer, the page's author meta tag, and the README.
+- Same day, at the owner's request ("why is backup showing code"): Backup no longer shows the raw backup text. Saving is a **Share backup** button (phones that can share files, e.g. to WhatsApp) and **Download backup file**, above a plain list of each child (class, ticks, books, surahs, routine days). Restoring is **Choose backup file**, which shows a preview card ("Backup from …", the children, what will be replaced) with **Restore** and **Cancel**. The text versions stay folded under "Copy as text instead" and "Paste backup text instead" for the artifact build and for pasting from a message.
 

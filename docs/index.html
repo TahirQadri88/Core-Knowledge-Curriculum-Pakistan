@@ -210,6 +210,12 @@ th{font-size:.85rem;color:var(--muted)}
 .ladder-row .bar{height:8px}
 .ladder-row.cur{font-weight:700}
 .srclist{display:grid;gap:8px;margin:0;padding-inline-start:1.2rem}
+.bk-kids{list-style:none;margin:0;padding:0;display:grid}
+.bk-kids li{display:grid;gap:2px;padding-block:10px;border-bottom:1px solid var(--line)}
+.bk-kids li:last-child{border-bottom:0}
+.bk-kids span{color:var(--muted);font-size:.9rem}
+.bk-check{border:1px solid var(--control-line);border-radius:var(--r);padding:12px 14px;display:grid;gap:10px;background:var(--tint)}
+.backup details > summary{display:flex;align-items:center;justify-content:flex-start;padding-inline:0;min-height:var(--tap);color:var(--accent);font-weight:600}
 .backup textarea{width:100%;min-height:9rem;font-family:var(--f-mono);font-size:.78rem;border:1px solid var(--control-line);background:var(--paper);border-radius:8px;padding:8px}
 .toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:4px 4px 4px 14px;min-height:var(--tap);border-radius:8px;font-weight:600;z-index:9;display:flex;align-items:center;gap:10px;width:max-content;max-width:calc(100vw - 32px)}
 .toast:not(:has(button)){padding-inline-end:14px}
@@ -2254,12 +2260,20 @@ function renderReport() {
   $("#printRep").addEventListener("click", () => window.print());
 }
 
+/* one line per child: what a backup holds, in words rather than code */
+function bkKids(list) {
+  return list.map(st => { const ticks = Object.values(st.status || {}).filter(v => v?.st === "done").length, surahs = Object.keys(st.quran?.h || {}).length,
+      books = (st.books || []).length, days = Object.keys(st.routine?.days || {}).length;
+    const bits = [GRADE_NAMES[st.grade], `${ticks} ticked`, books && `${books} book${books === 1 ? "" : "s"}`, surahs && `${surahs} surah${surahs === 1 ? "" : "s"}`, days && `${days} routine day${days === 1 ? "" : "s"}`].filter(Boolean);
+    return `<li><b>${esc(st.name)}${st.sample || st.example ? " (sample)" : ""}</b><span>${bits.join(" · ")}</span></li>`; }).join("");
+}
 /* ---------- Backup tab ----------
    With family sync, the server holds the family's copy and any signed-in phone gets it back, so the backup file becomes
    a second, private copy. Restoring on a parent's phone also replaces the family's copy; a child's phone cannot restore. */
 function renderBackup() {
   const json = JSON.stringify({ app: "ckledger", v: 2, exported: today(), students: state.students }, null, 1);
   const canDownload = !!document.querySelector('link[rel="manifest"]');
+  let canShare = false; try { canShare = !!navigator.canShare?.({ files: [new File(["{}"], "b.json", { type: "application/json" })] }); } catch (e) {}
   const fam = inFamily() ? famInfo() : null, childPhone = fam?.role === "child";
   const when = sync.at ? new Date(sync.at).toLocaleString("en-GB", { hour: "numeric", minute: "2-digit", day: "numeric", month: "short" }) : "not yet";
   const where = fam
@@ -2268,20 +2282,27 @@ function renderBackup() {
        <div class="actions"><button class="btn" id="refetch">Download the family copy again</button></div>`
     : net.ok
       ? `<p style="max-width:65ch">On this phone only. To keep a copy on the server as well, sign in and start a family.</p><div class="actions"><a class="btn" href="#/more/family" data-go="more/family">Set up family sync</a></div>`
-      : `<p style="max-width:65ch">On this phone only. Family sync needs the <a href="https://ilmtrack.pages.dev">ilmtrack.pages.dev</a> address, so copy a backup now and then.</p>`;
+      : `<p style="max-width:65ch">On this phone only. Family sync needs the <a href="https://ilmtrack.pages.dev">ilmtrack.pages.dev</a> address, so save a backup file now and then.</p>`;
   $("#moreBody").innerHTML = `<div class="stack backup">
     <section class="panel"><h2>Where your progress is kept</h2>${where}</section>
     <section class="panel"><h2>Save a backup</h2>
-      <p class="hint">${fam ? "A file you keep yourself, such as in an email to yourself. Useful before big changes, or if the family is ever deleted." : "Clearing site data or changing phones loses progress, so keep a backup somewhere safe, such as an email to yourself."}</p>
-      <label class="label" for="bk">Backup text</label><textarea id="bk" readonly>${esc(json)}</textarea>
-      <div class="actions"><button class="btn primary" id="copyBk">Copy backup</button>${canDownload ? '<button class="btn" id="dlBk">Download file</button>' : ""}</div>
+      <p class="hint">${fam ? "A file you keep yourself, for example on WhatsApp or in an email to yourself. Useful before big changes, or if the family is ever deleted." : "Clearing site data or changing phones loses progress, so save a backup file now and then, for example on WhatsApp or in an email to yourself."}</p>
+      <ul class="bk-kids" aria-label="In this backup">${bkKids(state.students)}</ul>
+      <div class="actions">${canShare ? '<button class="btn primary" id="shareBk">Share backup</button>' : ""}${canDownload ? `<button class="btn${canShare ? "" : " primary"}" id="dlBk">Download backup file</button>` : ""}${!canShare && !canDownload ? '<button class="btn primary" id="copyBk2">Copy backup</button>' : ""}</div>
+      <details><summary class="linkbtn">Copy as text instead</summary>
+        <div class="stack-s"><p class="hint">For pasting into a note or message. Copy all of it.</p>
+        <label class="label" for="bk">Backup text</label><textarea id="bk" readonly>${esc(json)}</textarea>
+        <div class="actions"><button class="btn" id="copyBk">Copy backup text</button></div></div></details>
     </section>
     <section class="panel"><h2>Restore</h2>
       ${childPhone ? `<p class="hint">A child’s phone cannot restore a backup. Ask a parent to restore it on their phone; it then reaches every phone.</p>` : `
-      <p class="hint">Paste a backup or choose a backup file. Restoring replaces every child on this phone${fam ? `, and in ${esc(fam.name)} on every phone` : ""}. You can undo straight after.</p>
-      <label class="label" for="imp">Paste backup</label><textarea id="imp" placeholder='{"app":"ckledger", ...}'></textarea>
-      <div class="actions"><button class="btn primary" id="doImp">Restore from text</button><label class="btn" for="impFile">Choose file</label><input type="file" id="impFile" accept=".json,application/json" hidden></div>
-      <p id="impMsg" class="hint"></p>`}
+      <p class="hint">Choose a backup file you saved earlier. You will see what is in it before anything changes.</p>
+      <div class="actions"><label class="btn primary" for="impFile" tabindex="0" role="button" id="impPick">Choose backup file</label><input type="file" id="impFile" accept=".json,application/json,text/plain" hidden></div>
+      <details><summary class="linkbtn">Paste backup text instead</summary>
+        <div class="stack-s"><label class="label" for="imp">Backup text</label><textarea id="imp" placeholder="Paste the whole backup here"></textarea>
+        <div class="actions"><button class="btn" id="doImp">Check this backup</button></div></div></details>
+      <p id="impMsg" class="hint" role="status"></p>
+      <div id="impPreview"></div>`}
     </section>
     ${childPhone ? "" : `<section class="panel"><h2>Remove a child</h2>
       <div class="actions">${state.students.map(s => `<button class="btn small danger" data-del="${s.id}">${esc(s.name)}</button>`).join("")}</div>
@@ -2290,19 +2311,34 @@ function renderBackup() {
   $("#copyBk").addEventListener("click", () => { const t = $("#bk");
     if (navigator.clipboard?.writeText) navigator.clipboard.writeText(t.value).then(() => toast("Backup copied"), () => { t.select(); toast("Select all and copy"); });
     else { t.select(); toast("Select all and copy"); } });
+  const file = () => new File([json], "ilmtrack-backup-" + today() + ".json", { type: "application/json" });
+  $("#shareBk")?.addEventListener("click", () => navigator.share({ files: [file()], title: "Ilm Track backup" }).then(() => toast("Backup shared"), e => { if (e.name !== "AbortError") toast("Sharing did not work; try Download"); }));
+  $("#copyBk2")?.addEventListener("click", () => $("#copyBk").click());
   $("#dlBk")?.addEventListener("click", () => { try { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([json], { type: "application/json" }));
     a.download = "ilmtrack-backup-" + today() + ".json"; document.body.appendChild(a); a.click(); a.remove(); toast("Download started"); } catch (e) { toast("Download not available here; use Copy"); } });
   const putBack = (students, active) => { state.students = students; state.active = active; viewGrade = bookClass = goalClass = null; save(); fillStudent(); render(); };
-  const restore = txt => { try { const d = JSON.parse(txt); const s = { students: d.students };
-      if (!valid(s)) throw new Error("shape"); s.students.forEach(fix);
+  let pending = null;
+  const check = txt => { try { const d = JSON.parse(txt); const s = { students: d.students };
+      if (!valid(s)) throw new Error("shape"); s.students.forEach(fix); pending = s;
+      const n = s.students.length, kids = n === 1 ? "child" : "children";
+      $("#impMsg").textContent = "";
+      $("#impPreview").innerHTML = `<div class="bk-check"><h3 style="margin:0">Backup${d.exported ? " from " + esc(new Date(d.exported + "T12:00").toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })) : ""}</h3>
+        <ul class="bk-kids">${bkKids(s.students)}</ul>
+        <p class="notice us" style="margin:0">Restoring replaces the ${state.students.length === 1 ? "child" : `${state.students.length} children`} on this phone${inFamily() ? `, and on every phone in ${esc(famInfo()?.name || "your family")}` : ""}. You can undo straight after.</p>
+        <div class="actions"><button class="btn primary" id="doRestore">Restore ${n} ${kids}</button><button class="btn" id="noRestore">Cancel</button></div></div>`;
+      $("#doRestore").addEventListener("click", () => restore(pending));
+      $("#noRestore").addEventListener("click", () => { pending = null; $("#impPreview").innerHTML = ""; $("#impFile").value = ""; });
+      $("#doRestore").focus(); }
+    catch (e) { pending = null; $("#impPreview").innerHTML = ""; $("#impMsg").textContent = "That is not an Ilm Track backup. Choose the file saved from Backup, or paste the whole text."; } };
+  const restore = s => {
       // restored children belong to this family now, even if the backup came from a phone that kept them local
       if (inFamily()) s.students.forEach(st => { delete st.nosync; st.sample = st.example = false; });
       const before = state.students, was = state.active;
       state.students = s.students; state.active = s.students[0].id; viewGrade = bookClass = goalClass = null; save(); fillStudent(); tabTo("home");
-      toast(`Restored ${s.students.length} ${s.students.length === 1 ? "child" : "children"}${inFamily() ? " for the whole family" : ""}`, () => putBack(before, was)); }
-    catch (e) { $("#impMsg").textContent = "That text is not an Ilm Track backup. Copy the whole backup, from the first { to the last }."; } };
-  $("#doImp")?.addEventListener("click", () => restore($("#imp").value));
-  $("#impFile")?.addEventListener("change", e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => restore(r.result); r.readAsText(f); });
+      toast(`Restored ${s.students.length} ${s.students.length === 1 ? "child" : "children"}${inFamily() ? " for the whole family" : ""}`, () => putBack(before, was)); };
+  $("#doImp")?.addEventListener("click", () => check($("#imp").value));
+  $("#impPick")?.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("#impFile").click(); } });
+  $("#impFile")?.addEventListener("change", e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => check(r.result); r.readAsText(f); });
   let armedRe = false;
   $("#refetch")?.addEventListener("click", async () => {
     if (!navigator.onLine) return toast("You are offline. Try again when connected.");
