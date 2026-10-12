@@ -21,10 +21,10 @@ doc = f"""<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0d6b61">
-<meta name="description" content="Track your child's school books, Core Knowledge units and character goals, chapter by chapter. Works offline.">
+<meta name="description" content="What your child should learn each class, with school books, Qur'an, character and daily routine. Works offline.">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="CK Ledger">
+<meta name="apple-mobile-web-app-title" content="Ilm Track">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon-192.png">
@@ -40,9 +40,9 @@ open(os.path.join(pwa, "index.html"), "w", encoding="utf-8").write(doc)
 
 manifest = {
     "id": "./",
-    "name": "Core Knowledge Ledger",
-    "short_name": "CK Ledger",
-    "description": "Track your child's school books, Core Knowledge units and character goals, chapter by chapter. Works offline.",
+    "name": "Ilm Track: Core Knowledge Tracker for Pakistani Students",
+    "short_name": "Ilm Track",
+    "description": "What your child should learn each class, with school books, Qur'an, character and daily routine. Works offline.",
     "lang": "en",
     "categories": ["education", "kids"],
     "orientation": "portrait",
@@ -59,8 +59,8 @@ manifest = {
 }
 json.dump(manifest, open(os.path.join(pwa, "manifest.json"), "w"), indent=2)
 
-sw = """/* Core Knowledge Ledger service worker: cache the app shell for offline use. */
-const CACHE = "ckledger-v19";
+sw = """/* Ilm Track service worker: cache the app shell for offline use. */
+const CACHE = "ckledger-v20";
 const SHELL = ["./", "./index.html", "./manifest.json", "./icons/icon-180.png", "./icons/icon-192.png", "./icons/icon-512.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
@@ -105,7 +105,7 @@ icon(180, True).save(os.path.join(pwa, "icons", "icon-180.png"))  # iPhone home 
 icon(512).save(os.path.join(pwa, "icons", "icon-512.png"))
 icon(512, True).save(os.path.join(pwa, "icons", "icon-maskable-512.png"))
 
-readme = """# Core Knowledge Ledger (PWA)
+readme = """# Ilm Track (PWA)
 
 A self-contained progressive web app for tracking Core Knowledge objectives (Kindergarten to Grade 8)
 for students and parents. All 256 Core Knowledge units and their source links are inside index.html.
@@ -137,10 +137,10 @@ This app is independent and not affiliated with the Core Knowledge Foundation.
 open(os.path.join(pwa, "README.md"), "w").write(readme)
 open(os.path.join(pwa, ".nojekyll"), "w").write("")
 
-zp = os.path.join(root, "build", "core-knowledge-ledger-pwa.zip")
+zp = os.path.join(root, "build", "ilmtrack-pwa.zip")
 with zipfile.ZipFile(zp, "w", zipfile.ZIP_DEFLATED) as z:
     for dp, _, fs in os.walk(pwa):
         for f in fs:
             full = os.path.join(dp, f)
-            z.write(full, os.path.join("core-knowledge-ledger", os.path.relpath(full, pwa)))
+            z.write(full, os.path.join("ilmtrack", os.path.relpath(full, pwa)))
 print("ok", os.path.getsize(zp))

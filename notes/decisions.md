@@ -56,6 +56,10 @@ All checks were made on 11 October 2026 unless stated.
 - Core Knowledge is now "Extra reading". It has no expected-by-now marker, because it is optional. U.S.-flagged units are hidden by default (`ui.hideUS`, switched on once for existing users by `ui.v = 2`), and hidden units do not count in percentages unless already done. History & Geography units are grouped by region (`HG_REGIONS`, `HG_REGION`; this tracker's grouping): 30 of 73 are about the United States, and 1 (Ancient India) is about South Asia.
 - Tabs became Class goals (first and default; setup lands there), School books, Character & deen, Extra reading, More (Compare, Backup, Sources). Compare now measures each child on their school books.
 
+## Name and address (12 October 2026)
+- The owner renamed the app **Ilm Track**, with the subtitle "Core Knowledge Tracker for Pakistani Students" (the owner's wording, kept as given). Published free at https://ilmtrack.pages.dev (Cloudflare Pages) as well as on GitHub Pages.
+- The saved-data key `ckledger.v1` and the backup id `"app": "ckledger"` are unchanged, so existing progress and backups still load.
+
 ## Daily routine (12 October 2026)
 - The owner asked for the routine to be open for each family to set up for each child, rather than fixed from the daily plan document.
 - Character & deen has a third section, Routine. Each child has their own list (`routine.items` = `{ id, t, at }`, where `at` is one of fajr, morning, zuhr, asr, maghrib, isha, any). Ticks are kept per local date in `routine.days[YYYY-MM-DD]` and pruned after 60 days. `fix()` gives the defaults.

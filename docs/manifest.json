@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "Core Knowledge Ledger",
-  "short_name": "CK Ledger",
-  "description": "Track your child's school books, Core Knowledge units and character goals, chapter by chapter. Works offline.",
+  "name": "Ilm Track: Core Knowledge Tracker for Pakistani Students",
+  "short_name": "Ilm Track",
+  "description": "What your child should learn each class, with school books, Qur'an, character and daily routine. Works offline.",
   "lang": "en",
   "categories": [
     "education",

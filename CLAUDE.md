@@ -1,4 +1,6 @@
-# Core Knowledge Ledger
+# Ilm Track
+
+Core Knowledge Tracker for Pakistani Students (formerly Core Knowledge Ledger). Live at https://ilmtrack.pages.dev.
 
 An offline progressive web app for Karachi families. Parents and students track:
 1. **Class goals**: what Pakistan's National Curriculum expects by the end of each class, KG to Class 8, in plain words.

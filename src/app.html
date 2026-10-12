@@ -1,4 +1,4 @@
-<title>Core Knowledge Ledger</title>
+<title>Ilm Track</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@500&display=swap">
@@ -228,8 +228,8 @@ footer{font-size:.85rem;color:var(--muted);max-width:70ch}
 <div class="wrap">
   <header class="top">
     <div class="brand">
-      <h1>Core Knowledge Ledger</h1>
-      <small>What your child should learn each class, their school books, and character</small>
+      <h1>Ilm Track</h1>
+      <small>Core Knowledge Tracker for Pakistani Students</small>
     </div>
     <div class="actions">
       <label class="label" for="studentSel">Child</label>
@@ -1018,7 +1018,7 @@ function renderSources() {
     <p style="max-width:65ch"><b>International extras</b> come from a class-by-class comparison with the <a href="https://www.coreknowledge.org/free-resource/core-knowledge-sequence/" target="_blank" rel="noopener">Core Knowledge Sequence</a> (2023 edition) for English, Mathematics, Science and History and Geography, made on 12 October 2026. Each extra shows its page in the Sequence. U.S.-only topics are not included, and neither are a few topics families may prefer to handle at home.</p>
     <p class="hint">Classes 1 to 3 study Science and Social Studies inside General Knowledge. A new national curriculum (2026) is in draft and is not used here yet.</p></section>
     <section class="panel"><h2>Where every Core Knowledge unit comes from</h2>
-    <p style="max-width:65ch">The ledger holds ${ITEMS.length} Core Knowledge units for Kindergarten to Grade 8. ${withPage} of them link to their own free download page on coreknowledge.org; every one of those addresses was matched against the Foundation’s own index of unit pages on 11 October 2026. The other ${ITEMS.length - withPage} have no separate page and link to their Online Resources guide instead.</p>
+    <p style="max-width:65ch">Ilm Track holds ${ITEMS.length} Core Knowledge units for Kindergarten to Grade 8. ${withPage} of them link to their own free download page on coreknowledge.org; every one of those addresses was matched against the Foundation’s own index of unit pages on 11 October 2026. The other ${ITEMS.length - withPage} have no separate page and link to their Online Resources guide instead.</p>
     <ol class="srclist">${Object.entries(SOURCES).map(([k, s]) => `<li><a href="${s.u}" target="_blank" rel="noopener">${esc(s.t)}</a>${counts[k] ? ` <span class="muted">· ${counts[k]} units</span>` : ""}</li>`).join("")}</ol>
     <p class="hint">Language Arts Grades 4 and 5 follow the units the Foundation currently offers for free, which differ from its 2014 scope-and-sequence documents. Three of them are built around a novel or memoir you buy separately. Tags such as <b>U.S. focus</b> and <b>Read first</b> are this tracker’s guidance for Pakistani Muslim families, not the Foundation’s.</p></section>
     <section class="panel"><h2>School books</h2>
@@ -1053,11 +1053,11 @@ function renderBackup() {
     if (navigator.clipboard?.writeText) navigator.clipboard.writeText(t.value).then(() => toast("Backup copied"), () => { t.select(); toast("Select all and copy"); });
     else { t.select(); toast("Select all and copy"); } });
   $("#dlBk")?.addEventListener("click", () => { try { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([json], { type: "application/json" }));
-    a.download = "ck-ledger-backup-" + today() + ".json"; document.body.appendChild(a); a.click(); a.remove(); toast("Download started"); } catch (e) { toast("Download not available here; use Copy"); } });
+    a.download = "ilmtrack-backup-" + today() + ".json"; document.body.appendChild(a); a.click(); a.remove(); toast("Download started"); } catch (e) { toast("Download not available here; use Copy"); } });
   const restore = txt => { try { const d = JSON.parse(txt); const s = { students: d.students };
       if (!valid(s)) throw new Error("shape"); s.students.forEach(fix);
       state.students = s.students; state.active = s.students[0].id; viewGrade = bookClass = goalClass = null; save(); fillStudent(); state.ui.tab = "books"; render(); toast("Restored " + s.students.length + " student(s)"); }
-    catch (e) { $("#impMsg").textContent = "That text is not a Core Knowledge Ledger backup. Copy the whole backup, from the first { to the last }."; } };
+    catch (e) { $("#impMsg").textContent = "That text is not an Ilm Track backup. Copy the whole backup, from the first { to the last }."; } };
   $("#doImp").addEventListener("click", () => restore($("#imp").value));
   $("#impFile").addEventListener("change", e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => restore(r.result); r.readAsText(f); });
   let armed = null;

@@ -1,4 +1,4 @@
-# Core Knowledge Ledger: setup with Claude Code
+# Ilm Track: setup with Claude Code
 
 How to put this project on GitHub, publish it free with GitHub Pages, add a free Firebase backend for family sync, and keep building it with Claude Code from a phone.
 
