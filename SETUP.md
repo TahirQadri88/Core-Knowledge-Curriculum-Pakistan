@@ -30,6 +30,15 @@ What you need: a GitHub account connected to Claude Code, a paid Claude plan tha
 ### Testing a branch before it goes to main
 A push to `main` or to any `claude/...` branch publishes that branch at the same address within a few minutes. The last push is what is live. Test the new feature there, then merge the branch into `main` so `main` matches what is live.
 
+### Short address: ilmtrack.pages.dev (Cloudflare Pages, free)
+The same app is also published at **https://ilmtrack.pages.dev** from `main`. Set it up once:
+1. Cloudflare dashboard → **Workers & Pages** → **Create** → **Pages** → **Connect to Git**. Allow Cloudflare to see this repository, then pick it.
+2. Project name: `ilmtrack`. Production branch: `main`.
+3. Framework preset: **None**. Build command: `python3 build.py`. Build output directory: `docs`.
+4. **Save and Deploy**. Cloudflare installs Pillow from `requirements.txt`, runs the build and publishes `docs/`. Later pushes to `main` publish automatically; pushes to other branches get their own preview addresses.
+
+Saved progress belongs to the address it was made on. To move a child's progress from the GitHub Pages address: open the old address, **More → Backup → Copy backup**, then open ilmtrack.pages.dev, **More → Backup → paste → Restore from text**. When Firebase sign-in is added, also add `ilmtrack.pages.dev` under Authentication → Settings → Authorized domains.
+
 ## 3. First Claude Code session
 
 Open Claude Code, start a session on the `ck-ledger` repository, and send:
@@ -162,6 +171,7 @@ Progress recorded in the earlier claude.ai version of the app lives only in that
 | `src/app.html` | The app: HTML, CSS and JavaScript |
 | `src/data.js` | National Curriculum class goals, Core Knowledge units, school book list and chapters, character list |
 | `build.py` | Builds `docs/` (the live app) and `build/` (single-file version and zip) |
+| `requirements.txt` | Python packages the build needs (Pillow), used by Cloudflare Pages |
 | `docs/` | Generated app (the Pages workflow rebuilds it); do not edit by hand |
 | `.github/workflows/pages.yml` | Publishes `main` and `claude/...` branches to GitHub Pages |
 | `scripts/test_app.py` | Browser smoke test |

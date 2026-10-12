@@ -15,6 +15,7 @@ Owner: Tahir (Karachi). Users: Pakistani Muslim parents on phones, Sindh Board, 
 - `scripts/test_app.py`: browser smoke test of `docs/`. `scripts/check_links.py`: checks every unit link against coreknowledge.org.
 - `docs/` is generated. Never edit it by hand; edit `src/` and rebuild.
 - GitHub Pages (source: GitHub Actions, `.github/workflows/pages.yml`) runs `build.py` and publishes `docs/` on every push to `main` or a `claude/**` branch. The last push is live; the owner tests it there and then merges into `main`.
+- Cloudflare Pages also publishes `main` at https://ilmtrack.pages.dev (build `python3 build.py`, output `docs`, Pillow from `requirements.txt`). Keep every path in the app relative so both addresses work.
 - `notes/`: background and decisions. Read `notes/decisions.md` before changing data or features.
 - `SETUP.md`: step-by-step setup for GitHub, GitHub Pages, Firebase and Claude Code prompts.
 
