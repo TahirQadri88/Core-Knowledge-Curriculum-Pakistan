@@ -8,6 +8,8 @@ An offline progressive web app for Karachi families. Parents and students track:
 3. **Character & deen**: Qur'an hifz, revision and reading, a daily routine each family sets up per child around the five prayers, and the qualities from the article *Things Every Child (4–12) Should Learn — Beyond Just Good Grades* by Abul Laith Muhammad Tahir Qadri, tracked on four levels (Not yet, Learning, Often, Habit).
 4. **Extra reading**: optional Core Knowledge units, Kindergarten to Grade 8 (Language Arts CKLA, History & Geography CKHG, Science CKSci), by class.
 
+Status (12 October 2026): still being built and tested by the owner; no active users yet. Keep the saved-data rules anyway, so real families' progress is safe once they start.
+
 Owner: Tahir (Karachi). Users: Pakistani Muslim parents on phones, Sindh Board, O Level and homeschool families.
 
 ## Layout
