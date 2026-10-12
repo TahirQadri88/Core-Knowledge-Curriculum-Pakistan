@@ -17,6 +17,14 @@ def serve():
     return srv, srv.server_address[1]
 
 
+
+async def launch(p):
+    """Playwright's own browser, or the preinstalled one when the pinned build is missing (e.g. cloud sessions)."""
+    try:
+        return await p.chromium.launch()
+    except Exception:
+        return await p.chromium.launch(executable_path=os.environ.get("CHROMIUM", "/opt/pw-browsers/chromium"))
+
 async def main():
     from playwright.async_api import async_playwright
     srv, port = serve()
@@ -28,7 +36,7 @@ async def main():
             fails.append(msg)
 
     async with async_playwright() as p:
-        b = await p.chromium.launch()
+        b = await launch(p)
         pg = await b.new_page(viewport={"width": 400, "height": 900})
         errors = []
         pg.on("pageerror", lambda e: errors.append(str(e)))
@@ -186,9 +194,14 @@ async def main():
         check("ilmtrack.pages.dev" in await pg.inner_text("#moreBody") and await pg.locator("#syncChip").is_hidden(),
               "Without the sync server, Family explains where sync works and no sync status shows")
         await pg.locator("#backBtn").click(); await pg.locator('[data-go="more/sources"]').click(); await pg.wait_for_timeout(100)
-        check(await pg.locator("#moreBody h2").count() >= 1, "More shows Sources")
+        check("Abul Laith Muhammad Tahir Qadri" in await pg.inner_text("#moreBody") and await pg.inner_text("#screenTitle") == "About and sources", "About and sources credits the developer")
         await pg.locator("#backBtn").click(); await pg.locator('[data-go="more/backup"]').click(); await pg.wait_for_timeout(100)
         check("ckledger" in await pg.input_value("#bk"), "More shows Backup and the backup text is produced")
+        check("On this phone only" in await pg.inner_text("#moreBody") and await pg.locator("#refetch").count() == 0, "Without the server, Backup says progress is on this phone only")
+        name0 = (await pg.locator(".backup [data-del]").first.inner_text()).strip()
+        await pg.locator(".backup [data-del]").first.click(); await pg.locator(".backup [data-del]").first.click(); await pg.wait_for_timeout(200)
+        await pg.locator("#toast button").click(); await pg.wait_for_timeout(200)
+        check(name0 in await pg.inner_text("#studentSel"), "Removing a child can be undone")
         await pg.locator("#backBtn").click(); await pg.locator('[data-go="more/child"]').click(); await pg.wait_for_timeout(100)
         check(await pg.locator("#childCard").is_visible() and await pg.locator("#fName").is_visible(), "Child details has its own screen")
         await pg.locator("#backBtn").click(); await pg.wait_for_timeout(100)

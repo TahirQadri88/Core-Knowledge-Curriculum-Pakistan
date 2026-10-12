@@ -13,6 +13,7 @@
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <title>Ilm Track</title>
+<meta name="author" content="Abul Laith Muhammad Tahir Qadri">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@500&display=swap">
@@ -379,7 +380,7 @@ body{padding-bottom:calc(68px + env(safe-area-inset-bottom))}
 
   <main id="view" tabindex="-1" aria-labelledby="screenTitle"></main>
 
-  <footer id="appFooter">Class goals: summarised from Pakistan’s National Curriculum (National Curriculum Council, ncc.gov.pk). Extra reading: Core Knowledge Foundation unit pages, checked on coreknowledge.org on 11 October 2026. This tracker is independent and not affiliated with the National Curriculum Council, the Core Knowledge Foundation or Oxford University Press. Progress is saved on this device only; use More, then Backup, to move it.</footer>
+  <footer id="appFooter">Class goals: summarised from Pakistan’s National Curriculum (National Curriculum Council, ncc.gov.pk). Extra reading: Core Knowledge Foundation unit pages, checked on coreknowledge.org on 11 October 2026. This tracker is independent and not affiliated with the National Curriculum Council, the Core Knowledge Foundation or Oxford University Press. <span id="saveNote">Progress is saved on this phone only; use More, then Backup, to keep a copy.</span> <span class="dev">Developed by Abul Laith Muhammad Tahir Qadri, Karachi.</span></footer>
 </div>
 <nav class="tabbar" aria-label="Sections">
   <a class="tabbar-item" id="tab-home" href="#/home" data-tab="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg><span>Home</span></a>
@@ -1595,7 +1596,7 @@ const SCREENS = {
   books: [sub => sub ? "Book" : "School books", sub => sub ? renderBook(sub) : renderBooks()],
   deen: [sub => ({ quran: "Qur’an", char: "Character", routine: "Daily routine" }[sub] || "Character & deen"), sub => ({ quran: renderQuran, char: renderChar, routine: renderRoutine }[sub] || renderDeen)()],
   track: [() => "Extra reading", () => renderTrack()],
-  more: [sub => ({ family: "Family", compare: "Compare children", backup: "Backup", sources: "Sources", child: "Child details" }[sub] || "More"), sub => renderMoreScreen(sub)],
+  more: [sub => ({ family: "Family", compare: "Compare children", backup: "Backup", sources: "About and sources", child: "Child details" }[sub] || "More"), sub => renderMoreScreen(sub)],
   report: [() => "Progress report", () => renderReport()]
 };
 function render() {
@@ -1676,7 +1677,7 @@ function renderMoreScreen(sub) {
       ${navRow("report", "Progress report", "Print or save as PDF")}
       ${navRow("more/compare", "Compare children", `${state.students.length} child${state.students.length === 1 ? "" : "ren"}`)}
       ${navRow("more/backup", "Backup", "Save or restore everything on this phone")}
-      ${navRow("more/sources", "Sources", "Where every goal, unit and list comes from")}
+      ${navRow("more/sources", "About and sources", "Who made Ilm Track, and where every goal and unit comes from")}
     </ul>
     <div class="actions"><button class="btn" data-addchild>Add child</button><button class="btn primary" data-install hidden>Install app</button></div>
   </div>`;
@@ -2184,7 +2185,10 @@ function renderCompare() {
 function renderSources() {
   const counts = {}; ITEMS.forEach(i => counts[i.src] = (counts[i.src] || 0) + 1);
   const withPage = ITEMS.filter(i => i.page).length;
-  $("#moreBody").innerHTML = `<div class="stack"><section class="panel"><h2>Class goals: Pakistan’s National Curriculum</h2>
+  $("#moreBody").innerHTML = `<div class="stack"><section class="panel"><h2>About Ilm Track</h2>
+    <p style="max-width:65ch">Ilm Track: Core Knowledge Tracker for Pakistani Students. Developed by <b>Abul Laith Muhammad Tahir Qadri</b>, Karachi, for Pakistani Muslim families who want to follow their children’s learning, deen and character in one place.</p>
+    <p class="hint">Independent. Not affiliated with the National Curriculum Council, the Core Knowledge Foundation or Oxford University Press.</p></section>
+    <section class="panel"><h2>Class goals: Pakistan’s National Curriculum</h2>
     <p style="max-width:65ch">The <b>Class goals</b> tab summarises, in plain words, the progression grids published by the National Curriculum Council of Pakistan on <a href="https://ncc.gov.pk/" target="_blank" rel="noopener">ncc.gov.pk</a>. Those in force are the National Curriculum of Pakistan 2020 (Early Childhood to Class 5) and 2022-23 (Classes 6 to 8). Each goal shows the grid’s own learning outcome codes. The summaries were written on 11 October 2026; read the original grid for the full detail.</p>
     <ol class="srclist">${Object.values(NCP_SUBJ).map(m => `<li><a href="${NCF + m.src}" target="_blank" rel="noopener">${esc(m.n)}: ${esc(m.st)}</a> <span class="muted">(PDF)</span></li>`).join("")}</ol>
     <p style="max-width:65ch"><b>International extras</b> come from a class-by-class comparison with the <a href="https://www.coreknowledge.org/free-resource/core-knowledge-sequence/" target="_blank" rel="noopener">Core Knowledge Sequence</a> (2023 edition) for English, Mathematics, Science and History and Geography, made on 12 October 2026. Each extra shows its page in the Sequence. U.S.-only topics are not included, and neither are a few topics families may prefer to handle at home.</p>
@@ -2245,49 +2249,81 @@ function renderReport() {
         ${habits.length ? `<p><b>Habits formed:</b> ${habits.join("; ")}.</p>` : ""}
         <p class="muted" style="font-size:.85rem">Qualities from <i>Things Every Child (4–12) Should Learn — Beyond Just Good Grades</i> by Abul Laith Muhammad Tahir Qadri.</p></section>
       <section><h2>Daily routine, last 7 days</h2>${st.routine.items.length ? `<div class="rp-days">${days}</div>` : `<p class="muted">No routine set up yet.</p>`}</section>
-      <footer class="rp-foot">Recorded by the family in Ilm Track, an independent tracker. Class goals are summarised from Pakistan’s National Curriculum (ncc.gov.pk); international extras are compared with the Core Knowledge Sequence (2023). Not affiliated with the National Curriculum Council, the Core Knowledge Foundation or Oxford University Press.</footer>
+      <footer class="rp-foot">Recorded by the family in Ilm Track, an independent tracker developed by Abul Laith Muhammad Tahir Qadri, Karachi. Class goals are summarised from Pakistan’s National Curriculum (ncc.gov.pk); international extras are compared with the Core Knowledge Sequence (2023). Not affiliated with the National Curriculum Council, the Core Knowledge Foundation or Oxford University Press.</footer>
     </article></div>`;
   $("#printRep").addEventListener("click", () => window.print());
 }
 
-/* ---------- Backup tab ---------- */
+/* ---------- Backup tab ----------
+   With family sync, the server holds the family's copy and any signed-in phone gets it back, so the backup file becomes
+   a second, private copy. Restoring on a parent's phone also replaces the family's copy; a child's phone cannot restore. */
 function renderBackup() {
   const json = JSON.stringify({ app: "ckledger", v: 2, exported: today(), students: state.students }, null, 1);
   const canDownload = !!document.querySelector('link[rel="manifest"]');
+  const fam = inFamily() ? famInfo() : null, childPhone = fam?.role === "child";
+  const when = sync.at ? new Date(sync.at).toLocaleString("en-GB", { hour: "numeric", minute: "2-digit", day: "numeric", month: "short" }) : "not yet";
+  const where = fam
+    ? `<p style="max-width:65ch">On this phone, and on the Ilm Track server in <b>${esc(fam.name)}</b>. Last synced: ${esc(when)}. A new or reset phone gets everything back by signing in and joining the family.</p>
+       <p class="hint">Use this if this phone looks different from the others. It sends this phone’s unsynced changes first, then downloads the family’s copy again.</p>
+       <div class="actions"><button class="btn" id="refetch">Download the family copy again</button></div>`
+    : net.ok
+      ? `<p style="max-width:65ch">On this phone only. To keep a copy on the server as well, sign in and start a family.</p><div class="actions"><a class="btn" href="#/more/family" data-go="more/family">Set up family sync</a></div>`
+      : `<p style="max-width:65ch">On this phone only. Family sync needs the <a href="https://ilmtrack.pages.dev">ilmtrack.pages.dev</a> address, so copy a backup now and then.</p>`;
   $("#moreBody").innerHTML = `<div class="stack backup">
+    <section class="panel"><h2>Where your progress is kept</h2>${where}</section>
     <section class="panel"><h2>Save a backup</h2>
-      <p class="hint">Progress lives in this browser only. Clearing site data or changing phones loses it, so copy a backup now and then and keep it somewhere safe, such as an email to yourself.</p>
+      <p class="hint">${fam ? "A file you keep yourself, such as in an email to yourself. Useful before big changes, or if the family is ever deleted." : "Clearing site data or changing phones loses progress, so keep a backup somewhere safe, such as an email to yourself."}</p>
       <label class="label" for="bk">Backup text</label><textarea id="bk" readonly>${esc(json)}</textarea>
       <div class="actions"><button class="btn primary" id="copyBk">Copy backup</button>${canDownload ? '<button class="btn" id="dlBk">Download file</button>' : ""}</div>
     </section>
     <section class="panel"><h2>Restore</h2>
-      <p class="hint">Paste a backup or choose a backup file. Restoring replaces every child on this device${inFamily() ? ", and in your family on every phone" : ""}.</p>
+      ${childPhone ? `<p class="hint">A child’s phone cannot restore a backup. Ask a parent to restore it on their phone; it then reaches every phone.</p>` : `
+      <p class="hint">Paste a backup or choose a backup file. Restoring replaces every child on this phone${fam ? `, and in ${esc(fam.name)} on every phone` : ""}. You can undo straight after.</p>
       <label class="label" for="imp">Paste backup</label><textarea id="imp" placeholder='{"app":"ckledger", ...}'></textarea>
       <div class="actions"><button class="btn primary" id="doImp">Restore from text</button><label class="btn" for="impFile">Choose file</label><input type="file" id="impFile" accept=".json,application/json" hidden></div>
-      <p id="impMsg" class="hint"></p>
+      <p id="impMsg" class="hint"></p>`}
     </section>
-    <section class="panel"><h2>Remove a child</h2>
+    ${childPhone ? "" : `<section class="panel"><h2>Remove a child</h2>
       <div class="actions">${state.students.map(s => `<button class="btn small danger" data-del="${s.id}">${esc(s.name)}</button>`).join("")}</div>
-      <p id="delMsg" class="hint">Tap a name, then tap it again to confirm.${inFamily() ? " This also removes the child from your family on every phone." : ""}</p>
-    </section></div>`;
+      <p id="delMsg" class="hint">Tap a name, then tap it again to confirm.${fam ? " This also removes the child from your family on every phone." : ""}</p>
+    </section>`}</div>`;
   $("#copyBk").addEventListener("click", () => { const t = $("#bk");
     if (navigator.clipboard?.writeText) navigator.clipboard.writeText(t.value).then(() => toast("Backup copied"), () => { t.select(); toast("Select all and copy"); });
     else { t.select(); toast("Select all and copy"); } });
   $("#dlBk")?.addEventListener("click", () => { try { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([json], { type: "application/json" }));
     a.download = "ilmtrack-backup-" + today() + ".json"; document.body.appendChild(a); a.click(); a.remove(); toast("Download started"); } catch (e) { toast("Download not available here; use Copy"); } });
+  const putBack = (students, active) => { state.students = students; state.active = active; viewGrade = bookClass = goalClass = null; save(); fillStudent(); render(); };
   const restore = txt => { try { const d = JSON.parse(txt); const s = { students: d.students };
       if (!valid(s)) throw new Error("shape"); s.students.forEach(fix);
-      state.students = s.students; state.active = s.students[0].id; viewGrade = bookClass = goalClass = null; save(); fillStudent(); tabTo("home"); toast(`Restored ${s.students.length} ${s.students.length === 1 ? "child" : "children"}`); }
+      // restored children belong to this family now, even if the backup came from a phone that kept them local
+      if (inFamily()) s.students.forEach(st => { delete st.nosync; st.sample = st.example = false; });
+      const before = state.students, was = state.active;
+      state.students = s.students; state.active = s.students[0].id; viewGrade = bookClass = goalClass = null; save(); fillStudent(); tabTo("home");
+      toast(`Restored ${s.students.length} ${s.students.length === 1 ? "child" : "children"}${inFamily() ? " for the whole family" : ""}`, () => putBack(before, was)); }
     catch (e) { $("#impMsg").textContent = "That text is not an Ilm Track backup. Copy the whole backup, from the first { to the last }."; } };
-  $("#doImp").addEventListener("click", () => restore($("#imp").value));
-  $("#impFile").addEventListener("change", e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => restore(r.result); r.readAsText(f); });
+  $("#doImp")?.addEventListener("click", () => restore($("#imp").value));
+  $("#impFile")?.addEventListener("change", e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => restore(r.result); r.readAsText(f); });
+  let armedRe = false;
+  $("#refetch")?.addEventListener("click", async () => {
+    if (!navigator.onLine) return toast("You are offline. Try again when connected.");
+    if (!armedRe) { armedRe = true; $("#refetch").textContent = "Tap again to download"; return; }
+    await syncNow();
+    if (net.err) return toast(net.err);
+    const before = state.students, was = state.active;
+    state.students = [newStudent("Child 1", null, cur().grade, true)]; state.active = state.students[0].id;
+    sync = { family: sync.family, role: sync.role, cursor: 0, snap: { docs: {}, marks: {} }, fresh: true, ask: false };
+    saveSync(); localSave(); await syncNow();
+    if (net.err) { state.students = before; state.active = was; localSave(); fillStudent(); render(); return toast(net.err); }
+    renderBackup(); toast("Downloaded the family copy", () => putBack(before, was));
+  });
   let armed = null;
   document.querySelectorAll("[data-del]").forEach(b => b.addEventListener("click", () => {
     const id = b.dataset.del;
     if (armed !== id) { armed = id; $("#delMsg").textContent = `Tap “${b.textContent}” again to delete this child and all their progress.`; return; }
+    const before = state.students, was = state.active;
     state.students = state.students.filter(s => s.id !== id);
     if (!state.students.length) state.students.push(newStudent("Child 1", 7, 2, false));
-    state.active = state.students[0].id; viewGrade = bookClass = goalClass = null; save(); fillStudent(); renderBackup(); toast("Child removed");
+    state.active = state.students[0].id; viewGrade = bookClass = goalClass = null; save(); fillStudent(); renderBackup(); toast("Child removed", () => putBack(before, was));
   }));
 }
 
@@ -2372,6 +2408,7 @@ function chip() {
   c.hidden = !inFamily();
   c.textContent = net.busy ? "Syncing…" : !navigator.onLine ? "Offline" : net.err ? "Not synced" : sync.at ? "Synced" : "Sync";
   c.setAttribute("aria-label", `Family sync: ${c.textContent}. Open Family`);
+  const n = $("#saveNote"); if (n) n.textContent = inFamily() ? "Progress is saved on this phone and in your family’s copy on the Ilm Track server." : "Progress is saved on this phone only; use More, then Backup, to keep a copy.";
 }
 async function syncNow() {
   if (!inFamily() || net.busy) return chip();

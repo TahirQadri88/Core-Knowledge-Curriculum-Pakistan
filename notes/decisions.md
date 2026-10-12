@@ -149,3 +149,13 @@ All checks were made on 11 October 2026 unless stated.
 - A printable term report (needs to run outside the claude.ai artifact viewer, which blocks printing).
 - Sindh Board textbook chapters as a second book source, with the same suggestion engine.
 - Weekly timetable view built from the daily plan document.
+
+## Backup with the server, and developer credit (12 October 2026)
+- With family sync live, the server holds the family's copy, so Backup now starts with "Where your progress is kept". Signed out, it says this phone only and links to Family; in a family, it names the family and the last sync.
+- New: **Download the family copy again**, for a phone that looks different from the others. It sends this phone's unsynced changes first, then downloads everything from the server. Two taps to start, Undo afterwards.
+- Restore on a parent's phone replaces every child in the family on every phone (sync deletes children not in the backup and sends the backup's ticks). It now offers Undo. Restored children lose any "keep on this phone only" flag, so they reach the family.
+- A child's phone cannot restore or remove a child, since it may change only ticks; it is told to ask a parent.
+- Removing a child can now be undone.
+- The footer's last line now changes: "this phone only" when signed out, "this phone and your family's copy on the Ilm Track server" in a family.
+- Developer credit, as the owner asked: "Developed by Abul Laith Muhammad Tahir Qadri, Karachi" in the footer (Home, More), an "About Ilm Track" panel at the top of More → About and sources (renamed from Sources), the progress report footer, the page's author meta tag, and the README.
+

@@ -44,6 +44,7 @@ After any change: build, run the test, and run the link check if `src/data.js` c
 ## Rules for the app
 - Vanilla JS, one HTML file, no framework, no build tools beyond `build.py`. External requests: Google Fonts (cached by the service worker), and Google's sign-in script (`accounts.google.com/gsi/client`), loaded only on More → Family when signed out on a site with the sync server. The service worker never caches `/api/`.
 - Saved data lives in localStorage under `ckledger.v1`. New student fields must get defaults in `fix()` so old backups still load. Backups must stay restorable.
+- Backup (More → Backup) says where progress is kept: this phone only, or this phone plus the family's server copy. In a family, a parent's restore replaces the family's copy on every phone (with Undo); a child's phone cannot restore or remove a child; **Download the family copy again** syncs first, then rebuilds the phone from the server.
 - When `docs/` content changes, bump `CACHE` in the service worker string inside `build.py` (e.g. `ckledger-v3`) so installed copies update.
 - Mobile first: must work at 400px wide with no horizontal scroll. Light and dark themes via the CSS tokens at the top of `src/app.html`; no literal colours in components.
 - Keyboard focus visible, every control labelled, `prefers-reduced-motion` respected.
@@ -53,7 +54,7 @@ After any change: build, run the test, and run the link check if `src/data.js` c
 - Messages go through `toast()`, which also announces them to screen readers; pass an undo function for anything destructive.
 - First visit: a two-question setup (child's name and class) on Home adds that class's `SCHOOL_LIST` books; `ui.welcome` controls it. **Add child** (Home and More, `data-addchild`) reuses the same form. Child details have their own screen (More → Child details). Say "child", not "student", in anything parents read.
 - **Install app** button: uses Chrome's install prompt when offered, otherwise shows Safari or Chrome steps. Hidden when already installed or in the artifact build.
-- Navigation: a bottom tab bar with five tabs: **Home** (default; the progress dashboard), **Goals**, **Books**, **Deen**, **Reading** (Core Knowledge). **More** is the ⋯ button in the top bar, covering Child details, Family, Progress report, Compare, Backup and Sources. Keep at most five tabs; tabs are for navigation only.
+- Navigation: a bottom tab bar with five tabs: **Home** (default; the progress dashboard), **Goals**, **Books**, **Deen**, **Reading** (Core Knowledge). **More** is the ⋯ button in the top bar, covering Child details, Family, Progress report, Compare, Backup and About and sources. Keep at most five tabs; tabs are for navigation only.
 - Screens are routes in the address (`#/goals/sci`, `#/books/<id>`, `#/deen/quran`, `#/more/family`, `#/report`). Tabs replace the history entry (`tabTo`); opening an item pushes one (`go`, or `data-go` on a link) and the top bar shows **Back**, so the phone's back button and swipe-back work. Add new screens to `SCREENS` with a title and a render function.
 - Progress report (`#/report`): an A4 page with print styles. Parents print it or save it as a PDF. It stays light like paper, even in dark mode.
 - Qur'an: surah data comes only from `SURAHS` (Tanzil Quran Metadata). Never type Qur'anic text or surah data from memory. Progress is keyed by surah number (`quran.h`), so never renumber.
@@ -79,4 +80,5 @@ After any change: build, run the test, and run the link check if `src/data.js` c
 - Plain, direct English. Short sentences. No filler, no "worth noting", no em-dash asides, no emoji section markers.
 - Use proper Islamic titles and salutations: the Prophet ﷺ, Sayyidunā …, Companions رضي الله عنه / رضي الله عنها / رضي الله عنهم, scholars رحمه الله.
 - Credit the character list to Abul Laith Muhammad Tahir Qadri, as written in the article.
+- Credit the developer as "Developed by Abul Laith Muhammad Tahir Qadri, Karachi": the footer on Home and More, More → About and sources, the progress report, the `author` meta tag and the README. Keep it on any new shareable page.
 - The app is independent; say it is not affiliated with the Core Knowledge Foundation or Oxford University Press.

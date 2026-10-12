@@ -8,6 +8,14 @@ PORT = 8791
 BASE = f"http://127.0.0.1:{PORT}"
 
 
+
+async def launch(p):
+    """Playwright's own browser, or the preinstalled one when the pinned build is missing (e.g. cloud sessions)."""
+    try:
+        return await p.chromium.launch()
+    except Exception:
+        return await p.chromium.launch(executable_path=os.environ.get("CHROMIUM", "/opt/pw-browsers/chromium"))
+
 async def main():
     from playwright.async_api import async_playwright
     srv = subprocess.Popen(["node", "--no-warnings", os.path.join(ROOT, "scripts", "dev_server.mjs"), str(PORT)], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -25,7 +33,7 @@ async def main():
 
     try:
         async with async_playwright() as p:
-            b = await p.chromium.launch()
+            b = await launch(p)
             errors = []
 
             async def phone(name):
@@ -115,6 +123,33 @@ async def main():
             await family_tab(mum); await mum.wait_for_timeout(400)
             members = await mum.inner_text("#memberList")
             check("Dad" in members and "child’s phone" in members, "Mum sees the members list")
+
+            # backup and restore with the server copy
+            async def backup(pg):
+                await pg.locator("#moreBtn").click(); await pg.locator('[data-go="more/backup"]').click(); await pg.wait_for_timeout(200)
+            await backup(kid)
+            check("cannot restore" in await kid.inner_text("#moreBody") and await kid.locator("#doImp").count() == 0 and await kid.locator("[data-del]").count() == 0,
+                  "A child's phone cannot restore a backup or remove a child")
+            await backup(mum)
+            check("Ilm Track server" in await mum.inner_text("#moreBody") and await mum.locator("#refetch").count() == 1, "Backup says the family copy is on the server")
+            saved = await mum.input_value("#bk")
+            await goals(mum); await mum.locator('[data-tick="ncp-sci-4-5"]').check(); await sync_now(mum)
+            await sync_now(dad); await goals(dad)
+            check(await dad.locator('[data-tick="ncp-sci-4-5"]').is_checked(), "Mum's new tick reaches dad before the restore")
+            await backup(mum); await mum.fill("#imp", saved); await mum.locator("#doImp").click(); await mum.wait_for_timeout(300)
+            check("whole family" in await mum.inner_text("#toast") and "Undo" in await mum.inner_text("#toast"), "Restoring in a family says so and offers Undo")
+            await mum.wait_for_timeout(800); await sync_now(mum); await sync_now(dad); await goals(dad)
+            check(not await dad.locator('[data-tick="ncp-sci-4-5"]').is_checked() and await dad.locator('[data-tick="ncp-sci-4-2"]').is_checked(),
+                  "A parent's restore reaches the other phones")
+            await nav(mum, "home")
+            check("family’s copy" in await mum.inner_text("#appFooter") and "Abul Laith Muhammad Tahir Qadri" in await mum.inner_text("#appFooter"),
+                  "The footer says the family copy is on the server and credits the developer")
+            await backup(dad); await dad.locator("#refetch").click(); await dad.locator("#refetch").click(); await dad.wait_for_timeout(1500)
+            names = await dad.inner_text("#studentSel")
+            check("Aisha" in names and "Downloaded" in await dad.inner_text("#toast"), "Download the family copy again rebuilds the phone from the server")
+            await goals(dad)
+            check(await dad.locator('[data-tick="ncp-sci-4-2"]').is_checked() and not await dad.locator('[data-tick="ncp-sci-4-5"]').is_checked(),
+                  "The downloaded copy has the family's ticks")
 
             check(not errors, "No JavaScript errors" + (": " + "; ".join(errors) if errors else ""))
             await b.close()
