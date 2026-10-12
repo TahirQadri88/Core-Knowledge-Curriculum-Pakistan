@@ -20,7 +20,7 @@ doc = f"""<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0d6b61">
+<meta name="theme-color" content="#0A7A4B">
 <meta name="description" content="What your child should learn each class, with school books, Qur'an, character and daily routine. Works offline.">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -49,8 +49,8 @@ manifest = {
     "start_url": "./",
     "scope": "./",
     "display": "standalone",
-    "background_color": "#f3f6f5",
-    "theme_color": "#0d6b61",
+    "background_color": "#F4F4F1",
+    "theme_color": "#0A7A4B",
     "icons": [
         {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png"},
         {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png"},
@@ -60,7 +60,7 @@ manifest = {
 json.dump(manifest, open(os.path.join(pwa, "manifest.json"), "w"), indent=2)
 
 sw = """/* Ilm Track service worker: cache the app shell for offline use. */
-const CACHE = "ckledger-v20";
+const CACHE = "ckledger-v21";
 const SHELL = ["./", "./index.html", "./manifest.json", "./icons/icon-180.png", "./icons/icon-192.png", "./icons/icon-512.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
@@ -82,18 +82,18 @@ self.addEventListener("fetch", e => {
 open(os.path.join(pwa, "sw.js"), "w").write(sw)
 
 def icon(size, maskable=False):
-    img = Image.new("RGB", (size, size), "#0d6b61" if maskable else "#f3f6f5")
+    img = Image.new("RGB", (size, size), "#0A7A4B" if maskable else "#F4F4F1")
     d = ImageDraw.Draw(img)
     pad = int(size * (0.18 if maskable else 0.08))
     if not maskable:
-        d.rounded_rectangle([pad, pad, size - pad, size - pad], radius=int(size * 0.16), fill="#0d6b61")
+        d.rounded_rectangle([pad, pad, size - pad, size - pad], radius=int(size * 0.16), fill="#0A7A4B")
     inner = pad + int(size * 0.08)
     # ruled lines + margin line, like an exercise copy
     for k in range(4):
         y = inner + int((size - 2 * inner) * (0.2 + 0.2 * k))
-        d.line([inner + int(size * 0.12), y, size - inner, y], fill="#7fcfc2", width=max(2, size // 64))
+        d.line([inner + int(size * 0.12), y, size - inner, y], fill="#6FD8A6", width=max(2, size // 64))
     mx = inner + int(size * 0.08)
-    d.line([mx, inner, mx, size - inner], fill="#e57873", width=max(2, size // 64))
+    d.line([mx, inner, mx, size - inner], fill="#F4A100", width=max(2, size // 64))
     # tick mark
     w = max(4, size // 18)
     a = (inner + int(size * 0.2), inner + int(size * 0.42)); b = (inner + int(size * 0.33), inner + int(size * 0.56)); c = (size - inner - int(size * 0.05), inner + int(size * 0.12))

@@ -56,6 +56,11 @@ All checks were made on 11 October 2026 unless stated.
 - Core Knowledge is now "Extra reading". It has no expected-by-now marker, because it is optional. U.S.-flagged units are hidden by default (`ui.hideUS`, switched on once for existing users by `ui.v = 2`), and hidden units do not count in percentages unless already done. History & Geography units are grouped by region (`HG_REGIONS`, `HG_REGION`; this tracker's grouping): 30 of 73 are about the United States, and 1 (Ancient India) is about South Asia.
 - Tabs became Class goals (first and default; setup lands there), School books, Character & deen, Extra reading, More (Compare, Backup, Sources). Compare now measures each child on their school books.
 
+## Three-colour palette (12 October 2026)
+- The owner asked for a modern three-colour palette, not "AI standard pastel", with text readable in light and dark mode.
+- The palette is emerald (main), saffron (highlight) and ink (neutrals). Badges, the selected class tile and character levels became solid fills instead of soft tints. Errors and Delete use a burnt-orange shade of saffron.
+- Contrast was checked for every text and background pair in both themes: all are at least 4.5:1, and control borders at least 3:1. The icon and theme colour were updated to match.
+
 ## Family sync on Cloudflare instead of Firebase (12 October 2026)
 - The owner asked whether Cloudflare could be the backend, and chose it over the earlier Firebase plan.
   - Reasons: one account, the same address, and higher free limits. D1 allows 100,000 writes a day; Firestore Spark allows 20,000.

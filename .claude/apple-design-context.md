@@ -18,9 +18,22 @@ Read by the hig-* skills before they ask questions.
 - An Urdu interface (right-to-left) is planned. Layout must not break when `dir="rtl"` is set.
 
 ## Existing design system (keep unless the owner asks for a restyle)
-- Tokens at the top of `src/app.html`: `--paper`, `--surface`, `--ink`, `--muted`, `--line`, `--rule`, `--accent` (deep teal), `--margin` (red margin line), semantic `--good`, `--warn`, `--bad`, `--info`, and level colours `--l0`–`--l3`. Light and dark values for each.
-- Type: Bricolage Grotesque (display), Source Sans 3 (body), JetBrains Mono (unit codes).
-- Visual idea: a ruled exercise copy with a red margin line.
+- Three-colour palette chosen by the owner on 12 October 2026 (modern, no pastel tints):
+  - **Emerald** is the main colour: buttons, progress, done, selected tiles. Light `#0A7A4B`, dark `#34D399`.
+  - **Saffron** `#F4A100` is the highlight: the margin line, NOW badge, "Learning" and warnings.
+  - **Ink** is the neutral for text and surfaces. Light text `#121417` on `#F4F4F1`/`#FFFFFF`; dark text `#EEEEEA` on `#0E1012`/`#171A1E`.
+- A burnt-orange shade of saffron (`--bad`) is kept for errors and Delete.
+- Tokens at the top of `src/app.html`:
+  - Surfaces and text: `--paper`, `--surface`, `--ink`, `--muted`, `--line`, `--rule`, `--control-line`.
+  - Main colour: `--accent`, `--accent-ink`, and `--margin` for the margin line.
+  - Status text colours: `--good`, `--warn`, `--bad`, `--info`.
+  - Solid fills with their text colour: `--good-fill`/`--on-good`, `--warn-fill`/`--on-warn`, `--bad-fill`/`--on-bad`, `--info-fill`/`--on-info`.
+  - Neutral notice background: `--tint`.
+  - Character levels: `--l0` to `--l3`, each with its own `-ink` text colour.
+- Status badges are solid fills, not soft tints.
+- Every text/background pair passes WCAG AA (4.5:1) in both themes, and control borders pass 3:1. Recheck the contrast of any new pair before using it.
+- Type: Bricolage Grotesque (display), Source Sans 3 (body), JetBrains Mono (codes).
+- Visual idea: a ruled exercise copy with a saffron margin line.
 
 ## Accessibility requirements
 - WCAG 2.1 AA contrast in both themes.
