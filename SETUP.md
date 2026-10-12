@@ -83,16 +83,11 @@ For each database: open it → **Console** → paste the whole of `server/schema
 
 The server, tables and their tests are in the repository (`server/`, `functions/api/`). Run the server tests any time with `node --test server/test/api.test.js`.
 
-**5.1 Connect the app** (Claude Code builds this part)
-```
-Add family sync to the app as described in notes/backend-plan.md, step 2.
-The Google client ID is <paste it here>. Keep signed-out use working exactly as now.
-Run the server tests and the browser test, bump the cache, then commit and push.
-```
+**5.1 The app side is built.** It reads the Google client ID from the `GOOGLE_CLIENT_ID` variable you set in 4.4, so nothing needs pasting into the code. Family sync appears under **More → Family** on ilmtrack.pages.dev. Tests: `node --test server/test/api.test.js` and `python3 scripts/test_sync.py`.
 
 **5.2 Test with two phones**
-1. Phone 1: open https://ilmtrack.pages.dev, sign in with Google, create the family, add a child.
-2. On phone 1, make a **child code**. On phone 2, open the invite link or type the code.
+1. Phone 1: open https://ilmtrack.pages.dev, set up a child, then **More → Family → Sign in with Google → Create family → Add to the family**.
+2. On phone 1, tap **Child’s phone** to make a code, then **Share link**. On phone 2, open the link and tap **Join family**.
 3. Tick a goal on phone 2 and check it appears on phone 1.
 4. Turn mobile data off on phone 2, tick something, turn data on, and check it reaches phone 1.
 5. On an iPhone, install the app to the home screen and try Google sign-in there too.

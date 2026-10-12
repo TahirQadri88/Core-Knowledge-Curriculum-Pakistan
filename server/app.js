@@ -74,6 +74,9 @@ async function noteFail(DB, ip) {
 }
 
 const routes = {
+  // public settings the app needs before sign-in (the Google client ID is public by design)
+  "GET /api/config": async ({ env }) => json({ google: env.GOOGLE_CLIENT_ID || null }),
+
   "GET /api/me": async ({ DB, user }) => json(user ? await me(DB, user) : { user: null, families: [] }),
 
   "POST /api/auth/google": async ({ DB, env, body, deps }) => {

@@ -28,6 +28,7 @@ Owner: Tahir (Karachi). Users: Pakistani Muslim parents on phones, Sindh Board, 
 - Run locally: `python3 -m http.server 8080 -d docs`, then open http://localhost:8080
 - Test: `python3 scripts/test_app.py` (needs `pip install playwright` and `python -m playwright install chromium`)
 - Check links: `python3 scripts/check_links.py`
+- Sync end-to-end test: `python3 scripts/test_sync.py` (starts `scripts/dev_server.mjs`: the built app plus the real API on Node's SQLite, with a test-only login). Run it after any change to sync, the API or saved data.
 
 After any change: build, run the test, and run the link check if `src/data.js` changed. Do not report a change as done until the test passes.
 
@@ -41,7 +42,7 @@ After any change: build, run the test, and run the link check if `src/data.js` c
 - `BOOK_CHAPTERS` holds chapter lists keyed by the pupil's-book ISBN, each with its Teaching Guide URL. Match the edition exactly (SNC guides for SNC books). Set `check: true` when the guide is an older printing than the book.
 
 ## Rules for the app
-- Vanilla JS, one HTML file, no framework, no build tools beyond `build.py`. Only external request: Google Fonts (cached by the service worker).
+- Vanilla JS, one HTML file, no framework, no build tools beyond `build.py`. External requests: Google Fonts (cached by the service worker), and Google's sign-in script (`accounts.google.com/gsi/client`), loaded only on More → Family when signed out on a site with the sync server. The service worker never caches `/api/`.
 - Saved data lives in localStorage under `ckledger.v1`. New student fields must get defaults in `fix()` so old backups still load. Backups must stay restorable.
 - When `docs/` content changes, bump `CACHE` in the service worker string inside `build.py` (e.g. `ckledger-v3`) so installed copies update.
 - Mobile first: must work at 400px wide with no horizontal scroll. Light and dark themes via the CSS tokens at the top of `src/app.html`; no literal colours in components.
@@ -67,6 +68,7 @@ After any change: build, run the test, and run the link check if `src/data.js` c
 - Plan and safety rules: `notes/backend-plan.md`. Code: `server/app.js`, `server/auth.js`, tables `server/schema.sql`, entry `functions/api/[[path]].js`.
 - Tests: `node --test server/test/api.test.js` (Node 22+, no installs; `server/test/d1.js` stands in for D1). Any server change must keep every test passing and add tests for new cases.
 - Offline-first: localStorage stays the main copy; sync is added on top and only when signed in. Signed-out use must keep working, and on the GitHub Pages address (no `/api`).
+- App side (in `src/app.html`, "Family sync"): changes are found by comparing each child with a snapshot of what was last synced (`ckledger.sync` in localStorage), so new fields need adding to `flat()` and `applyPull()` to sync. Every `save()` schedules a sync; sync's own writes use `localSave()`. The Google client ID comes from `/api/config`, never from the code.
 - Every route that touches family data checks membership and role. Child phones may change only `s:`, `n:`, `r:` and `q:` marks. The owner cannot be removed. Use bound SQL parameters only.
 - One row per tick in `marks`, so phones never overwrite each other's different changes. Schema changes must be additive (new tables or columns), never dropping data; add the SQL to `server/schema.sql` and tell the owner to run it in the D1 console.
 - Bindings (`DB`, `GOOGLE_CLIENT_ID`) live in the Cloudflare dashboard, not in a `wrangler.toml`. The Google client ID is public; there are no secrets. Never commit API tokens, keys or `.env` files.

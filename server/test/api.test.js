@@ -208,6 +208,11 @@ test("bad input is rejected", async () => {
   assert.equal(doc.secret, undefined); assert.equal(doc.name, "Hamza");
 });
 
+test("config gives the app the public Google client ID", async () => {
+  const w = world();
+  assert.deepEqual((await w.phone().get("/api/config")).body, { google: CLIENT_ID });
+});
+
 test("without a database the site says sync is not set up", async () => {
   const r = await handle(new Request(ORIGIN + "/api/me"), {});
   assert.equal(r.status, 503);

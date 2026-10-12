@@ -41,7 +41,9 @@ Chosen by the owner on 12 October 2026 instead of the earlier Firebase plan: one
   - `v = NULL` means removed.
 
 ## Sync
-- The phone's localStorage stays the main copy. Each change is saved on the phone first and queued.
+- The phone's localStorage stays the main copy. Each change is saved on the phone first. The app finds what changed by comparing every child with a snapshot of what was last synced (`ckledger.sync`), so no edit can be missed.
+- When a phone joins or creates a family, its first sync only downloads. After that it sends its own changes, so an old copy never overwrites newer family data.
+- A child's phone sends only ticks, notes, Qur'an marks and routine ticks. Its other changes stay on that phone.
 - `POST /api/sync { family, since, children, marks }`: the server applies the phone's queued changes, then returns every child and mark changed after `since`, plus a new `cursor`.
 - The server stamps each write with its own clock, and the last write to arrive wins. More than 5,000 changed rows come back in pages (`more: true`).
 - Sync runs when the app opens, when it comes back to the foreground, after changes (batched), and every few minutes while open.
@@ -93,6 +95,6 @@ Chosen by the owner on 12 October 2026 instead of the earlier Firebase plan: one
 
 ## Order of work
 1. Done: server, tables and tests (no app change).
-2. App: sign-in, family, invites and sync status in the header; a Family section under More; a sync queue in localStorage.
+2. Done: the app side. It has a Family section under More, sync status in the header, the Google client ID read from `/api/config`, and snapshot-based change detection. It is tested end to end with `scripts/test_sync.py`.
 3. Owner setup in Cloudflare and Google (SETUP.md section 4), then a live test on two phones, one of them an installed iPhone app.
 4. Later, optional: delete a user's own account; export all family data as a file.

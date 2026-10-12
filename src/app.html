@@ -204,7 +204,8 @@ th{font-size:.85rem;color:var(--muted)}
 .toast:not(:has(button)){padding-inline-end:14px}
 .toast[hidden]{display:none}
 .toast button{flex:none;border:1px solid var(--paper);background:none;color:var(--paper);border-radius:6px;font-weight:700;min-height:var(--tap);min-width:var(--tap);padding:0 12px}
-.subnav{max-width:30rem}
+.subnav{max-width:34rem}
+.sync-chip{border-radius:999px;font-size:.85rem}
 .steps{display:grid;gap:4px;margin:0;padding-inline-start:1.4rem;max-width:65ch}
 .goal > summary{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 12px;min-height:var(--tap);padding-block:8px;padding-inline:16px 12px;cursor:pointer;list-style:none;background:var(--paper)}
 .goal > summary::-webkit-details-marker{display:none}
@@ -248,6 +249,7 @@ footer{font-size:.85rem;color:var(--muted);max-width:70ch}
       <select id="studentSel" class="btn"></select>
       <button class="btn" id="addStudent">Add child</button>
       <button class="btn primary" id="installBtn" hidden>Install app</button>
+      <button class="btn small sync-chip" id="syncChip" hidden>Sync</button>
     </div>
   </header>
 
@@ -346,7 +348,9 @@ function load() {
 let state = load();
 let viewGrade = null, bookClass = null, goalClass = null;
 const openRows = new Set();
-function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+function localSave() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+/* every save also schedules a family sync a few seconds later (does nothing when not in a family) */
+function save() { localSave(); clearTimeout(syncT); syncT = setTimeout(() => syncNow(), 2500); }
 const cur = () => state.students.find(s => s.id === state.active) || state.students[0];
 
 /* ---------- maths ---------- */
@@ -521,14 +525,14 @@ function render() {
 
 /* ---------- More tab: Compare, Backup and Sources ---------- */
 function renderMore() {
-  const sub = ["compare", "sources"].includes(state.ui.more) ? state.ui.more : "backup";
+  const sub = ["family", "compare", "sources"].includes(state.ui.more) ? state.ui.more : "backup";
   $("#view").innerHTML = `<div class="stack">
-    <div class="seg subnav" role="group" aria-label="More">${[["compare", "Compare"], ["backup", "Backup"], ["sources", "Sources"]].map(([k, l]) =>
+    <div class="seg subnav" role="group" aria-label="More">${[["family", "Family"], ["compare", "Compare"], ["backup", "Backup"], ["sources", "Sources"]].map(([k, l]) =>
       `<button data-more="${k}" aria-pressed="${k === sub}">${l}</button>`).join("")}</div>
     <div id="moreBody"></div></div>`;
   document.querySelectorAll("[data-more]").forEach(b => b.addEventListener("click", () => {
     state.ui.more = b.dataset.more; save(); renderMore(); document.querySelector(`[data-more="${b.dataset.more}"]`).focus(); }));
-  ({ compare: renderCompare, sources: renderSources, backup: renderBackup }[sub])();
+  ({ family: renderFamily, compare: renderCompare, sources: renderSources, backup: renderBackup }[sub])();
 }
 
 function gradeStrip(sel, statFn, attr) {
@@ -1054,14 +1058,14 @@ function renderBackup() {
       <div class="actions"><button class="btn primary" id="copyBk">Copy backup</button>${canDownload ? '<button class="btn" id="dlBk">Download file</button>' : ""}</div>
     </section>
     <section class="panel"><h2>Restore</h2>
-      <p class="hint">Paste a backup or choose a backup file. Restoring replaces every child on this device.</p>
+      <p class="hint">Paste a backup or choose a backup file. Restoring replaces every child on this device${inFamily() ? ", and in your family on every phone" : ""}.</p>
       <label class="label" for="imp">Paste backup</label><textarea id="imp" placeholder='{"app":"ckledger", ...}'></textarea>
       <div class="actions"><button class="btn primary" id="doImp">Restore from text</button><label class="btn" for="impFile">Choose file</label><input type="file" id="impFile" accept=".json,application/json" hidden></div>
       <p id="impMsg" class="hint"></p>
     </section>
     <section class="panel"><h2>Remove a child</h2>
       <div class="actions">${state.students.map(s => `<button class="btn small danger" data-del="${s.id}">${esc(s.name)}</button>`).join("")}</div>
-      <p id="delMsg" class="hint">Tap a name, then tap it again to confirm.</p>
+      <p id="delMsg" class="hint">Tap a name, then tap it again to confirm.${inFamily() ? " This also removes the child from your family on every phone." : ""}</p>
     </section></div>`;
   $("#copyBk").addEventListener("click", () => { const t = $("#bk");
     if (navigator.clipboard?.writeText) navigator.clipboard.writeText(t.value).then(() => toast("Backup copied"), () => { t.select(); toast("Select all and copy"); });
@@ -1070,7 +1074,7 @@ function renderBackup() {
     a.download = "ilmtrack-backup-" + today() + ".json"; document.body.appendChild(a); a.click(); a.remove(); toast("Download started"); } catch (e) { toast("Download not available here; use Copy"); } });
   const restore = txt => { try { const d = JSON.parse(txt); const s = { students: d.students };
       if (!valid(s)) throw new Error("shape"); s.students.forEach(fix);
-      state.students = s.students; state.active = s.students[0].id; viewGrade = bookClass = goalClass = null; save(); fillStudent(); state.ui.tab = "books"; render(); toast("Restored " + s.students.length + " student(s)"); }
+      state.students = s.students; state.active = s.students[0].id; viewGrade = bookClass = goalClass = null; save(); fillStudent(); state.ui.tab = "books"; render(); toast(`Restored ${s.students.length} ${s.students.length === 1 ? "child" : "children"}`); }
     catch (e) { $("#impMsg").textContent = "That text is not an Ilm Track backup. Copy the whole backup, from the first { to the last }."; } };
   $("#doImp").addEventListener("click", () => restore($("#imp").value));
   $("#impFile").addEventListener("change", e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => restore(r.result); r.readAsText(f); });
@@ -1084,7 +1088,224 @@ function renderBackup() {
   }));
 }
 
-fillStudent(); render();
+/* ---------- Family sync (only where the /api server exists: ilmtrack.pages.dev). See notes/backend-plan.md ----------
+   This phone's localStorage stays the main copy. Changes are found by comparing each child with a snapshot of what
+   was last synced, so nothing has to remember to "queue" an edit. Each sync sends this phone's changes, then applies
+   everything other phones changed since the last cursor. */
+const SYNC_KEY = "ckledger.sync";
+const CHILD_KINDS = ["s", "n", "q", "r"];
+let sync = (() => { try { return JSON.parse(localStorage.getItem(SYNC_KEY)) || {}; } catch (e) { return {}; } })();
+const net = { ok: null, me: null, google: null, busy: false, err: "", gsi: false };
+let syncT, invite = null, pendingCode = "";
+const saveSync = () => { try { localStorage.setItem(SYNC_KEY, JSON.stringify(sync)); } catch (e) {} };
+const inFamily = () => !!(net.ok && net.me?.user && sync.family);
+const famInfo = () => net.me?.families?.find(f => f.id === sync.family);
+async function api(path, body) {
+  const r = await fetch("/api/" + path, body === undefined ? { credentials: "same-origin", cache: "no-store" }
+    : { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json", "X-Ilm": "1" }, body: JSON.stringify(body) });
+  let j = {}; try { j = await r.json(); } catch (e) {}
+  if (!r.ok) { const e = new Error(j.error || "Could not reach the server"); e.status = r.status; throw e; }
+  return j;
+}
+/* one child as a document (details) plus marks (one per tick, note, level, surah, routine tick) */
+function flat(st) {
+  const doc = { name: st.name, age: st.age ?? null, grade: st.grade, start: st.start, track: st.track, custom: st.custom, books: st.books, ccustom: st.ccustom,
+    quran: { read: st.quran.read, khatm: st.quran.khatm }, routine: { items: st.routine.items } };
+  const m = {};
+  for (const [k, v] of Object.entries(st.status)) m["s:" + k] = v;
+  for (const [k, v] of Object.entries(st.notes)) m["n:" + k] = v;
+  for (const [k, v] of Object.entries(st.cv)) m["cv:" + k] = v;
+  for (const [k, v] of Object.entries(st.quran.h)) m["q:" + k] = v;
+  for (const [d, ids] of Object.entries(st.routine.days)) for (const id of ids) m[`r:${d}:${id}`] = 1;
+  return { doc: JSON.stringify(doc), marks: Object.fromEntries(Object.entries(m).filter(([k]) => /^(s|n|cv|q|r):[A-Za-z0-9_.:-]{1,90}$/.test(k)).map(([k, v]) => [k, JSON.stringify(v)])) };
+}
+const syncable = st => !st.sample && !st.example && !st.nosync && !(sync.ask && !sync.snap?.docs?.[st.id]);
+function changes() {
+  const snap = sync.snap || { docs: {}, marks: {} }, child = sync.role === "child", out = { children: [], marks: [] };
+  const local = state.students.filter(syncable);
+  for (const st of local) {
+    const f = flat(st);
+    if (!child && snap.docs[st.id] !== f.doc) out.children.push({ id: st.id, doc: JSON.parse(f.doc) });
+    for (const [k, v] of Object.entries(f.marks)) if (snap.marks[st.id + "|" + k] !== v && (!child || CHILD_KINDS.includes(k.split(":")[0]))) out.marks.push({ c: st.id, k, v: JSON.parse(v) });
+    for (const key of Object.keys(snap.marks)) { const [c, k] = [key.slice(0, key.indexOf("|")), key.slice(key.indexOf("|") + 1)];
+      if (c === st.id && !(k in f.marks) && (!child || CHILD_KINDS.includes(k.split(":")[0]))) out.marks.push({ c, k, v: null }); }
+  }
+  if (!child) for (const id of Object.keys(snap.docs)) if (!state.students.some(s => s.id === id)) out.children.push({ id, deleted: true });
+  return out;
+}
+function remember(ch) {
+  const snap = sync.snap ||= { docs: {}, marks: {} };
+  for (const c of ch.children) { if (c.deleted) { delete snap.docs[c.id]; for (const k of Object.keys(snap.marks)) if (k.startsWith(c.id + "|")) delete snap.marks[k]; } else snap.docs[c.id] = JSON.stringify(c.doc); }
+  for (const m of ch.marks) { const key = m.c + "|" + m.k; if (m.v === null) delete snap.marks[key]; else snap.marks[key] = JSON.stringify(m.v); }
+}
+function setMark(st, k, v) {
+  const [kind, ...rest] = k.split(":"); const id = rest.join(":");
+  const box = { s: st.status, n: st.notes, cv: st.cv, q: st.quran.h }[kind];
+  if (box) { if (v === null) delete box[id]; else box[id] = v; return; }
+  if (kind === "r") { const d = rest[0], it = rest.slice(1).join(":"); const set = new Set(st.routine.days[d] || []);
+    v === null ? set.delete(it) : set.add(it); if (set.size) st.routine.days[d] = [...set]; else delete st.routine.days[d]; }
+}
+function applyPull(res) {
+  let n = 0;
+  for (const c of res.children) {
+    const at = state.students.findIndex(s => s.id === c.id);
+    if (c.deleted) { if (at >= 0) { state.students.splice(at, 1); n++; } remember({ children: [{ id: c.id, deleted: true }], marks: [] }); continue; }
+    const st = at >= 0 ? state.students[at] : newStudent(c.doc.name, null, c.doc.grade, false);
+    if (at < 0) { st.id = c.id; state.students.push(st); }
+    const { quran, routine, ...rest } = c.doc; Object.assign(st, rest);
+    if (quran) { st.quran.read = quran.read ?? ""; st.quran.khatm = quran.khatm ?? 0; }
+    if (routine?.items) st.routine.items = routine.items;
+    fix(st); st.example = st.sample = false; n++;
+    remember({ children: [{ id: c.id, doc: JSON.parse(flat(st).doc) }], marks: [] });
+  }
+  for (const m of res.marks) { const st = state.students.find(s => s.id === m.c); if (!st) continue; setMark(st, m.k, m.v); remember({ children: [], marks: [m] }); n++; }
+  if (n && state.students.some(s => !s.sample && !s.example)) state.students = state.students.filter(s => !s.sample && !s.example);
+  if (!state.students.length) state.students.push(newStudent("Child 1", null, 2, false));
+  if (!state.students.some(s => s.id === state.active)) state.active = state.students[0].id;
+  return n;
+}
+function chip() {
+  const c = $("#syncChip"); if (!c) return;
+  c.hidden = !inFamily();
+  c.textContent = net.busy ? "Syncing…" : !navigator.onLine ? "Offline" : net.err ? "Not synced" : sync.at ? "Synced" : "Sync";
+  c.setAttribute("aria-label", `Family sync: ${c.textContent}. Open Family`);
+}
+async function syncNow() {
+  if (!inFamily() || net.busy) return chip();
+  if (!navigator.onLine) { net.err = "Offline. Changes are saved on this phone and will sync later."; return chip(); }
+  net.busy = true; net.err = ""; chip();
+  let pulled = 0, again = false;
+  try {
+    for (let round = 0, more = true; more && round < 20; round++) {
+      const ch = sync.fresh || round ? { children: [], marks: [] } : changes();
+      const res = await api("sync", { family: sync.family, since: sync.cursor || 0, ...ch });
+      remember(ch); pulled += applyPull(res);
+      sync.cursor = res.cursor; sync.role = res.role; more = res.more;
+    }
+    again = !!sync.fresh;   // after the first full download, send this phone's own changes
+    sync.fresh = false; sync.at = Date.now(); saveSync(); localSave();
+  } catch (e) {
+    if (e.status === 401) { net.me = { user: null, families: [] }; net.err = "Signed out. Sign in again under More, then Family."; }
+    else if (e.status === 404) { net.err = "This phone is no longer in that family."; sync = {}; saveSync(); }
+    else net.err = e.status === 403 ? e.message : "Could not sync. Changes are saved on this phone and will sync later.";
+  } finally { net.busy = false; chip(); }
+  const typing = document.activeElement?.matches?.("#view input:not([type=checkbox]), #view textarea, #view select");
+  if (pulled) fillStudent();   // the child list in the header is safe to refresh even while typing
+  if (!typing) { if (pulled) render(); else if (state.ui.tab === "more" && state.ui.more === "family") renderFamily(); }
+  if (again) return syncNow();
+}
+function attach(familyId) {
+  const hasLocal = state.students.some(s => !s.sample && !s.example);
+  const role = net.me?.families?.find(f => f.id === familyId)?.role;
+  sync = { family: familyId, cursor: 0, snap: { docs: {}, marks: {} }, fresh: true, ask: hasLocal && role !== "child" };
+  if (role === "child") state.students.forEach(s => { if (!s.sample && !s.example) s.nosync = true; });
+  saveSync(); localSave(); syncNow();
+}
+function pickFamily() {
+  const fams = net.me?.families || [];
+  if (sync.family && !fams.some(f => f.id === sync.family)) { sync = {}; saveSync(); }
+  if (!sync.family && fams.length === 1) attach(fams[0].id);
+}
+async function initSync() {
+  if (!/^https?:$/.test(location.protocol)) { net.ok = false; return; }
+  const m = location.hash.match(/^#join=([A-Za-z0-9-]{5,20})$/);
+  if (m) { pendingCode = m[1]; history.replaceState(null, "", location.pathname + location.search); state.ui.tab = "more"; state.ui.more = "family"; render(); }
+  try { net.me = await api("me"); net.ok = true; } catch (e) { net.ok = false; net.err = e.status === 503 ? "Family sync is not switched on for this site yet." : ""; }
+  if (net.ok) { try { net.google = (await api("config")).google; } catch (e) {} pickFamily(); syncNow(); }
+  chip(); if (state.ui.tab === "more" && state.ui.more === "family") renderFamily();
+}
+function loadGsi(done) {
+  if (window.google?.accounts?.id) return done();
+  if (net.gsi) return; net.gsi = true;
+  const s = document.createElement("script"); s.src = "https://accounts.google.com/gsi/client"; s.async = true;
+  s.onload = done; s.onerror = () => { net.gsi = false; const el = $("#gsi"); if (el) el.textContent = "Google sign-in could not load. Check the connection and try again."; };
+  document.head.append(s);
+}
+async function signedIn(res) { net.me = res; net.err = ""; pickFamily(); renderFamily(); chip(); }
+
+function renderFamily() {
+  const box = $("#moreBody"); if (!box) return;
+  const me = net.me, fam = famInfo(), parent = fam?.role === "parent";
+  const codeForm = `<form id="joinForm" class="stack-s"><div class="field"><label class="label" for="joinCode">Family code</label>
+      <input id="joinCode" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="12" placeholder="K7QXM-4TPRA" value="${esc(pendingCode)}" class="search" style="width:100%;font-family:var(--f-mono)"></div>
+      <div class="actions"><button class="btn primary">Join family</button></div></form>`;
+  let body;
+  if (net.ok === null) body = `<section class="panel"><p class="muted">Checking…</p></section>`;
+  else if (!net.ok) body = `<section class="panel"><h2>Family sync</h2><p style="max-width:65ch">${net.err ? esc(net.err) : "This copy of the app keeps everything on this phone."} To share progress between parents’ and children’s phones, open <a href="https://ilmtrack.pages.dev">ilmtrack.pages.dev</a>.</p>
+      <p class="hint">Backups under More, then Backup, work everywhere.</p></section>`;
+  else if (!me?.user) body = `<section class="panel"><h2>Share progress between phones</h2>
+      <p style="max-width:65ch">Sign in once and every parent’s and child’s phone shows the same ticks, Qur’an and routine. The app keeps working without internet and catches up when you are back online.</p>
+      <div id="gsi" style="min-height:var(--tap)">${net.google ? "" : '<p class="hint">Google sign-in is not set up on this site yet.</p>'}</div>
+      <p class="hint">Parents sign in with Google. We keep your name, email and your children’s progress, nothing else. No ads.</p></section>
+    <section class="panel"><h2>Joining from a child’s phone?</h2><p class="hint">Ask a parent for a family code (More, then Family, then Add a phone). No Google account is needed.</p>${codeForm}</section>`;
+  else if (!fam) body = `<section class="panel"><h2>Assalamu alaikum, ${esc(me.user.name)}</h2>
+      ${(me.families || []).length > 1 ? `<p>Choose a family for this phone:</p><div class="actions">${me.families.map(f => `<button class="btn" data-pickfam="${f.id}">${esc(f.name)}</button>`).join("")}</div>` : ""}
+      ${me.user.kind === "google" ? `<form id="famForm" class="stack-s"><div class="field"><label class="label" for="famName">Start a family</label><input id="famName" maxlength="60" value="${esc(me.user.name)}’s family"></div>
+        <div class="actions"><button class="btn primary">Create family</button></div></form>` : ""}</section>
+    <section class="panel"><h2>Join with a code</h2><p class="hint">For a second parent or a child’s phone. Ask the parent who started the family.</p>${codeForm}</section>
+    <section class="panel"><div class="actions"><button class="btn" id="signOut">Sign out</button></div></section>`;
+  else {
+    const when = sync.at ? new Date(sync.at).toLocaleString("en-GB", { hour: "numeric", minute: "2-digit", day: "numeric", month: "short" }) : "not yet";
+    body = `<section class="panel"><h2>${esc(fam.name)}</h2>
+        <p>${esc(me.user.name)} · ${fam.role === "parent" ? (fam.owner ? "parent, started this family" : "parent") : "child’s phone"}</p>
+        <p class="${net.err ? "notice us" : "hint"}" role="status">${net.busy ? "Syncing…" : net.err ? esc(net.err) : `Synced ${esc(when)}.`}</p>
+        <div class="actions"><button class="btn primary" id="syncBtn">Sync now</button></div>
+        ${fam.role === "child" ? `<p class="hint">On a child’s phone, ticks, notes, Qur’an and routine sync. Other changes stay on this phone.</p>` : ""}</section>
+      ${sync.ask ? `<section class="panel"><h2>Add this phone’s children to the family?</h2>
+        <p>${state.students.filter(s => !s.sample && !s.example && !sync.snap?.docs?.[s.id]).map(s => esc(s.name)).join(", ")} ${state.students.filter(s => !s.sample && !s.example && !sync.snap?.docs?.[s.id]).length === 1 ? "is" : "are"} only on this phone.</p>
+        <div class="actions"><button class="btn primary" id="askYes">Add to the family</button><button class="btn" id="askNo">Keep on this phone only</button></div></section>` : ""}
+      ${parent ? `<section class="panel"><h2>Add a phone</h2>
+        <p class="hint">Make a code, then open the link or type the code on the other phone. A code works once, for 7 days.</p>
+        <div class="actions"><button class="btn primary" data-invite="child">Child’s phone</button><button class="btn" data-invite="parent">Another parent</button></div>
+        ${invite ? `<div class="stack-s" id="inviteBox"><p class="label">${invite.role === "parent" ? "Parent code (they sign in with Google first)" : "Child’s phone code"}</p>
+          <p class="mono" style="font-size:1.6rem;letter-spacing:.08em" id="inviteCode">${esc(invite.code)}</p>
+          <p class="hint" style="overflow-wrap:anywhere">${esc(location.origin)}/#join=${esc(invite.code)}</p>
+          <div class="actions"><button class="btn" id="shareInvite">${navigator.share ? "Share link" : "Copy link"}</button></div></div>` : ""}
+        <div class="actions"><button class="btn small" id="cancelInv">Cancel unused codes</button></div></section>
+        <section class="panel"><h2>Members</h2><ul class="srclist" id="memberList"><li class="muted">Loading…</li></ul></section>` : ""}
+      <section class="panel"><div class="actions">
+        ${fam.owner ? `<button class="btn danger" id="delFam">Delete family from the server</button>` : `<button class="btn" id="leaveFam">Leave this family</button>`}
+        <button class="btn" id="signOut">Sign out</button></div>
+        <p class="hint" id="famMsg">Leaving, signing out or deleting keeps everything on this phone.</p></section>`;
+  }
+  box.innerHTML = `<div class="stack">${body}</div>`;
+  const done = (msg) => { renderFamily(); chip(); if (msg) toast(msg); };
+  const fail = e => toast(e.message || "Something went wrong");
+  if ($("#gsi") && net.google) loadGsi(() => { const el = $("#gsi"); if (!el) return;
+    google.accounts.id.initialize({ client_id: net.google, callback: r => api("auth/google", { credential: r.credential }).then(signedIn).catch(fail) });
+    google.accounts.id.renderButton(el, { type: "standard", theme: matchMedia("(prefers-color-scheme: dark)").matches ? "filled_black" : "outline", size: "large", text: "signin_with", shape: "pill" }); });
+  $("#joinForm")?.addEventListener("submit", e => { e.preventDefault(); const code = $("#joinCode").value.trim(); if (!code) return $("#joinCode").focus();
+    api("join", { code, name: (state.students.find(s => !s.sample && !s.example)?.name || "Child") + "’s phone" })
+      .then(res => { pendingCode = ""; net.me = res; attach(res.family); done("Joined the family"); }).catch(fail); });
+  $("#famForm")?.addEventListener("submit", e => { e.preventDefault(); api("family", { name: $("#famName").value }).then(res => { net.me = res; attach(res.family); done("Family created"); }).catch(fail); });
+  document.querySelectorAll("[data-pickfam]").forEach(b => b.addEventListener("click", () => { attach(b.dataset.pickfam); done(); }));
+  $("#syncBtn")?.addEventListener("click", () => syncNow().then(() => renderFamily()));
+  $("#askYes")?.addEventListener("click", () => { sync.ask = false; saveSync(); syncNow(); done("Adding to the family"); });
+  $("#askNo")?.addEventListener("click", () => { state.students.forEach(s => { if (!sync.snap?.docs?.[s.id]) s.nosync = true; }); sync.ask = false; saveSync(); localSave(); done("Kept on this phone only"); });
+  document.querySelectorAll("[data-invite]").forEach(b => b.addEventListener("click", () => api("invite", { family: sync.family, role: b.dataset.invite })
+    .then(r => { invite = r; renderFamily(); $("#inviteCode")?.focus?.(); announce("Code " + r.code.split("").join(" ")); }).catch(fail)));
+  $("#shareInvite")?.addEventListener("click", () => { const link = `${location.origin}/#join=${invite.code}`, text = `Join our family on Ilm Track: ${link} (code ${invite.code})`;
+    if (navigator.share) navigator.share({ title: "Ilm Track", text }).catch(() => {}); else navigator.clipboard?.writeText(text).then(() => toast("Link copied"), () => toast("Copy the link above")); });
+  $("#cancelInv")?.addEventListener("click", () => api("invites/cancel", { family: sync.family }).then(() => { invite = null; done("Unused codes cancelled"); }).catch(fail));
+  if ($("#memberList")) api("members", { family: sync.family }).then(r => { const ul = $("#memberList"); if (!ul) return;
+    ul.innerHTML = r.members.map(m => `<li>${esc(m.name)} <span class="muted">· ${m.role === "parent" ? "parent" : "child’s phone"}${m.owner ? ", started the family" : ""}${m.you ? ", this phone" : ""}</span>
+      ${!m.owner && !m.you ? `<button class="btn small danger" data-rm="${m.id}" aria-label="Remove ${esc(m.name)}">Remove</button>` : ""}</li>`).join("");
+    ul.querySelectorAll("[data-rm]").forEach(b => b.addEventListener("click", () => api("members/remove", { family: sync.family, user: b.dataset.rm }).then(() => done("Removed")).catch(fail))); }).catch(() => {});
+  const leaveLocal = msg => { sync = {}; saveSync(); invite = null; done(msg); };
+  $("#leaveFam")?.addEventListener("click", () => api("members/remove", { family: sync.family, user: net.me.user.id }).then(() => api("me")).then(r => { net.me = r; leaveLocal("Left the family. Everything stays on this phone."); }).catch(fail));
+  let armed = false;
+  $("#delFam")?.addEventListener("click", () => { if (!armed) { armed = true; $("#famMsg").textContent = "Tap Delete again to remove the family and all its progress from the server, for every phone. This phone keeps its copy."; return; }
+    api("family/delete", { family: sync.family }).then(() => api("me")).then(r => { net.me = r; leaveLocal("Family deleted from the server"); }).catch(fail); });
+  $("#signOut")?.addEventListener("click", () => api("auth/logout", {}).catch(() => {}).then(() => { try { window.google?.accounts?.id?.disableAutoSelect(); } catch (e) {}
+    net.me = { user: null, families: [] }; leaveLocal("Signed out. Everything stays on this phone."); }));
+}
+
+addEventListener("online", () => syncNow());
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") syncNow(); });
+setInterval(() => { if (document.visibilityState === "visible") syncNow(); }, 180e3);
+$("#syncChip").addEventListener("click", () => { state.ui.tab = "more"; state.ui.more = "family"; save(); render(); $("#view").focus(); });
+
+fillStudent(); render(); initSync();
 if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol) && document.querySelector('link[rel="manifest"]')) {
   navigator.serviceWorker.register("sw.js").catch(() => {});
 }

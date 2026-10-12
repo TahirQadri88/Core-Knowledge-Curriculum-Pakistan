@@ -144,6 +144,9 @@ async def main():
         await pg.locator("#tab-more").click(); await pg.wait_for_timeout(100)
         await pg.locator('[data-more="compare"]').click(); await pg.wait_for_timeout(100)
         check("Children this year" in await pg.inner_text("#moreBody"), "Compare sits under More")
+        await pg.locator('[data-more="family"]').click(); await pg.wait_for_timeout(300)
+        check("ilmtrack.pages.dev" in await pg.inner_text("#moreBody") and await pg.locator("#syncChip").is_hidden(),
+              "Without the sync server, Family explains where sync works and no sync status shows")
         await pg.locator('[data-more="sources"]').click(); await pg.wait_for_timeout(100)
         check(await pg.locator("#moreBody h2").count() >= 1, "More tab shows Sources")
         await pg.locator('[data-more="backup"]').click(); await pg.wait_for_timeout(100)

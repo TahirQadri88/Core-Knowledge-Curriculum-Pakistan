@@ -56,6 +56,16 @@ All checks were made on 11 October 2026 unless stated.
 - Core Knowledge is now "Extra reading". It has no expected-by-now marker, because it is optional. U.S.-flagged units are hidden by default (`ui.hideUS`, switched on once for existing users by `ui.v = 2`), and hidden units do not count in percentages unless already done. History & Geography units are grouped by region (`HG_REGIONS`, `HG_REGION`; this tracker's grouping): 30 of 73 are about the United States, and 1 (Ancient India) is about South Asia.
 - Tabs became Class goals (first and default; setup lands there), School books, Character & deen, Extra reading, More (Compare, Backup, Sources). Compare now measures each child on their school books.
 
+## Family sync in the app (12 October 2026)
+- More → Family:
+  - Sign in with Google (parents), or join with a family code (children's phones, no account).
+  - Create a family, add a phone (child or parent code with a share link), see and remove members.
+  - Leave the family, delete it (owner), or sign out. Leaving, deleting and signing out all keep the phone's copy.
+- The header shows a sync status button ("Synced", "Syncing…", "Offline") when the phone is in a family.
+- Creating or joining a family asks before uploading children that are only on this phone ("Add to the family" or "Keep on this phone only").
+- The service worker now skips `/api/` so sync never reads a cached answer. Google's sign-in script loads only on the Family screen.
+- Tested end to end with three simulated phones (mum, child, dad), including offline catch-up: `scripts/test_sync.py`.
+
 ## Three-colour palette (12 October 2026)
 - The owner asked for a modern three-colour palette, not "AI standard pastel", with text readable in light and dark mode.
 - The palette is indigo (main), saffron (highlight) and ink (neutrals). Emerald was tried first; the owner asked to try another main colour, and also asked for visible, coloured tabs. The tab bar now stays pinned at the top while scrolling, with the current tab filled indigo. Badges, the selected class tile and character levels became solid fills instead of soft tints. Errors and Delete use a burnt-orange shade of saffron.
